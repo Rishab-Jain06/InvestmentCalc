@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Stock Research — Investify{% endblock %}
+{% block content %}
+<section class="page-head narrow"><p class="eyebrow">STOCK RESEARCH</p><h1>Open a research page</h1><p class="sub">Enter any supported U.S. equity or ETF ticker.</p></section>
+<form id="ticker-form" class="search-shell standalone">
+  <span class="search-icon">⌕</span><input id="ticker" placeholder="Ticker — e.g. AAPL" required><button>Open</button>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/home.js') }}"></script>{% endblock %}

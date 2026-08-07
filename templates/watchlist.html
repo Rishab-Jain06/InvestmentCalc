@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Watchlist — Investify{% endblock %}
+{% block content %}
+<section class="page-head"><p class="eyebrow">WATCHLIST</p><h1>Your research list</h1><p class="sub">Stored locally in this browser — no account required.</p></section>
+<div class="watch-toolbar"><input id="watch-input" placeholder="Add ticker"><button id="watch-add">Add</button></div>
+<div id="watch-grid" class="market-grid"></div>
+<div id="watch-empty" class="empty-state hidden">No symbols yet. Add SPY, QQQ or any ticker above.</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/watchlist.js') }}"></script>{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Options Lab — Investify{% endblock %}
+{% block content %}
+<section class="page-head options-page-head">
+  <div><p class="eyebrow">OPTIONS LAB</p><h1>Find the setup.</h1><p class="sub">Filter single legs and verticals, then inspect pricing, Greeks, liquidity, trend context and expiration payoff.</p></div>
+  <div class="data-pill">Yahoo Finance · Personal research</div>
+</section>
+<div id="options-error" class="error hidden"></div>
+
+<section class="options-workspace">
+  <aside class="filters-card card scroll-panel">
+    <div class="field">
+      <label>Ticker</label>
+      <div class="input-with-button"><input id="opt-symbol" value="SPY" maxlength="12"><button id="load-options">Load</button></div>
+    </div>
+
+    <div class="field">
+      <label>Strategy type</label>
+      <div class="segmented" id="strategy-type">
+        <button class="active" data-value="single">Single Leg</button>
+        <button data-value="vertical">Vertical Spread</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Direction</label>
+      <div class="segmented direction-toggle" id="direction">
+        <button class="active bullish" data-value="bullish">Bullish</button>
+        <button class="bearish" data-value="bearish">Bearish</button>
+      </div>
+    </div>
+
+    <div class="field"><label>Strategy</label>
+      <div class="strategy-grid" id="single-strategies">
+        <button class="active" data-direction="bullish" data-value="buy_call">Buy Call</button>
+        <button data-direction="bullish" data-value="sell_put">Sell Put</button>
+        <button data-direction="bullish" data-value="cash_secured_put">Cash Secured Put</button>
+        <button class="hidden" data-direction="bearish" data-value="buy_put">Buy Put</button>
+        <button class="hidden" data-direction="bearish" data-value="sell_call">Sell Call</button>
+        <button class="hidden" data-direction="bearish" data-value="covered_call">Covered Call</button>
+      </div>
+      <div class="strategy-grid hidden" id="vertical-strategies">
+        <button class="active" data-direction="bullish" data-value="call_debit">Call Debit</button>
+        <button data-direction="bullish" data-value="put_credit">Put Credit</button>
+        <button data-direction="bearish" data-value="call_credit">Call Credit</button>
+        <button data-direction="bearish" data-value="put_debit">Put Debit</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Expiration</label>
+      <select id="expiration"><option>Load ticker first</option></select>
+    </div>
+
+    <div class="preset-tools"><select id="option-preset-select"><option value="">Saved preset…</option></select><button id="option-save-preset" class="secondary-button">Save preset</button><button id="option-delete-preset" class="text-button">Delete</button></div><div class="preset-row vertical-only hidden">
+      <button id="put-credit-preset" type="button" class="preset-button">Use 30–45 DTE Put Credit preset</button>
+    </div>
+
+    <div class="filter-section-title">Filters</div>
+    <div class="filter-grid">
+      <label>Min DTE <input id="min-dte" type="number" min="0" placeholder="30"></label>
+      <label>Max DTE <input id="max-dte" type="number" min="0" placeholder="45"></label>
+
+      <label><span id="min-delta-label">Min |Delta|</span> <input id="min-delta" type="number" step=".01" min="0" max="1" placeholder=".10"></label>
+      <label><span id="max-delta-label">Max |Delta|</span> <input id="max-delta" type="number" step=".01" min="0" max="1" placeholder=".15"></label>
+
+      <label>Min IV % <input id="min-iv" type="number" step="1" placeholder="20"></label>
+      <label>Min Open Interest <input id="min-oi" type="number" value="100"></label>
+
+      <label>Min Volume <input id="min-volume" type="number" value="10"></label>
+      <label>Max Bid/Ask Width $ <input id="max-bid-ask" type="number" step=".01" placeholder=".05"></label>
+
+      <label>Min Credit $ <input id="min-credit" type="number" step=".01" placeholder=".25"></label>
+      <label>Max Debit $ <input id="max-debit" type="number" step=".01" placeholder="5.00"></label>
+
+      <label class="vertical-only hidden">Min Return on Risk % <input id="min-ror" type="number" step="1" placeholder="20"></label>
+      <label class="vertical-only hidden">Spread Width $ <input id="spread-width" type="number" step=".5" placeholder="1"></label>
+
+      <label class="vertical-only hidden">Max Loss $ <input id="max-loss" type="number" step="1" placeholder="100"></label>
+      <label class="vertical-only hidden">Max Spread Width $ <input id="max-width" type="number" step=".5" placeholder="5"></label>
+    </div>
+
+    <div class="field trend-field">
+      <label>Technical trend check</label>
+      <select id="trend-filter">
+        <option value="off">Off</option>
+        <option value="avoid_bearish">Avoid major bearish signals</option>
+        <option value="avoid_bullish">Avoid major bullish signals</option>
+        <option value="bullish_only">Bullish confirmation only</option>
+        <option value="bearish_only">Bearish confirmation only</option>
+      </select>
+      <p class="filter-help">Uses daily EMA20/EMA50, RSI and MACD. This is a simple filter, not a forecast.</p>
+    </div>
+
+    <div class="iv-rank-note">
+      <strong>IV Rank:</strong> Yahoo does not provide historical option-IV history, so v3 does not fake an IV Rank. Use current IV % here; true IV Rank needs another data source.
+    </div>
+
+    <div class="dual-actions"><button id="find-trades" class="primary-wide">Find Trades</button><button id="best-option" class="secondary-button best-match-button">★ Best Match</button></div>
+  </aside>
+
+  <section class="options-results">
+    <div class="options-summary card">
+      <div><span>Underlying</span><strong id="underlying">—</strong></div>
+      <div><span>Price</span><strong id="opt-spot">—</strong></div>
+      <div><span>DTE</span><strong id="opt-dte">—</strong></div>
+      <div><span>Matches</span><strong id="match-count">—</strong></div>
+    </div>
+
+    <div id="trend-summary" class="card trend-summary hidden"></div>
+
+    <div id="best-option-card" class="card hidden"></div><div class="card results-card">
+      <div class="section-heading compact-heading"><div><p class="eyebrow">RESULTS</p><h2>Candidate trades</h2><p class="small-muted">Click any result to open full trade analytics.</p></div></div>
+      <div class="table-wrap"><table id="results-table"><thead><tr id="results-head"></tr></thead><tbody id="results-body"><tr><td class="empty-cell">Load a ticker and choose Find Trades.</td></tr></tbody></table></div>
+    </div>
+
+    <div class="card analysis-card hidden" id="trade-analysis">
+      <div class="analysis-topline">
+        <div><p class="eyebrow">TRADE ANALYSIS</p><h2 id="analysis-title">Selected trade</h2><p id="analysis-subtitle" class="small-muted"></p></div>
+        <span id="analysis-bias" class="bias-badge">—</span>
+      </div>
+      <div class="analysis-metrics" id="analysis-metrics"></div>
+
+      <section class="greeks-panel">
+        <div class="section-heading compact-heading"><div><p class="eyebrow">POSITION GREEKS</p><h3>Estimated exposure</h3></div></div>
+        <div class="greeks-grid" id="position-greeks"></div>
+      </section>
+
+      <section class="legs-panel">
+        <div class="section-heading compact-heading"><div><p class="eyebrow">LEGS</p><h3>Contract details</h3></div></div>
+        <div id="leg-cards" class="leg-cards"></div>
+      </section>
+
+      <section class="payoff-section">
+        <div class="section-heading compact-heading"><div><p class="eyebrow">PAYOFF</p><h3>Profit / loss at expiration</h3></div></div>
+        <div class="chart-box payoff-box"><canvas id="payoff-chart"></canvas></div>
+      </section>
+
+      <p class="small-muted analytics-note">Payoff is at expiration. Greeks are Black-Scholes estimates derived from Yahoo's implied volatility and may differ from broker values.</p>
+    </div>
+  </section>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/options.js') }}"></script>{% endblock %}

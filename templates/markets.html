@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Markets — Investify{% endblock %}
+{% block content %}
+<section class="page-head options-page-head">
+  <div>
+    <p class="eyebrow">MARKETS</p>
+    <h1>Market board.</h1>
+    <p class="sub">Major indexes, volatility, sector ETFs and popular names powered by Yahoo Finance.</p>
+  </div>
+  <div class="data-pill">Yahoo Finance · Personal research</div>
+</section>
+
+<section class="market-section">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">MAJOR INDEXES</p><h2>U.S. benchmarks</h2></div></div>
+  <div class="market-grid">
+    {% for s,name in [
+      ('^GSPC','S&P 500'),
+      ('^IXIC','Nasdaq Composite'),
+      ('^DJI','Dow Jones'),
+      ('^RUT','Russell 2000'),
+      ('^VIX','VIX'),
+      ('SPY','S&P 500 ETF')
+    ] %}
+    <a class="market-tile" data-symbol="{{s}}" href="/stock/{{s|urlencode}}">
+      <span class="symbol">{{name}}</span>
+      <small class="muted">{{s}}</small>
+      <strong class="m-price">—</strong>
+      <span class="m-change muted">Loading…</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="market-section">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">POPULAR</p><h2>Stocks and ETFs</h2></div></div>
+  <div class="market-grid">
+    {% for s in ['QQQ','DIA','IWM','AAPL','NVDA','MSFT','AMZN','META','GOOGL','TSLA','AMD','CRM'] %}
+    <a class="market-tile" data-symbol="{{s}}" href="/stock/{{s}}">
+      <span class="symbol">{{s}}</span>
+      <strong class="m-price">—</strong>
+      <span class="m-change muted">Loading…</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/markets.js') }}"></script>{% endblock %}

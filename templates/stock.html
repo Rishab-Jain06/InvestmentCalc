@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ symbol }} — Investify{% endblock %}
+{% block content %}
+<div id="error" class="error hidden"></div>
+<section class="stock-top">
+  <div class="stock-identity">
+    <div class="ticker-badge">{{ symbol[:1] }}</div>
+    <div><div class="stock-line"><h1 id="symbol">{{ symbol }}</h1><span id="market-badge" class="market-badge">Market</span></div><p id="company" class="muted">Loading…</p></div>
+  </div>
+  <div class="price-actions">
+    <button id="watch-btn" class="secondary-button">☆ Watch</button>
+    <button id="analyze-btn" class="secondary-button analysis-trigger">Analyze setup</button>
+    <div class="price-wrap"><div id="price" class="price">—</div><div id="change" class="change">—</div></div>
+  </div>
+</section>
+
+<section class="quote-grid">
+  <div><span>Previous close</span><strong id="prev">—</strong></div>
+  <div><span>Open</span><strong id="open">—</strong></div>
+  <div><span>Day range</span><strong id="day-range">—</strong></div>
+  <div><span>52-week range</span><strong id="52-range">—</strong></div>
+  <div><span>Volume</span><strong id="volume">—</strong></div>
+  <div><span>Avg. volume</span><strong id="avg-volume">—</strong></div>
+</section>
+
+<section id="signal-card" class="card signal-card hidden">
+  <div class="signal-head"><div><p class="eyebrow">TECHNICAL SIGNAL</p><h2 id="signal-label">—</h2></div><div id="signal-score" class="signal-score">—</div></div>
+  <div id="signal-reasons" class="signal-reasons"></div>
+  <p class="small-muted">Rule-based technical read from price, EMA20/50, RSI and MACD — not personalized investment advice.</p>
+</section>
+
+<section class="card chart-card">
+  <div class="chart-toolbar">
+    <div><p class="eyebrow">PRICE</p><div class="chart-title-row"><h2>Chart</h2><span id="range-change"></span></div><p id="range-label" class="small-muted">1D</p></div>
+    <div class="range-tabs">{% for r in ['1D','5D','1M','3M','6M','YTD','1Y','5Y','MAX'] %}<button class="range-tab {% if r=='1D' %}active{% endif %}" data-range="{{r}}">{{r}}</button>{% endfor %}</div>
+  </div>
+  <div class="chart-box"><canvas id="price-chart"></canvas></div>
+</section>
+
+<section class="card indicator-card">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">TECHNICALS</p><h2>Indicators</h2></div></div>
+  <div id="technical-grid" class="stats-panel-grid"></div>
+</section>
+
+<section class="card key-stats-card">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">KEY STATISTICS</p><h2>Company metrics</h2><p class="small-muted">Yahoo fields vary by security; unavailable values show —.</p></div></div>
+  <div id="stats-tabs" class="stats-tabs">
+    <button class="active" data-tab="market">Market</button><button data-tab="valuation">Valuation</button><button data-tab="profitability">Profitability</button><button data-tab="financial">Financials</button><button data-tab="dividend">Dividend</button>
+  </div>
+  <div id="stats-content" class="stats-panel-grid"></div>
+</section>
+
+<p class="footnote">Yahoo Finance data via yfinance for personal research. Data availability and timing vary by market.</p>
+{% endblock %}
+{% block scripts %}<script>window.INVESTIFY_SYMBOL={{symbol|tojson}};</script><script src="{{url_for('static',filename='js/stock.js')}}"></script>{% endblock %}

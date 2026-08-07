@@ -1,0 +1,3 @@
+const ticker=document.getElementById("default-ticker"),range=document.getElementById("default-range");
+ticker.value=localStorage.getItem("investify_default_ticker")||"SPY";range.value=localStorage.getItem("investify_default_range")||"1D";
+document.getElementById("save-settings").onclick=()=>{localStorage.setItem("investify_default_ticker",ticker.value.trim().toUpperCase()||"SPY");localStorage.setItem("investify_default_range",range.value);document.getElementById("settings-status").textContent="Saved.";};
