@@ -1,0 +1,69 @@
+{% extends "template.html" %}
+{% block title %}Home{% endblock title %}
+{% block pageTitle %}Statistics{% endblock pageTitle %}
+{% block body %}
+{{ super() }}
+<div class=" carousel pt-12 w-full h-full">
+    <div id="slide1" class="carousel-item relative w-full h-full items-center justify-center ">
+      <div class="grid max-md:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-14 gap-y-24 mb-10">
+        <!-- 1 --> {{ macros.card( 
+          title='Introduction to Financial Literacy',
+          text='Many individuals face challenges in this area, often due to misconceptions or a lack of understanding.',
+          button='Learn More',
+          buttonLink='investing/financial-literacy',
+          button_external='',
+          verified_tweet=''
+        ) }}
+        <!-- 2 --> {{ macros.card( 
+          title='Budgeting',
+          text='By adhering to a budget, you can make informed decisions regarding your money and steer clear of issues such as excessive spending, debt accumulation, or financial depletion.',
+          button='Learn More',
+          buttonLink='investing/budgeting',
+          button_external='',
+          verified_tweet=''
+        ) }}
+        <!-- 3 --> {{ macros.card( 
+          title='Consumer Credit',
+          text='A credit score is a numerical representation used by lenders, such as banks and credit card companies, to assess your creditworthiness and determine whether to grant you loans or credit.',
+          button='Learn More',
+          buttonLink='investing/consumer',
+          button_external='',
+          verified_tweet=''
+        ) }}
+        <!-- 4 --> {{ macros.card( 
+          title='Bonds',
+          text='Bonds are debt securities or IOUs issued by governments, municipalities, corporations, and other entities to raise capital.',
+          button='Learn More',
+          buttonLink='investing/bonds',
+          button_external='',
+          verified_tweet=''
+        ) }}
+        <!-- 5 --> {{ macros.card( 
+          title='Volume',
+          text='When it comes to navigating the exciting world of trading, understanding the various indicators and tools at your disposal is crucial.',
+          button='Learn More',
+          buttonLink='investing/volume',
+          button_external='',
+          verified_tweet=''
+        ) }}
+        <!-- 6 --> {{ macros.card( 
+          title='Options',
+          text='Options are financial contracts that give investors the right, but not the obligation, to buy or sell an underlying asset at a predetermined price within a specified time frame.',
+          button='Learn More',
+          buttonLink='investing/options',
+          button_external='',
+          verified_tweet=''
+        ) }}
+        <!-- 7 --> {{ macros.card( 
+          title='Mutual Funds',
+          text='As a new investor, the world of finance and investing can be both exciting and daunting.',
+          button='Learn More',
+          buttonLink='investing/mutual_funds',
+          button_external='',
+          verified_tweet=''
+        ) }}
+      </div>
+    </div> 
+    
+
+{% endblock body %}

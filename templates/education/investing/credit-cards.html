@@ -1,0 +1,31 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Credit Cards{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Credit Cards{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Credit Cards', 
+    text="A credit card is a payment card that allows you to borrow money from a bank or credit card company for purchasing goods and services at various establishments accepting credit cards."
+    ) }}
+    
+  {{ macros.section(
+    header='Reasons for obtaining a credit card include:',
+    text="""<strong>Convenience: </strong>It offers a convenient cashless payment method.<br><strong>Building Credit:</strong> Credit cards help establish a credit history, vital for future loans or mortgages.<br><strong>Rewards: </strong>Set financial goals for the shord debt or saving for retiremenyour budget planning."""
+    ) }}
+
+  {{ macros.section(
+    header='Benefits', 
+    text="""<strong>Build Credit: </strong>Responsible credit card use helps establish a strong credit score, leading to easier loan approval and lower interest rates. <br><strong>Rewards: </strong> Credit cards help establish a credit history, vital for future loans or mortgages.<br><strong>Emergencies: </strong>Credit cards provide a financial safety net for unexpected bills or urgent expenses.<br><strong>Convenience: </strong> Credit cards offer a convenient payment method for everyday purchases, both in-person and online."""
+    ) }}
+
+  {{ macros.section(
+    header='Consequences?', 
+    text="""<strong>Interest: </strong>Credit cards often have high interest rates, leading to significant costs if you carry a balance and don't pay it off in full each month.<br><strong>Debt: </strong>Easy access to credit can result in overspending and accumulating debt. Failure to make timely payments can damage your credit score and make future borrowing more difficult and expensive.<br><strong>Fees: </strong>Credit cards may come with various fees, such as annual fees, late payment fees, or over-the-limit fees, which can increase your overall costs if not managed carefully.<br><strong>Overspending: </strong> The convenience of credit cards can tempt you to spend beyond your means, potentially leading to financial strain and budgetary challenges."""
+    ) }}
+
+{% endblock content %}

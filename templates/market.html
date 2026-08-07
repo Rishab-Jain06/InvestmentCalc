@@ -1,0 +1,596 @@
+{% extends "template.html" %}
+{% block title %}Market{% endblock title %}
+{% block pageTitle %}Investify{% endblock pageTitle %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/market.css') }}">
+<style>
+  .sticky-tab-bar {
+    position: sticky;
+    z-index: 100;
+  }
+</style>
+{% endblock head %}
+
+{% block wholebody %}
+<div class="fixed top-0 left-0 w-screen h-32"></div>
+<div class="hidden w-4 w-16 w-32 w-40 w-2 w-8 w-16"></div>
+<div class="flex justify-center  ">
+  <div class="w-[100vw] lg:container">
+
+    <div id="overview" class="tab-content active mt-4 mx-[5vw] z-[2]">
+      <h2 class="text-4xl text-white font-bold">Market Overview</h2>
+      <div class="grid max-xl:grid-rows-3 xl:grid-cols-3 items-top justify-stretch m-0 gap-x-[5%] w-full my-10">
+        <div class=" min-w-max max-w-full p-[3%]  text-white rounded-lg min-h-min border-indigo-400 neon shadow-indigo-400 border-2 my-12">
+            <div class="overflow-x-auto scrollbar minimalist">
+                <div class="pb-9">
+                  <button>
+                  <h5 href="#" class="sub_title font-bold text-2xl text-magenta-500 underline-on-hover">Daily Most Active</h5>
+                  <button>
+                </div> <!-- section title -->
+                <table class="table movers w-full">
+  
+                  <thead>
+                    <tr class="hover text-sm lg:text-base transition-all font-medium">
+                      <th></th>
+                      <th>Ticker</th>
+                      <th>% Chg</th>
+                      <th>Last Price</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+  
+                    <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                      <th>1</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+  
+                    <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                      <th>2</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+  
+                    <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                      <th>3</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                        <th>4</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                        <th>5</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                        <th>6</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all text-green-400"  >
+                        <th>7</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                        <th>8</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                        <th>9</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all text-red-400"  >
+                        <th>10</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        <div class=" min-w-max max-w-full neon p-[3%] row-span-1 lg:col-span-1  text-white rounded-lg min-h-min border-rose-400 shadow-rose-400 border-2 my-12">
+            <div class="overflow-x-auto scrollbar minimalist">
+                <div class="pb-9">
+                    <h5 href="#" class="sub_title font-bold text-2xl text-magenta-500 underline-on-hover">Daily Top Gainers</h5>
+                </div> <!-- section title -->
+                <table class="table gainers w-full">
+  
+                  <thead>
+                    <tr class="hover text-sm lg:text-base transition-all font-medium">
+                      <th></th>
+                      <th>Ticker</th>
+                      <th>% Chg</th>
+                      <th>Last Price</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-green-400">
+  
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>1</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>2</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>3</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>4</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>5</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>6</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>7</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>8</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>9</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>10</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        <div class=" min-w-max max-w-full neon p-[3%] row-span-1 lg:col-span-1  text-white rounded-lg min-h-min border-indigo-400 shadow-indigo-400 border-2 my-12">
+            <div class="overflow-x-auto scrollbar minimalist">
+                <div class="pb-9">
+                    <h5 href="#" class="sub_title font-bold text-2xl text-magenta-500 underline-on-hover">Daily Top Losers</h5>
+                </div> <!-- section title -->
+                <table class="table losers w-full">
+  
+                  <thead>
+                    <tr class="hover text-sm lg:text-base transition-all font-medium">
+                      <th></th>
+                      <th>Ticker</th>
+                      <th>% Chg</th>
+                      <th>Last Price</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-red-400">
+  
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>1</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+  
+                    <tr class="hover">
+                      <th>2</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+  
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                      <th>3</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>4</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>5</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>6</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>7</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>8</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>9</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-sm lg:text-base transition-all" >
+                        <th>10</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+      </div>
+
+
+      <div class="mb-10 p-[3%] text-white rounded-lg min-h-min border-indigo-400 shadow-indigo-400 neon border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <div class="pb-9">
+                <h5 href="#"  class="sub_title font-bold text-2xl text-magenta-500 underline-on-hover">Top Options</h5>
+            </div> <!-- section title -->
+            <table class="table  w-full">
+              <thead>
+                <tr class="hover text-sm lg:text-base transition-all">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>Total Volume</th>
+                  <th>P/C Volume Ratio</th>
+                  <th>Total Position</th>
+                  <th>P/C Open Int Ratio</th>
+                  <th>Underlying Price</th>
+                  <th>Underlying Change%</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover text-sm lg:text-base transition-all" >
+                  <th>1</th>
+                  <td>SPY</td>
+                  <td>5.77M</td>
+                  <td>0.88</td>
+                  <td>17.4M</td>
+                  <td>2.34</td>
+                  <td>437.22</td>
+                  <td>+0.19%</td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td>QQQ</td>
+                  <td>2.1M</td>
+                  <td>1.17</td>
+                  <td>10.51M</td>
+                  <td>2.11</td>
+                  <td>363.11</td>
+                  <td>-0.39%</td>
+                </tr>
+                <tr class="hover text-sm lg:text-base transition-all" >
+                  <th>3</th>
+                  <td>SPX</td>
+                  <td>1.72M</td>
+                  <td>1.14</td>
+                  <td>12.8</td>
+                  <td>2.12</td>
+                  <td>4387.52</td>
+                  <td>+0.24%</td>
+                </tr>
+                <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>4</th>
+                    <td>TSLA</td>
+                    <td>1.53M</td>
+                    <td>0.59</td>
+                    <td>7.61M</td>
+                    <td>0.76</td>
+                    <td>255.70</td>
+                    <td>-0.21%</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>5</th>
+                    <td>IWM</td>
+                    <td>812.50k</td>
+                    <td>1.27</td>
+                    <td>8.41M</td>
+                    <td>1.93</td>
+                    <td>186.45</td>
+                    <td>+1.19%</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>6</th>
+                    <td>AAPL</td>
+                    <td>694.11k</td>
+                    <td>0.6</td>
+                    <td>6.23M</td>
+                    <td>0.82</td>
+                    <td>189.73</td>
+                    <td>+0.25%</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>7</th>
+                    <td>NVDA</td>
+                    <td>615.77k</td>
+                    <td>0.88</td>
+                    <td>2.83M</td>
+                    <td>1.03</td>
+                    <td>407.19</td>
+                    <td> -0.97%</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>8</th>
+                    <td>AMD</td>
+                    <td>465.42k</td>
+                    <td>0.59</td>
+                    <td>2.65M</td>
+                    <td>0.79</td>
+                    <td>110.91</td>
+                    <td>+0.67%</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>9</th>
+                    <td>MU</td>
+                    <td>454.60</td>
+                    <td>0.47</td>
+                    <td>1.2M</td>
+                    <td>1.16</td>
+                    <td>64.31</td>
+                    <td>-4.12%</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>10</th>
+                    <td>AMZN</td>
+                    <td>426.02k</td>
+                    <td>0.37</td>
+                    <td>4.69M</td>
+                    <td>0.7</td>
+                    <td>127.79</td>
+                    <td>-0.97%</td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+
+
+
+      <br>
+
+
+
+
+      <div class="p-[3%] text-white rounded-lg min-h-min border-indigo-400 shadow-indigo-400 neon border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <div class="pb-9">
+                <h5 class="sub_title font-bold text-2xl text-magenta-500 underline-on-hover">Calendar Earnings</h5>
+            </div> <!-- section title -->
+            <table class="table  w-full">
+              <thead>
+                <tr class="hover text-sm lg:text-base transition-all">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>Release Time</th>
+                  <th>EPS Estimate</th>
+                  <th>Last EPS</th>
+                  <th>Last EPS Date</th>
+                  <th>Market Cap</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover text-sm lg:text-base transition-all" >
+                  <th>1</th>
+                  <td>MITK</td>
+                  <td>06/29/2023</td>
+                  <td>-0.055</td>
+                  <td>--</td>
+                  <td>2023-06-13</td>
+                  <td>486.35M</td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td>AYI</td>
+                  <td>06/29/2023</td>
+                  <td>3.1025</td>
+                  <td>--</td>
+                  <td>2023-04-04</td>
+                  <td>5.07B</td>
+                </tr>
+                <tr class="hover text-sm lg:text-base transition-all" >
+                  <th>3</th>
+                  <td>GBX</td>
+                  <td>06/29/2023</td>
+                  <td>0.57</td>
+                  <td>0.97</td>
+                  <td>2023-04-10 (2023 Q2)</td>
+                  <td>1.34B</td>
+                </tr>
+                <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>4</th>
+                    <td>LNN</td>
+                    <td>06/29/2023</td>
+                    <td>2.15</td>
+                    <td>--</td>
+                    <td>2023-04-04</td>
+                    <td>1.28B</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>5</th>
+                    <td>CNVS</td>
+                    <td>06/29/2023</td>
+                    <td>0.4</td>
+                    <td>0.6</td>
+                    <td>2023-02-14 (2023 Q3)</td>
+                    <td>21.25M</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>6</th>
+                    <td>NNDM</td>
+                    <td>06/29/2023</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>2023-03-30 (2022 Q4)</td>
+                    <td>695.05M</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>7</th>
+                    <td>PAYX</td>
+                    <td>06/29/2023</td>
+                    <td>0.979</td>
+                    <td>--</td>
+                    <td>2023-03-28</td>
+                    <td>24.27B</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>8</th>
+                    <td>MKC-V</td>
+                    <td>06/29/2023</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>2023-03-28</td>
+                    <td>24.27B</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>9</th>
+                    <td>MKC</td>
+                    <td>06/29/2023</td>
+                    <td>0.5725</td>
+                    <td>--</td>
+                    <td>2023-03-28</td>
+                    <td>23.45B</td>
+                  </tr>
+                  <tr class="hover text-sm lg:text-base transition-all" >
+                    <th>10</th>
+                    <td>MSM</td>
+                    <td>06/29/2023</td>
+                    <td>1.7314</td>
+                    <td>1.41</td>
+                    <td>2023-04-04 (2023 Q2)</td>
+                    <td>5.22B</td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>  
+    </div>
+    </div>
+  </div>
+</div>
+
+{% endblock wholebody %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/market.js') }}"></script>
+<script src="{{ url_for('static', filename='js/top_movers.js') }}"></script>
+<script>
+
+  // Tab bar section
+  /*
+  let tabBar;
+  const divider = document.getElementById('divider');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // Add the classes to the sticky-tab-bar
+        tabBar.classList.add('drop-shadow-2xl');
+        tabBar.classList.add('shadow-2xl');
+      } else {
+        // Remove the classes from the sticky-tab-bar
+        tabBar.classList.remove('drop-shadow-2xl');
+        tabBar.classList.remove('shadow-2xl');
+      }
+    });
+  }, {
+    threshold: 0,
+    root: document.querySelector('.navbar'), // Make sure the sticky-tab-bar is inside this element
+  });
+  window.addEventListener('scroll', function() {
+    tabBar = document.getElementById('topNav');
+    var navbar = document.querySelector('.navbar');
+    var navbarHeight = navbar.offsetHeight;
+    var offset = 2 * 24; // 2rem * 16px per rem
+
+    if (window.pageYOffset >= navbarHeight - offset) {
+      tabBar.style.top = offset + 'px';
+       tabBar.classList.add('drop-shadow-2xl');
+      tabBar.classList.add('shadow-2xl');
+    } else {
+      tabBar.style.top = navbarHeight - window.pageYOffset + 'px';
+      tabBar.classList.remove('drop-shadow-2xl');
+      tabBar.classList.remove('shadow-2xl');
+    }
+      // Create a new Intersection Observer instance
+    
+
+    // Start observing the toptabBar element
+    let observed = false;
+    if(tabBar != null && !observed) {
+      observer.observe(divider);
+      observed = true;
+    }
+  });
+  */
+  // Select the elements
+
+</script>
+
+<script>
+  function openTab(tabId) {
+    const tabs = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < tabs.length; i++) {
+      tabs[i].classList.remove('active');
+    }
+    document.getElementById(tabId).classList.add('active');
+  }
+</script>
+
+
+
+{% endblock script %}

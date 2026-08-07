@@ -1,0 +1,31 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Debit Cards{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Debit Cards{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Debit Cards', 
+    text="A debit card is a payment card that allows you to access funds directly from your bank account to make purchases or withdraw cash. It offers a convenient and secure alternative to carrying cash and enables you to manage your finances efficiently."
+    ) }}
+    
+  {{ macros.section(
+    header='Reasons for obtaining a debit card include:',
+    text="""<strong>Ease of Use: </strong>Debit cards provide a hassle-free payment method, allowing you to make purchases in-store, online, or over the phone without the need for cash.<br><strong>Budget Management: </strong> Using a debit card helps you stay within your budget as it limits your spending to the available funds in your bank account.<br><strong>Accessibility: </strong>Debit cards provide 24/7 access to ATMs, allowing you to withdraw cash, check your account balance, and perform other banking transactions whenever needed."""
+    ) }}
+
+  {{ macros.section(
+    header='Benefits', 
+    text="""<strong>Convenience: </strong>Debit cards offer a convenient and widely accepted payment method, allowing you to make purchases at various establishments and withdraw cash from ATMs worldwide.<br><strong>Security: </strong> Debit cards incorporate security features such as PINs, chips, and encryption technology, making them a secure option for financial transactions.<br><strong>No Interest Charges: </strong>Since debit cards use your own money, you don't incur interest charges or fees for borrowing funds, helping you save money in the long run."""
+    ) }}
+
+  {{ macros.section(
+    header='Consequences?', 
+    text="""<strong>Limited Fraud Protection: </strong>While debit cards have security measures in place, they may offer less fraud protection compared to credit cards. If unauthorized transactions occur, it may take time to resolve the issue and recover the funds.<br><strong>Overdraft Fees: </strong>If you make a transaction that exceeds the available balance in your bank account, you may incur overdraft fees, which can be costly.<br><strong>Inability to Build Credit: </strong>Debit card usage does not contribute to building a credit history or improving your credit score, as it involves spending your own money rather than borrowing.<br><strong>Limited Rewards: </strong> TUnlike certain credit cards, debit cards generally do not offer rewards programs or cashback incentives, limiting the additional benefits you can earn from your spending."""
+    ) }}
+
+{% endblock content %}

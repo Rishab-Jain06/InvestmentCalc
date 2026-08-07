@@ -1,0 +1,32 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Bollinger Bands{% endblock educateTitle %}
+{% block categoryTitle %}Statistics{% endblock categoryTitle %}
+{% block headerTitle %}Bollinger Bands{% endblock headerTitle %}
+{% block categoryLink %}statistics{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Introduction', 
+    text="Bollinger Bands® are a technical analysis chart indicator that have been widely used by traders in various markets such as stocks, futures, and currencies. They were created by John Bollinger in the 1980s and provide unique insights into price and volatility. Bollinger Bands® are composed of three lines, typically calculated using a 20-day simple moving average for the middle band. The upper band is calculated by adding twice the daily standard deviation to the middle band, while the lower band is calculated by subtracting two times the daily standard deviation from the middle band. One of the most common uses for Bollinger Bands® is identifying overbought or oversold market conditions. When the price of an asset breaks below the lower band, it is considered oversold and likely to bounce back, while if it breaks above the upper band, it is considered overbought and likely to pull back."
+    ) }}
+    <img class="container mx-auto px-80" src="https://www.tradingwithrayner.com/wp-content/uploads/2018/10/94.jpg" alt="">
+  {{ macros.section(
+    header='Limitations of Bollinger Bands®', 
+    text="However, Bollinger Bands® are not always accurate in giving buy and sell signals. In strong trending markets, they can flash overbought or oversold signals too soon, and in such cases, a trader can look at the overall direction of the price and only take trade signals that align with the trend. For example, if the trend is down, only take short positions when the upper band is tagged. To help with this, traders can also use Bollinger Bands® in conjunction with other indicators for more accurate signals."   
+    ) }}
+  {{ macros.section(
+    header='Diagnosing Trends', 
+    text="At its core, Bollinger Bands® measure deviation, which is why they can be helpful in diagnosing trends. By generating two sets of Bollinger Bands®, one using the parameter of 'one standard deviation' and the other using the typical setting of 'two standard deviations,' traders can look at price in a new way. If price holds between the upper Bollinger Bands® +1 SD and +2 SD away from the mean, the trend is up, and the trader can define that channel as the 'buy zone.' Conversely, if price channels within Bollinger Bands® -1 SD and -2 SD, it is in the 'sell zone.' Finally, if price meanders between +1 SD band and -1 SD band, it is essentially in a neutral state, and in uncharted territory."   
+    ) }}
+  {{ macros.section(
+    header='Adaptability and Use', 
+    text="Bollinger Bands® adapt dynamically to price expanding and contracting as volatility increases and decreases, which makes them a very accurate trending envelope. They can be used by trend traders to exploit momentum, and fade-traders to profit from trend exhaustion or reversals. However, counter-trend trading requires larger margins of error, as trends will often make several attempts at continuation before reversing."   
+    ) }}
+  {{ macros.section(
+    header='Conclusion', 
+    text="Overall, Bollinger Bands® are a valuable tool for traders to help identify overbought and oversold conditions, diagnose trends, and generate trading signals."   
+    ) }}
+{% endblock content %}

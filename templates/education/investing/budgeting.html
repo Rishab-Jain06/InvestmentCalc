@@ -1,0 +1,51 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Budgeting{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Budgeting{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Budgeting', 
+    text="A budget encompasses a comprehensive plan that aids in the effective management of your finances. It provides a clear picture of your available funds, outlines the specific allocations for various expenses, and highlights the potential for savings or allocation towards other objectives. By adhering to a budget, you can make informed decisions regarding your money and steer clear of issues such as excessive spending, debt accumulation, or financial depletion."
+    ) }}
+
+  {{ macros.section(
+    header='Why is it essential to have a budget?', 
+    text="Considering that money is a finite resource, it is unlikely that you can purchase everything you desire or require with your current financial means. It becomes crucial to prioritize your expenditures and identify what holds the greatest significance for you and your family. This is where a budget becomes invaluable!"
+    ) }}
+  
+  {{ macros.section(
+    header='Monitoring income and expenses.', 
+    text="Your income denotes the money you earn or receive from various sources, such as allowances, gifts, or employment. On the other hand, expenses encompass the funds expended on different necessities like food, clothing, bills, or entertainment. A budget facilitates a comprehensive understanding of your financial standing and expenditure patterns on a monthly basis."
+    ) }}
+
+  {{ macros.section(
+    header='Establishing and accomplishing goals.', 
+    text="Goals refer to the aspirations you have for utilizing your money, whether it be saving for a bicycle, establishing a college fund, or embarking on a vacation. A budget allows you to strategize the required finances and determine the timeframe for achieving these goals. Moreover, it empowers you to modify your spending habits in order to save a greater portion of your income for these specific objectives."
+    ) }}
+
+  {{ macros.section(
+    header='Preventing or reducing debt.', 
+    text="Debt signifies the money you owe to external entities, such as banks, stores, or acquaintances. It can prove troublesome due to additional costs in the form of interest and fees, potential harm to your credit score, or strained relationships with friends and family. A budget acts as a safeguard against incurring unnecessary debt by enabling you to spend within your means, promptly settle your bills, and avoid borrowing funds without a well-defined repayment plan."
+    ) }}
+  
+    {{ macros.section(
+      header='Ways to Make a Budget:', 
+      text="""<ul><li>Pencil and Paper</li><li>Printable Sheets found Online</li><li>Spreadsheets</li><li>Apps</li></ul>"""
+    ) }}
+
+    {{ macros.section(
+      header='Steps to Make a Budget:', 
+      text="""<strong>Step 1: </strong>Calculate your net income by deducting Social Security, taxes, 401(k), and flexible spending account allocations from your total salary. Use this final take-home pay when creating your budget. Consider finding ways to supplement your income through hobbies or talents. <br><strong>Step 2: </strong>Monitor and categorize your spending to identify areas where adjustments can be made. Start by listing fixed expenses like rent and utilities, followed by variable expenses such as groceries and entertainment. Credit card and bank statements can provide helpful details for tracking expenditures. <br><strong>Step 3: </strong>Set financial goals for the short- and long-term. Determine priorities, like reducing credit card debt or saving for retirement or education, to guide your budget planning. <br><strong>Step 4: </strong>Create a plan using your compiled fixed and variable expenses. Predict future spending based on past habits. Differentiate between needs and wants to make informed adjustments. <br><strong>Step 5:</strong> Modify your habits if necessary to align with your budget. Prioritize cutting back on discretionary expenses first. Evaluate needs and consider options for cost reduction. If needed, carefully examine fixed expenses and weigh trade-offs before making adjustments. <br><strong>Step 6:</strong> Regularly review your budget to ensure you're on track. Budget elements can change, such as income increases, higher expenses, or achieving goals. Stay connected with your budget by following the steps above."""
+    ) }}
+
+    {{ macros.section(
+      header='What is a Credit Score?', 
+      text="""A credit score is a numerical representation used by lenders, such as banks and credit card companies, to assess your creditworthiness and determine whether to grant you loans or credit. It plays a significant role because a higher credit score increases your chances of loan approval and obtaining favorable interest rates.<br>Credit scores are calculated based on various factors compiled by credit bureaus like Experian, Equifax, or TransUnion. These factors include the length of your credit history, outstanding debts, payment punctuality, and any history of bankruptcy."""
+    ) }}
+  
+{% endblock content %}

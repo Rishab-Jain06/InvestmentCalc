@@ -1,0 +1,27 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}PE Ratio{% endblock educateTitle %}
+{% block categoryTitle %}Statistics{% endblock categoryTitle %}
+{% block headerTitle %}PE Ratio{% endblock headerTitle %}
+{% block categoryLink %}statistics{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Introduction to the Chaikin Oscillator', 
+    text="The Chaikin Oscillator is a technical analysis indicator created by Marc Chaikin that measures the accumulation-distribution line of the Moving Average Convergence Divergence (MACD) indicator. It is calculated by subtracting a 10-day Exponential Moving Average (EMA) of the accumulation-distribution line from a 3-day EMA of the accumulation-distribution line. The oscillator is used by technical analysts to identify trends in momentum and to make predictions about the future direction of a stock's price."
+    ) }}
+  {{ macros.section(
+    header='The Chaikin Oscillator as a Tool for Technical Analysis', 
+    text="The Chaikin Oscillator is based on the idea that the balance between buyers and sellers in the financial markets drives stock prices. Technical analysts believe that all known information is already priced into stocks, and that patterns in the ups and downs of equity prices can better predict the market's movements. They use indicators like the Chaikin Oscillator to measure this balance and to make buy and sell decisions."   
+    ) }}
+  {{ macros.section(
+    header='Chaikin Oscillator Buy and Sell Signals', 
+    text="The Chaikin Oscillator generates a bullish divergence when it crosses above a baseline, which is called the accumulation-distribution line. A cross above this line indicates that traders are accumulating shares, which is typically considered bullish. The oscillator also has two primary buy and sell signals: a positive divergence and a negative divergence. A positive divergence signals a stock price is likely to rise, given the increase in accumulation. A negative divergence signals a stock price is likely to fall, given the increase in distribution."   
+    ) }}
+  {{ macros.section(
+    header='Conclusion', 
+    text="Overall, the Chaikin Oscillator is a useful tool for technical analysts who are looking to identify trends in momentum and make predictions about the future direction of a stock's price. It can be used in conjunction with other indicators to get a more comprehensive picture of a stock's performance and to make more informed trading decisions."   
+    ) }}
+{% endblock content %}

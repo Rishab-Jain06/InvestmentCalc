@@ -1,0 +1,168 @@
+{% extends "template.html" %}
+{% block title %}Paper Trading - Call{% endblock title %}
+{% block pageTitle %}Paper Trading - Call{% endblock pageTitle %}
+{% block body %}
+{{ super() }}
+<form class="form-control min-w-full ml-2" role="search" method="POST" action="" autocapitalize="characters" autocomplete="off">
+  <div class="text-white font-bold text-4xl mb-6">
+    <h1> Call Stocks:</h1>
+  </div>
+    <div class="grid grid-cols-2 gap-6 gap-x-12 px-[5vw]">
+      {% if pageNumber == 0 %}
+        {% if optionForm.optionTicker.errors %}
+        {{ optionForm.optionTicker(class="input col-span-2 input-bordered w-full") }}
+            {% for error in optionForm.optionTicker.errors %}
+            <span class="invalid-feedback">{{ error }}</span>
+            {% endfor %}
+        {% else %}
+            {{ optionForm.optionTicker(class="input col-span-2 input-bordered w-full") }}
+        {% endif %}
+        {{optionForm.submit(class="btn btn-primary col-span-2 border-indigo-400 bg-transparent gradient-border hover:border-transparent transition-all ")}}
+      {% elif pageNumber == 1 %}
+        {% if optionChainForm.optionTicker.errors %}
+        {{ optionChainForm.optionTicker(class="input col-span-2 sm:col-span-1 input-bordered w-full", readonly=True) }}
+            {% for error in optionChainForm.optionTicker.errors %}
+            <span class="invalid-feedback">{{ error }}</span>
+            {% endfor %}
+        {% else %}
+            {{ optionChainForm.optionTicker(class="input col-span-2 sm:col-span-1 input-bordered w-full", readonly=True) }}
+        {% endif %}
+        {% if optionChainForm.expiry.errors %}
+        {{ optionChainForm.expiry(class="select select-bordered w-full") }}
+            {% for error in optionChainForm.expiry.errors %}
+            <span class="invalid-feedback">{{ error }}</span>
+            {% endfor %}
+        {% else %}
+            {{ optionChainForm.expiry(class="select select-bordered w-full") }}
+        {% endif %}
+        {{optionChainForm.submit(class="btn btn-primary col-span-2 border-indigo-400 bg-transparent gradient-border hover:border-transparent transition-all ")}}
+      {% else %}
+        <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+          <p id="strikePrice">Strike Price: </p>
+        </div>
+        <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+          <p id="premium">Premium: </p>
+        </div>
+        <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+          <p id="contractSize">Contract Size: </p>
+        </div>
+        <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+          <p id="inTheMoney">In The Money: </p>
+        </div>
+        {% if pageNumber == 2 %}
+          {% if callStock.optionTicker.errors %}
+            {{ callStock.optionTicker(class="input col-span-2 sm:col-span-1 input-bordered w-full", readonly=True) }}
+                {% for error in callStock.optionTicker.errors %}
+                <span class="invalid-feedback">{{ error }}</span>
+                {% endfor %}
+            {% else %}
+                {{ callStock.optionTicker(class="input col-span-2 sm:col-span-1 input-bordered w-full", readonly=True) }}
+            {% endif %}
+            {% if callStock.expiry.errors %}
+            {{ callStock.expiry(class="input col-span-2 sm:col-span-1 input-bordered w-full", readonly=True) }}
+                {% for error in callStock.expiry.errors %}
+                <span class="invalid-feedback">{{ error }}</span>
+                {% endfor %}
+            {% else %}
+                {{ callStock.expiry(class="input col-span-2 sm:col-span-1 input-bordered w-full", readonly=True) }}
+            {% endif %}
+          {% if callStock.contractSymbol.errors %}
+          {{ callStock.contractSymbol(class="select select-bordered w-full", id="contractSymbol") }}
+              {% for error in callStock.contractSymbol.errors %}
+              <span class="invalid-feedback">{{ error }}</span>
+              {% endfor %}
+          {% else %}
+              {{ callStock.contractSymbol(class="select select-bordered w-full", id="contractSymbol") }}
+          {% endif %}
+          {% if callStock.contracts.errors %}
+          {{ callStock.contracts(class="input col-span-2 sm:col-span-1 input-bordered w-full") }}
+              {% for error in callStock.contracts.errors %}
+              <span class="invalid-feedback">{{ error }}</span>
+              {% endfor %}
+          {% else %}
+              {{ callStock.contracts(class="input col-span-2 sm:col-span-1 input-bordered w-full") }}
+          {% endif %}
+          {{callStock.submit(class="btn btn-primary col-span-2 border-indigo-400 bg-transparent gradient-border hover:border-transparent transition-all ")}}
+          <script>
+            optionData = JSON.parse({{ optionData|tojson }});
+            function onContractChange(e){
+              let contractSymbol = parseInt(document.getElementById("contractSymbol").value);
+              document.getElementById("strikePrice").innerHTML = "Strike Price: $" + (Math.round(optionData["strike"][contractSymbol] * 100) / 100).toFixed(2);
+              let premium = ((optionData["bid"][contractSymbol] + optionData["ask"][contractSymbol])/2);
+              if (premium == 0) {
+                premium = optionData['lastPrice'][contractSymbol];
+              }
+              document.getElementById("premium").innerHTML = "Premium: $" + (Math.round(premium * 100) / 100).toFixed(2);
+              document.getElementById("contractSize").innerHTML = "Contract Size: " + optionData["contractSize"][contractSymbol];
+              document.getElementById("inTheMoney").innerHTML = "In The Money: " + (optionData["inTheMoney"][contractSymbol] ? "True" : "False");
+            }
+            document.getElementById("contractSymbol").addEventListener("change", onContractChange);
+            onContractChange(null);
+          </script>
+        {% else %}
+          <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+            <p id="contractSymbol">Contract Symbol: </p>
+          </div>
+          <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+            <p id="ticker">Ticker: </p>
+          </div>
+          <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+            <p id="expiry">Expiry Date: </p>
+          </div>
+          <div class="col-span-2 sm:col-span-1 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+            <p id="contracts">Contracts: </p>
+          </div>
+          <div class="col-span-2 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+            <p id="cost">Cost: </p>
+          </div>
+          {% if paperTrader.has_fee %}
+          <div class="col-span-2 flex justify-center items-center text-white text-xl font-semibold hover:bg-white/[0.075] bg-transparent border-2 border-white/25 hover:border-transparent rounded-full w-full h-full py-2 mb-2 text-center">
+            <p id="fee">Transaction Fee: </p>
+          </div>
+          {% endif %}
+          {{confirm.confirm(class="btn btn-primary col-span-2 border-indigo-400 bg-transparent gradient-border hover:border-transparent transition-all", id="confirm")}}
+          <script>
+            let optionData = JSON.parse({{ optionDetails|tojson }});
+            document.getElementById("strikePrice").innerHTML = "Strike Price: $" + (Math.round(optionData["strikePrice"] * 100) / 100).toFixed(2);
+            document.getElementById("premium").innerHTML = "Premium: $" + (Math.round(optionData["premium"] * 100) / 100).toFixed(2);
+            document.getElementById("contractSize").innerHTML = "Contract Size: " + optionData["contractSize"];
+            document.getElementById("inTheMoney").innerHTML = "In The Money: " + (optionData["inTheMoney"] ? "True" : "False");
+            document.getElementById("contractSymbol").innerHTML = "Contract Symbol: " + optionData["contractSymbol"];
+            document.getElementById("ticker").innerHTML = "Ticker: " + optionData["ticker"];
+            document.getElementById("expiry").innerHTML = "Expiry Date: " + optionData["expiry"];
+            document.getElementById("contracts").innerHTML = "Contracts: " + optionData["contracts"];
+            document.getElementById("cost").innerHTML = "Cost: $" + (Math.round(optionData["cost"] * 100) / 100).toFixed(2);
+            fee = document.getElementById("fee");
+            if (fee != null) {
+              fee.innerHTML = "Transaction Fee: $" + (Math.round(optionData["fee"] * 100) / 100).toFixed(2);
+            }
+
+            document.getElementById("confirm").addEventListener("click", function(e){
+              e.preventDefault();
+              console.log("clicked");
+              const urlParams = new URLSearchParams(window.location.search);
+              urlParams.set('t', optionData["ticker"]);
+              urlParams.set('e', optionData["expiry"]);
+              urlParams.set('s', optionData["contractSymbol"]);
+              urlParams.set('c', optionData["contracts"]);
+              window.location.search = urlParams;
+            });
+          </script>
+        {% endif %}
+      {% endif %}
+    </div>
+  </form>
+{% endblock body %}
+{{ super()}}
+{% block search_results %}
+
+{% if data != None %}
+<div id="data">
+  <h1 class="text-5xl text-primary mt-10 mb-10">Article Summary</h1>
+  <h3 class="text-xl mt-10 mb-10">{{data}}</h3>
+  <button class="btn btn-primary col-span-2 border-indigo-400 bg-transparent gradient-border hover:border-transparent transition-all inline-block"><a href="{{link}}" target="_blank">Go to Original Article</a></button>
+</div>
+{% endif %}
+{% endblock search_results %}
+
+{% block footerClass %}fixed-bottom{% endblock footerClass %}

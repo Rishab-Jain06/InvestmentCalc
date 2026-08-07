@@ -1,0 +1,21 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}PE Ratio{% endblock educateTitle %}
+{% block categoryTitle %}Statistics{% endblock categoryTitle %}
+{% block headerTitle %}PE Ratio{% endblock headerTitle %}
+{% block categoryLink %}statistics{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='What is P/E ratio?', 
+    text="The <span class='tooltip-define' data-tip='Price-to-Earnings Ratio'>P/E ratio</span> is a tool used by investors and analysts to determine a stock's relative valuation. It is calculated by dividing a stock's current market value per share by its <span class='tooltip-define' data-tip='Earnings Per Share'>EPS</span>. There are two main types of EPS: <span class='tooltip-define' data-tip='Trailing 12 Months'>TTM</span> and EPS guidance. TTM reflects a company's performance over the past 12 months, while EPS guidance is the company's projected earnings for the future. This difference between the two forms the basis of trailing and forward P/E ratios. The P/E ratio can be used to determine if a stock is overvalued or undervalued, and can also be benchmarked against other stocks in the same industry or the broader market, such as the S&P 500 Index. Long-term valuation trends can also be analyzed by using P/E 10 or P/E 30 measures, which average the past 10 or 30 years of earnings, respectively. The P/E ratio of the S&P 500 has fluctuated widely over the years, with an average of around 16x. Investors and analysts use the P/E ratio to determine if the share price accurately represents the projected earnings per share.",
+    equation="PE\\;Ratio = \\frac{Market\\;Value\\;Per\\;Share}{Earnings\\;Per\\;Share}"
+    ) }}
+  {{ macros.section(
+    header='Forward vs. Trailing P/E ratio', 
+    text="There are two main types of P/E ratios: the forward P/E and the trailing P/E. The forward P/E uses future earnings guidance instead of past figures, which is useful for comparing current earnings to future earnings. However, it can be problematic as companies may underestimate or overestimate earnings, and external analysts may also provide different estimates. The trailing P/E, on the other hand, relies on past performance by dividing the current share price by the total EPS earnings over the past 12 months. It's the most popular P/E metric as it's the most objective, but it also has its own shortcomings, as past performance doesn't necessarily signal future behavior. The P/E ratio can reveal whether a company's stock price is overvalued or undervalued, and can also compare a stock's valuation to its industry group or a benchmark like the S&P 500 Index. It indicates the dollar amount an investor can expect to invest in a company in order to receive $1 of that company's earnings, and can help investors determine the market value of a stock as compared to the company's earnings."
+    ) }}
+{% endblock content %}
+

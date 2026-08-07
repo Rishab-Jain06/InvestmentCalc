@@ -1,0 +1,73 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Options{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Options{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Options', 
+    text="Options are financial contracts that give investors the right, but not the obligation, to buy or sell an underlying asset at a predetermined price within a specified time frame. The underlying asset could be stocks, indices, commodities, or even currencies. Options are traded on organized exchanges, such as the Chicago Board Options Exchange (CBOE)."
+    ) }}
+
+  {{ macros.section(
+    header='Types of Options', 
+    text="Call Options: A call option gives the holder the right to buy the underlying asset at a predetermined price (strike price) before the expiration date.
+    <br> Put Options: A put option grants the holder the right to sell the underlying asset at a predetermined price (strike price) before the expiration date.
+    "
+    ) }}
+  
+  {{ macros.section(
+    header='Key Terminology.', 
+    text="Strike Price: The predetermined price at which the underlying asset can be bought or sold.<br> Expiration Date: The last day on which the option can be exercised.
+    <br>
+    Premium: The price paid for the option contract.
+    <br>
+    . In-the-Money (ITM): When the option's strike price is favorable compared to the market price of the underlying asset.
+<br> Out-of-the-Money (OTM): When the option's strike price is not favorable compared to the market price of the underlying asset.
+<br> Time Decay: The reduction in the value of an option as it approaches its expiration date.
+
+
+    "
+    ) }}
+
+  {{ macros.section(
+    header='Basic Options Strateges for Beginners', 
+    text="1. A bullish strategy that allows investors to profit from a rise in the price of the underlying asset.<br>
+    2. Buying Put Options: A bearish strategy that allows investors to profit from a decline in the price of the underlying asset.<br>
+    3. Covered Calls: A strategy where investors sell call options on stocks they already own, generating income while potentially limiting upside gains.<br>
+    4. Protective Puts: A strategy that involves buying put options to protect an existing stock position from potential downside risk.
+    "
+    ) }}
+
+  {{ macros.section(
+    header='Should one do it or not.', 
+    text="In this section we will explore how options are good and or bad. "
+    ) }}
+  
+    {{ macros.section(
+      header='Advantages of Options', 
+      text="""<ul>
+      <li>Leverage: Options allow investors to control a larger amount of the underlying asset with a smaller investment.</li>
+      <li> Hedging: Options can be used to protect portfolios against potential market downturns.</li>
+      <li>Flexibility: Options provide investors with various strategies to profit from different market conditions.</li>
+      <li> Limited Risk: The most an investor can lose is the premium paid for the option.      </li>"""
+    ) }}
+
+    {{ macros.section(
+      header='Risks associated with Investing:', 
+      text="""<ul>
+        <li>Limited Lifespan: Options have expiration dates, which means they can lose value or become worthless if the market doesn't move in the expected direction within the specified timeframe.</li>
+        <li>Volatility: Options are sensitive to changes in market volatility, and sudden price swings can impact their value.</li>
+        <li> Complexity: Options have a learning curve, and it's crucial to thoroughly understand the risks and strategies involved before diving in        </li>"""
+    ) }}
+
+    {{ macros.section(
+      header='Conclusion', 
+      text="""Options trading can be a valuable addition to your investment repertoire, offering opportunities for increased flexibility and potential returns. However, it is essential to recognize the risks involved and educate yourself about the various strategies and concepts before diving into options trading. By combining knowledge, careful analysis, and discipline, new investors can utilize options to enhance their investment outcomes. Remember, investing in options requires diligence, practice, and continuous learning. Start small, seek professional advice if needed, and make informed decisions. Happy investing with Investify!"""
+    ) }}
+  
+{% endblock content %}

@@ -1,0 +1,481 @@
+{% extends "template.html" %}
+{% block title %}Home{% endblock title %}
+{% block pageTitle %}Investify{% endblock pageTitle %}
+{% block wholebody %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
+
+<div class="grid items-center w-full p-[3%] grid-cols-8 container-fluid mx-10 text-black rounded-pill h-[100vh] transition-all ">
+    <div class="search-container max-md:self-center max-md:justify-self-center col-span-8 md:col-span-3 xl:col-span-4 w-max translate-y-[-4rem]">
+      <h1 class="text-6xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight transition-all">Stay in the know <br> Watch your<br/> <span class="gradient-text">money grow.</span> </strong></h1> <br> <br>
+      <form class="form-control" role="search" method="POST" action="search" autocomplete="off" autocapitalize="characters" id="index-search-form">
+        <div class="input-group">
+          {% if searchForm.ticker.errors %}
+          {{ searchForm.ticker(class="input input-bordered") }}
+              {% for error in searchForm.ticker.errors %}
+              <span class="invalid-feedback">{{ error }}</span>
+              {% endfor %}
+          {% else %}
+              {{ searchForm.ticker(class="input input-bordered text-white", id="index-search-input") }}
+          {% endif %}
+          <button class="btn btn-square text-white" id="search-submit" name="submit" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </button>
+        </div>
+        <div class="join join-vertical rounded-xl w-max bg-[#1e1a2b] hidden" id="autocomplete-results-index"></div>
+      </form>
+      <div class="flex flex-row gap-x-4 mt-5">
+        {{
+          macros.stock_chip(ticker='AAPL',
+          )
+        }}
+        {{
+          macros.stock_chip(ticker='TSLA',
+          )
+        }}
+        
+      </div>
+    </div>
+    <div class="h-full max-md:hidden md:col-span-5 xl:col-span-4 max-md:translate-y-[-18rem]">
+      <div class="relative bg-primary w-full grid justify-center mt-[4rem]">
+        <img  class="absolute w-full top-0 z-[2]" src="{{url_for('static', filename='assets/images/header-image.svg')}}" alt="Header Image"/>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </div>
+  <div class="grid items-top w-screen px-16 bg-slate-100/[0.02] grid-cols-8 container-fluid text-black  min-h-[80vh] max-h-max">
+    <div class="about_content pt-11 pr-24 mt-[9rem] lg:pt-15 lg:pb-15 max-md:self-center max-md:justify-self-center col-span-8 md:col-span-3 xl:col-span-4 w-full h-min max-h-max translate-y-[-8rem] order-0 text-white">
+        <h2 class="gradient-text-alt text-5xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold mb-4 pb-9">Why Use Investify</h2>
+        <p>
+          Investify is your ultimate financial companion, empowering you with knowledge and tools to make smart investment decisions. Our algorithmic stock rating score provides a quantitative assessment of a stock's potential, while real-time tweets, news articles, sentiment analysis, and insider trading data offer valuable market insights. Take charge of your financial future with Investify, your trusted partner in the world of investments.
+        </p>
+    </div> 
+    <div class="h-full pr-20 flex justify-center items-center mx-auto max-md:hidden md:col-span-5 xl:col-span-4">
+      <img loading="lazy" class="w-full z-[2] order-1" src="{{url_for('static', filename='assets/images/about.svg')}}" alt="Why Use Investify"/>
+    </div>
+    
+  </div>
+
+
+    <div class="grid lg:grid-cols-3 max-lg:grid-rows-3 p-[3%] items-top justify-stretch m-0 translate-x-8 gap-x-[5%] w-[94%]  ">
+        <div class=" min-w-max max-w-full p-[3%] row-span-1 lg:col-span-1  text-white rounded-lg  mb-12 min-h-min bg-gradient-to-bl from-fuchsia-500 to-pink-500">
+            <div class="overflow-x-auto">
+                <div class="pb-9">
+                    <h3 class="sub_title font-bold text-2xl text-magenta-500">Daily Most Active</h3>
+                </div> 
+                <table class="table movers index w-full">
+                  <thead>
+                    <tr class="hover font-medium">
+                      <th></th>
+                      <th>Ticker</th>
+                      <th>% Chg</th>
+                      <th>Chg Amount</th>
+                      <th>Volume</th>
+                      <th>Last Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    
+                    <tr class="hover text-red-400">
+                      <th>1</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    
+                    <tr class="hover text-red-400">
+                      <th>2</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    
+                    <tr class="hover text-red-400">
+                      <th>3</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover text-red-400">
+                        <th>4</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-red-400">
+                        <th>5</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-red-400">
+                        <th>6</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-green-400">
+                        <th>7</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-red-400">
+                        <th>8</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-red-400">
+                        <th>9</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover text-red-400">
+                        <th>10</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        <div class=" min-w-max max-w-full p-[3%] row-span-1 lg:col-span-1  text-white rounded-lg mb-12 min-h-min bg-gradient-to-bl from-purple-500 to-pink-500">
+            <div class="overflow-x-auto">
+                <div class="pb-9">
+                    <h3 class="sub_title font-bold text-2xl text-magenta-500">Daily Top Gainers</h3>
+                </div> 
+                <table class="table gainers  w-full">
+                  <thead>
+                    <tr class="hover font-medium">
+                      <th></th>
+                      <th>Ticker</th>
+                      <th>% Chg</th>
+                      <th>Chg Amount</th>
+                      <th>Volume</th>
+                      <th>Last Price</th>
+                    </tr>
+                  </thead>
+                  <tbody class ="text-green-400">
+                    
+                    <!--TODO: Replace fillTicker with search route with query params.-->
+                    <tr class="hover" onclick="fillTicker('WLGS')">
+                      <th>1</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    
+                    <tr class="hover" onclick="fillTicker('AZYO')">
+                      <th>2</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    
+                    <tr class="hover" onclick="fillTicker('HSTO')">
+                      <th>3</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover" onclick="fillTicker('WISH')">
+                        <th>4</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('AEMD')">
+                        <th>5</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('MULN')">
+                        <th>6</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('PRFX')">
+                        <th>7</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('BWEN')">
+                        <th>8</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('THMO')">
+                        <th>9</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('MAPS')">
+                        <th>10</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        <div class=" min-w-max max-w-full p-[3%] row-span-1 lg:col-span-1  text-white rounded-lg mb-12 min-h-min bg-gradient-to-bl from-purple-500 to-pink-500">
+            <div class="overflow-x-auto">
+                <div class="pb-9">
+                    <h3 class="sub_title font-bold text-2xl text-magenta-500">Daily Top Losers</h3>
+                </div> 
+                <table class="table losers  w-full">
+                  <thead>
+                    <tr class="hover font-medium">
+                      <th></th>
+                      <th>Ticker</th>
+                      <th>% Chg</th>
+                      <th>Chg Amount</th>
+                      <th>Volume</th>
+                      <th>Last Price</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-red-400">
+                    
+                    <tr class="hover" onclick="fillTicker('SIDU')">
+                      <th>1</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    
+                    <tr onclick="fillTicker('PEV')"  class="hover">
+                      <th>2</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    
+                    <tr class="hover" onclick="fillTicker('UCAR')">
+                      <th>3</th>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    </tr>
+                    <tr class="hover" onclick="fillTicker('SATX')">
+                        <th>4</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('SNAX')">
+                        <th>5</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('PSTV')">
+                        <th>6</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('POAI')">
+                        <th>7</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('RCRT')">
+                        <th>8</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('KPLT')">
+                        <th>9</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                      <tr class="hover" onclick="fillTicker('VLON')">
+                        <th>10</th>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                        <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+    </div>
+    .
+      <div class="grid items-center w-screen px-16 grid-cols-8 container-fluid bg-slate-100/[0.02]  text-black rounded-lg h-[100vh] gap-y-4">
+        <div class="max-md:self-center max-md:justify-self-center col-span-8 md:col-span-3 xl:col-span-4 w-full text-center   mb-40 md:mb-0 mr-10">
+          <h1 class="text-5xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight mx-10">Upgrade your  <br> financial literacy <span class="gradient-text">NOW.</span> </strong></h1> <br>
+          <a class="btn btn-round-lg text-white gradient-bg" href="education/statistics">
+            Get Started
+          </a>
+      </div>
+        <div class="h-full max-md:hidden md:col-span-5 xl:col-span-4 content-center items-center my-60">
+          <div class="relative flex bg-primary w-full items-center">
+            <div class="absolute inset-y-0 left-0   flex items-center justify-center w-full ">
+                <img loading="lazy" class="w-full md:translate-y-[50%] z-2 rounded-lg" src="{{url_for('static', filename='assets/images/work-2.jpg')}}" alt="Get Started" />
+            </div>
+        </div>
+        
+        </div>
+
+    </div>
+
+    <div class=" bg-gradient-to-r from-pink-500 to-purple-500 w-screen" style="overflow-anchor: none;">
+        <div class="flex justify-center gap-5 py-2">
+          <a href="#item1" class="btn btn-xs carousel-link" style="overflow-anchor: none;">Stocks</a> 
+          <a href="#item2" class="btn btn-xs carousel-link" style="overflow-anchor: none;">Options</a> 
+          <a href="#item3" class="btn btn-xs carousel-link" style="overflow-anchor: none;">ETFs</a> 
+          <a href="#item4" class="btn btn-xs carousel-link" style="overflow-anchor: none;">OTC</a>
+          <a href="#item5" class="btn btn-xs carousel-link" style="overflow-anchor: none;">Crypto</a>
+        </div>
+        <div class="carousel w-[90vw] h-28 mx-auto py-4 rounded-lg">
+          <div id="item1" class="carousel-item w-full bg-black/25 rounded-lg p-2">
+            <img loading="lazy" src = "{{url_for('static', filename='assets/images/candlestick-chart.png')}}" class="w-14 aspect-square" alt="Stocks"/>
+            <div class="grid grid-rows-2">
+                <h1 class="text-5xl font-bold text-white leading-tight px-8 row-span-1">Stocks</h1>
+                <p class="max-md:hidden row-span-1 px-8 inline translate-x-56 ">Invest in thousands of companies and fractional shares using our analytics to create your own financial portfolio.</p>
+            </div>
+          </div> 
+          <div id="item2" class="carousel-item w-full bg-black/25 rounded-lg p-2">
+            <img loading="lazy" src = "{{url_for('static', filename='assets/images/chart.png')}}" class="w-14 aspect-square" alt="Options"/>
+            <div class="grid grid-rows-2">
+                <h1 class="text-5xl font-bold text-white leading-tight px-8 row-span-1">Options</h1>
+                <p class="max-md:hidden row-span-1 px-8 inline translate-x-60">Options provide a strategic alternative to just investing in equity.</p>
+            </div>
+          </div> 
+          <div id="item3" class="carousel-item w-full bg-black/25 rounded-lg p-2">
+            <img loading="lazy" src = "{{url_for('static', filename='assets/images/etf.png')}}" class="w-14 aspect-square" alt="ETFs"/>
+            <div class="grid grid-rows-2">
+                <h1 class="text-5xl font-bold text-white leading-tight px-8 row-span-1">ETFs</h1>
+                <p class="max-md:hidden row-span-1 px-8 inline translate-x-40">Diversify your holdings by investing into a group of stocks with the same convenience as trading a single stock.</p>
+            </div>
+          </div>  
+          <div id="item4" class="carousel-item w-full bg-black/25 rounded-lg p-2">
+            <img loading="lazy" src = "{{url_for('static', filename='assets/images/cycle.png')}}" class="w-14 aspect-square" alt="OTC"/>
+            <div class="grid grid-rows-2">
+                <h1 class="text-5xl font-bold text-white leading-tight px-8 row-span-1">OTC</h1>
+                <p class="max-md:hidden row-span-1 px-8 inline translate-x-40">Get a better understanding of what OTCs are and how you can invest in OTCs with Webull.</p>
+            </div>
+          </div> 
+          <div id="item5" class="carousel-item w-full bg-black/25 rounded-lg p-2">
+            <img loading="lazy" src = "{{url_for('static', filename='assets/images/bitcoin.png')}}" class="w-14 aspect-square" alt="Crypto"/>
+            <div class="grid grid-rows-2">
+                <h1 class="text-5xl font-bold text-white leading-tight px-8 row-span-1">Crypto</h1>
+                <p class="max-md:hidden row-span-1 px-8 inline translate-x-56">Diversify your holdings by investing in digital currencies including Bitcoin, Ethereum, Bitcoin Cash and Litecoin.</p>
+            </div>
+          </div> 
+        </div>
+      </div>
+      
+        <script>
+            const links = document.querySelectorAll('.carousel-link');
+            links.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+            });
+            });
+        </script>
+
+<div class="grid items-center w-[94%] p-[3%] grid-cols-8 container-fluid mx-6 text-black rounded-lg h-[80vh]">
+    <div class="h-full max-md:hidden md:col-span-5 xl:col-span-4 content-center items-center">
+        <div class="relative bg-transparent w-full grid items-center">
+            <img loading="lazy" class="w-full z-[2] rounded-lg  bg-transparent" src="{{url_for('static', filename='assets/images/work-4.png')}}" alt="Call To Action"/>
+        </div>
+    </div>
+    <div class="col-span-8 md:col-span-3 xl:col-span-4 text-center">
+        <h1 class="text-5xl font-bold text-white leading-tight mx-10">Start a paper trading <br> account <span class="gradient-text">NOW.</span> </strong></h1> <br>
+        <a class="btn btn-round-lg text-white gradient-bg" href="/profile">
+          Get Started
+        </a>
+    </div>
+</div>
+{% endblock wholebody %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/top_movers.js') }}"></script>
+<script>
+  let searchFormIndex = document.getElementById("index-search-form");
+  searchFormIndex.addEventListener("submit", function(event) {
+      event.preventDefault();
+      let ticker = document.getElementById("index-search-input").value;
+      document.getElementById("index-search-input").value = "";
+      console.log(ticker);
+
+      // Redirect to the search page and fill out the form.
+      window.location.href = "/search?ticker=" + ticker;
+  });
+</script>
+{% endblock script %}

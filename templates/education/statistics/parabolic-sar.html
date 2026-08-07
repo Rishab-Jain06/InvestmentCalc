@@ -1,0 +1,34 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}PE Ratio{% endblock educateTitle %}
+{% block categoryTitle %}Statistics{% endblock categoryTitle %}
+{% block headerTitle %}PE Ratio{% endblock headerTitle %}
+{% block categoryLink %}statistics{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Introduction to the Parabolic SAR Indicator', 
+    text="The parabolic SAR indicator, developed by J. Wells Wilder, is a technical analysis tool that traders use to determine trend direction and potential price reversals. It is also known as the parabolic stop and reverse, PSAR, or parabolic SAR. The indicator appears on a chart as a series of dots, either above or below the asset's price, depending on the direction of the trend. A dot is placed below the price when it is trending upward and above the price when it is trending downward. The indicator generates buy or sell signals when the position of the dots moves from one side of the asset's price to the other. For example, a buy signal occurs when the dots move from above the price to below the price, while a sell signal occurs when the dots move from below the price to above the price. Traders also use the PSAR dots to set trailing stop loss orders."
+
+    ) }}
+  {{ macros.section(
+    header='Using the Parabolic SAR with Other Indicators', 
+    text="Traders should use the parabolic indicator with other technical indicators that indicate whether a market is trending or not, such as the average directional index (ADX), a moving average (MA), or a trendline. For example, traders might confirm a PSAR buy signal with an ADX reading above 30 and a bounce for a long-term rising trendline. The PSAR and MAs both track the price and help show the trend, but they do it using different formulas. The PSAR looks at extreme highs and lows and then applies an acceleration factor. An MA takes the average price over a selected number of periods and then plots it on the chart."
+    ) }}
+
+  {{ macros.section(
+    header='Effectiveness in Trending Markets', 
+    text="The indicator works most effectively in trending markets where large price moves allow traders to capture significant gains. When a security’s price is range-bound, the indicator will constantly be reversing, resulting in multiple low-profit or losing trades. The PSAR moves regardless of whether the price moves, which means that if the price is rising initially, but then moves sideways, the PSAR will keep rising despite the sideways movement in price. A reversal signal will be generated at some point, even if the price hasn't dropped."
+
+    ) }}
+
+  {{ macros.section(
+    header='Limitations of the Parabolic SAR', 
+    text="The parabolic SAR indicator is always on, and constantly generating signals, whether there is a quality trend or not. Therefore, many signals may be of poor quality because no significant trend is present or develops following a signal. Reversal signals are also generated eventually, regardless of whether the price actually reverses. This is because a reversal is generated when the SAR catches up to the price due to the acceleration factor in the formula. Therefore, a reversal signal may get a trader out of a trade even though the price hasn't technically reversed."
+  
+    ) }}
+
+
+{% endblock content %}

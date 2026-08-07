@@ -1,0 +1,41 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}PE Ratio{% endblock educateTitle %}
+{% block categoryTitle %}Statistics{% endblock categoryTitle %}
+{% block headerTitle %}PE Ratio{% endblock headerTitle %}
+{% block categoryLink %}statistics{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='On Balance Volumne(OBV)', 
+    text="On-balance volume (OBV) is a technical trading momentum indicator that uses volume flow to predict changes in stock price. It was first developed by Joseph Granville in his 1963 book 'Granville's New Key to Stock Market Profits.' Granville believed that volume was the key force behind markets and designed OBV to project when major moves in the markets would occur based on volume changes."
+    ) }}
+    <img class="container mx-auto px-80" src="https://cdn.wallstreetmojo.com/wp-content/uploads/2022/02/On-balance-volume-indicator.jpg" alt="">
+  {{ macros.section(
+    header='Calculation of OBV', 
+    text="OBV provides a running total of an asset's trading volume and indicates whether this volume is flowing in or out of a given security or currency pair. It is a cumulative total of volume (positive and negative). The OBV is calculated by following three rules: if the current closing price is higher than the previous day's closing price, the current OBV is equal to the previous OBV plus today's volume; if the current closing price is lower than the previous day's closing price, the current OBV is equal to the previous OBV minus today's volume; if the current closing price is equal to the previous day's closing price, the current OBV is equal to the previous OBV.
+
+    "
+    ) }}
+
+  {{ macros.section(
+    header='OBV Theory', 
+    text="The theory behind OBV is based on the distinction between smart money, namely institutional investors, and less sophisticated retail investors. As mutual funds and pension funds begin to buy into an issue that retail investors are selling, volume may increase even as the price remains relatively level. Eventually, volume drives the price upward. At that point, larger investors begin to sell and smaller investors begin buying. However, the actual individual quantitative value of OBV is not relevant."
+
+    ) }}
+
+  {{ macros.section(
+    header='Analysis of OBV', 
+    text="Traders and analysts look to the nature of OBV movements over time, the slope of the OBV line carries all of the weight of analysis. They track large, institutional investors by looking at divergences between volume and price and treat it as a synonym of the relationship between 'smart money' and the disparate masses."
+  
+    ) }}
+
+  {{ macros.section(
+    header='Limitations of OBV', 
+    text="but there is little it can say about what has actually happened in terms of the signals it produces. Because of this, it is prone to produce false signals. It can therefore be balanced by lagging indicators. Another note of caution in using the OBV is that a large spike in volume on a single day can throw off the indicator for quite a while. It is therefore important to use it in conjunction with other indicators and take into account other market conditions when making trading decisions."
+
+    ) }}
+
+{% endblock content %}

@@ -1,0 +1,532 @@
+    <!-- <div class="divider mx-16" id="divider"></div>
+    <div class="flex justify-center bg-[#1b1726] gap-x-2 md:gap-x-6 -translate-y-16 pt-24 px-4 sm:px-8 md:px-12 lg:px-16 sticky-tab-bar overflow-x-auto scrollbar minimalist" id="topNav">
+      <div class="py-4">
+        <a href="#" onclick="openTab('overview')" class="block z-[1001] px-4 btn py-0 h-min min-h-0 btn-primary text-sm lg:text-sm xl:text-md font-thin bg-transparent border-indigo-400 gradient-border hover:border-transparent  transition-all rounded-md">Overview</a>
+      </div>
+      <div class="py-4">
+        <a href="#" onclick="openTab('gainers')" class="block z-[1001] px-4 btn py-0 h-min min-h-0 btn-primary text-sm lg:text-sm xl:text-md font-thin bg-transparent border-indigo-400 gradient-border hover:border-transparent  transition-all rounded-md">Top Gainers</a>
+      </div>
+      <div class="py-4">
+        <a href="#" onclick="openTab('losers')" class="block z-[1001] px-4 btn py-0 h-min min-h-0 btn-primary text-sm lg:text-sm xl:text-md font-thin bg-transparent border-indigo-400 gradient-border hover:border-transparent  transition-all rounded-md">Top Losers</a>
+      </div>
+      <div class="py-4">
+        <a href="#" onclick="openTab('active')" class="block z-[1001] px-4 btn py-0 h-min min-h-0 btn-primary text-sm lg:text-sm xl:text-md font-thin bg-transparent border-indigo-400 gradient-border hover:border-transparent  transition-all rounded-md">Most Active</a>
+      </div>
+      <div class="py-4">
+        <a href="#" onclick="openTab('options')" class="block z-[1001] px-4 btn py-0 h-min min-h-0 btn-primary text-sm lg:text-sm xl:text-md font-thin bg-transparent border-indigo-400 gradient-border hover:border-transparent  transition-all rounded-md">Top Options</a>
+      </div>
+      <div class="py-4">
+        <a href="#" onclick="openTab('calendar')" class="block z-[1001] px-4 btn py-0 h-min min-h-0 btn-primary text-sm lg:text-sm xl:text-md font-thin bg-transparent border-indigo-400 gradient-border hover:border-transparent  transition-all rounded-md">Calendar</a>
+      </div>
+    </div> -->
+    
+    <!-- <div id="gainers" class="tab-content mt-4 mx-16 z-[3] mb-10">
+      <h2 class="text-xl font-bold mb-10">Top Gainers</h2>
+      <div class="mx-16 p-[3%] text-white rounded-lg min-h-min border-indigo-400 border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <table class="table gainers w-full">
+              
+              <thead>
+                <tr class="hover">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>%Chg in 1D</th>
+                  <th>Last Price</th>
+                  <th>High</th>
+                  <th>Low</th>
+                  <th>Volume</th>
+                  <th>%Range</th>
+                  <th>P/E</th>
+                  <th>Market Cap</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover" >
+                  <th>1</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                  <th>3</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                    <th>4</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>5</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>6</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>7</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>8</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>9</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>10</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+
+    <div id="losers" class="tab-content mt-4 mx-16 z-[4] mb-10">
+      <h2 class="text-xl font-bold mb-10">Top Losers</h2>
+      <div class="mx-16 p-[3%] text-white rounded-lg min-h-min border-indigo-400 border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <table class="table losers w-full">
+              <thead>
+                <tr class="hover">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>%Chg in 1D</th>
+                  <th>Last Price</th>
+                  <th>High</th>
+                  <th>Low</th>
+                  <th>Volume</th>
+                  <th>%Range</th>
+                  <th>P/E</th>
+                  <th>Market Cap</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover" >
+                  <th>1</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                  <th>3</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                    <th>4</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>5</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>6</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>7</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>8</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>9</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>10</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+
+    <div id="active" class="tab-content mt-4 mx-16 z-[5] mb-10">
+      <h2 class="text-xl font-bold mb-10">Most Active</h2>
+      <div class="mx-16 p-[3%] text-white rounded-lg min-h-min border-indigo-400 border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <table class="table movers w-full">
+              <thead>
+                <tr class="hover">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>Volume</th>
+                  <th>% Change</th>
+                  <th>Last Price</th>
+                  <th>High</th>
+                  <th>Low</th>
+                  <th>%Range</th>
+                  <th>%Turnover</th>
+                  <th>Market Cap</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover" >
+                  <th>1</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                  <th>3</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                    <th>4</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>5</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>6</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>7</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>8</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>9</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>10</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+
+    <div id="options" class="tab-content mt-4 mx-16 z-[6] mb-10">
+      <h2 class="text-xl font-bold mb-10">Top Options</h2>
+      <div class="mx-16 p-[3%] text-white rounded-lg min-h-min border-indigo-400 border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <table class="table  w-full">
+              <thead>
+                <tr class="hover">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>Total Volume</th>
+                  <th>P/C Volume Ratio</th>
+                  <th>Total Position</th>
+                  <th>P/C Open Int Ratio</th>
+                  <th>Underlying Price</th>
+                  <th>Underlying Change%</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover" >
+                  <th>1</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                  <th>3</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                    <th>4</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>5</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>6</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>7</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>8</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>9</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>10</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+
+    <div id="calendar" class="tab-content mt-4 mx-16 z-[7] mb-10">
+      <h2 class="text-xl font-bold mb-10">Calendar</h2>
+      <div class="mx-16 p-[3%] text-white rounded-lg min-h-min border-indigo-400 border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <table class="table  w-full">
+              <thead>
+                <tr class="hover">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>%Chg in 1D</th>
+                  <th>LRelease Time</th>
+                  <th>EPS Estimate</th>
+                  <th>Last EPS</th>
+                  <th>Last EPS Date</th>
+                  <th>Market Cap</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover" >
+                  <th>1</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                  <th>3</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                    <th>4</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>5</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>6</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>7</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>8</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>9</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>10</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>
+    </div> -->
+
+
+
+<!-- 
+    <div class="mx-16 p-[3%] text-white rounded-lg min-h-min border-indigo-400 border-2 px-4 sm:px-8 md:px-12 lg:px-16">
+        <div class="overflow-x-auto scrollbar minimalist">
+            <div class="pb-9">
+                <h5 href="#" onclick="openTab('calendar')" class="sub_title font-bold text-2xl text-magenta-500 underline-on-hover">Calendar Earnings</h5>
+            </div> <!-- section title -->
+            <table class="table  w-full">
+              <thead>
+                <tr class="hover">
+                  <th></th>
+                  <th>Ticker</th>
+                  <th>Release Time</th>
+                  <th>EPS Estimate</th>
+                  <th>Last EPS</th>
+                </tr>
+              </thead>
+              <tbody class="text-red-400">
+                <tr class="hover" >
+                  <th>1</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr   class="hover">
+                  <th>2</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                  <th>3</th>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                </tr>
+                <tr class="hover" >
+                    <th>4</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>5</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>6</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>7</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>8</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>9</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+                  <tr class="hover" >
+                    <th>10</th>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                    <td><div class="skeleton w-full h-4 mb-1 rounded-sm last:w-4/5 last:mb-0"></div></td>
+                  </tr>
+              </tbody>
+            </table>
+          </div>
+      </div>  -->

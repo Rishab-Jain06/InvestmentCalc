@@ -1,0 +1,44 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Bonds{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Bonds{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Bonds', 
+    text="""Bonds are debt securities or IOUs issued by governments, municipalities, corporations, and other entities to raise capital. When you invest in bonds, you essentially become a lender, providing the issuer with a loan in exchange for regular interest payments and the return of your principal amount at maturity.
+    """
+    ) }}
+  
+  {{ macros.section(
+    header='How they work.',
+    text="When you purchase a bond, you're lending money to the issuer for a fixed period, which can range from a few months to several decades. In return, the issuer pays you periodic interest payments, usually semi-annually or annually, based on a predetermined interest rate, known as the coupon rate. At the bond's maturity, the issuer repays the full face value or principal amount to the bondholder."
+    ) }}
+
+  {{ macros.section(
+    header='Types of Bonds', 
+    text="Government Bonds: Issued by national governments, such as U.S. Treasury bonds, these are considered low-risk investments, offering guaranteed returns. They are often used as a benchmark for other bonds. Municipal Bonds: Issued by local governments or municipalities, these bonds finance public projects like schools, highways, or water treatment plants. Interest income from municipal bonds is generally tax-exempt at the federal level, making them attractive to investors in higher tax brackets. Corporate Bonds: Issued by corporations to raise capital for various purposes, such as expansion, research and development, or debt refinancing. Corporate bonds may offer higher yields than government or municipal bonds but carry slightly more risk. Treasury Inflation-Protected Securities (TIPS): These bonds are designed to protect investors against inflation by adjusting the bond's principal value in line with changes in the Consumer Price Index (CPI)."
+
+    ) }}
+
+  {{ macros.section(
+    header='Benefits', 
+    text="""Steady Income Stream: Bonds provide a reliable source of income through regular interest payments, making them particularly attractive to income-oriented investors. Diversification: Including bonds in your investment portfolio can help balance the risk associated with other asset classes, such as stocks. Bonds typically exhibit lower volatility, providing stability during market downturns. Capital Preservation: Bonds offer a relatively higher level of capital preservation compared to stocks or other riskier investments. As long as the issuer does not default, the principal amount invested in bonds is typically returned at maturity. Customization: Bond offerings come in various maturities, coupon rates, and risk profiles, allowing investors to tailor their investments according to their risk tolerance and investment goals."""
+  
+    ) }}
+
+  {{ macros.section(
+    header='Risks to Consider', 
+    text="""While bonds are generally considered lower-risk investments, it is crucial to be aware of potential risks:
+
+    Interest Rate Risk: Bond prices are inversely related to interest rates. When interest rates rise, bond prices tend to fall, potentially affecting the value of existing bonds in your portfolio.
+    Credit Risk: The risk of default varies across issuers. Higher-risk bonds, such as those from lower-rated corporations, carry a higher chance of default, potentially resulting in a loss of principal.
+    Inflation Risk: Inflation erodes the purchasing power of future cash flows, including bond interest payments. Fixed-rate bonds may be particularly susceptible to this risk.
+    Getting Started with Bonds"""
+    
+   ) }}
+{% endblock content %}

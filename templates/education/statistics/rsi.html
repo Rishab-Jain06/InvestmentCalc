@@ -1,0 +1,34 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}PE Ratio{% endblock educateTitle %}
+{% block categoryTitle %}Statistics{% endblock categoryTitle %}
+{% block headerTitle %}PE Ratio{% endblock headerTitle %}
+{% block categoryLink %}statistics{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Relative Strength Index(RSI)', 
+    text="The relative strength index (RSI) is a momentum indicator used in technical analysis to evaluate overvalued or undervalued conditions in the price of a security. Developed by J. Welles Wilder Jr. and introduced in his 1978 book, the RSI is displayed as an oscillator on a scale of zero to 100."
+
+    ) }}
+  {{ macros.section(
+    header='Using RSI to Evaluate Overbought/Oversold Conditions', 
+    text="Traditionally, an RSI reading of 70 or above indicates an overbought situation, while a reading of 30 or below indicates an oversold condition. However, it can also indicate securities that may be primed for a trend reversal or corrective pullback in price. By comparing a security's strength on days when prices go up to its strength on days when prices go down, the RSI can give traders an idea of how a security may perform."
+    ) }}
+
+  {{ macros.section(
+    header='Using RSI in Conjunction with Other Indicators', 
+    text="When used in conjunction with other technical indicators, it can help traders make better-informed trading decisions. However, it is important to understand the primary trend of the security to properly understand RSI readings. Some traders will create a horizontal trendline between the levels of 30 and 70 to better identify the overall trend and extremes."
+
+    ) }}  
+
+  {{ macros.section(
+    header='Limitations of RSI', 
+    text="Additionally, the RSI is not as reliable in trending markets as it is in trading ranges and false signals often generated during trending markets. A related concept is to use trade signals and techniques that conform to the trend, such as using bullish signals primarily when the price is in a bullish trend and bearish signals primarily when a stock is in a bearish trend, to avoid false alarms. An RSI divergence occurs when price moves in the opposite direction of the RSI, a change in momentum before a corresponding change in price."
+  
+    ) }}
+    
+{% endblock content %}
+

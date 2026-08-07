@@ -1,0 +1,31 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Consumer Credit{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Consumer Credit{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Consumer Credit',
+    text=""
+    ) }}
+
+  {{ macros.section(
+    header='What is a Credit Score?', 
+    text="A credit score is a numerical representation used by lenders, such as banks and credit card companies, to assess your creditworthiness and determine whether to grant you loans or credit. It plays a significant role because a higher credit score increases your chances of loan approval and obtaining favorable interest rates.<br>Credit scores are calculated based on various factors compiled by credit bureaus like Experian, Equifax, or TransUnion. These factors include the length of your credit history, outstanding debts, payment punctuality, and any history of bankruptcy.<br>The <strong>credit bureau<strong> assigns a score ranging from 300 to 850, with higher scores indicating better credit ratings. Here's a breakdown of the score ranges and their implications:<br><ul><li>300-579: Poor. Obtaining loans or credit cards may be challenging, and you may face higher interest rates.</li><li>580-669: Fair. You might qualify for some loans and credit cards, but interest rates may not be the most favorable.</li><li>670-739: Good. You should be able to secure approval for most loans and credit cards with reasonable interest rates.</li><li>740-799: Very good. You'll find it even easier to get approved for loans and credit cards, enjoying some of the best interest rates available.</li><li>800-850: Excellent. You'll face no difficulties in obtaining loans or credit cards and qualify for the most competitive interest rates.</li></ul>"
+    ) }}
+  
+  {{ macros.section(
+    header='Raise Credit Score:', 
+    text="<ul><li>Pay bills promptly: Timely and full bill payments are crucial to maintain a positive credit score.</li><li>Maintain low credit utilization: Limit the portion of available credit you utilize. If it exceeds 30%, it may harm your score.</li><li>Monitor your credit report: Regularly check for errors that may adversely affect your score. Dispute any inaccuracies promptly.</li><li>Build a longer credit history: Having a longer credit history improves your score. Avoid closing unused credit accounts.</li><li>Limit new credit applications: Each application temporarily impacts your score. Multiple applications within a short period can have a cumulative negative effect.</li><li>Diversify credit types: Managing various types of credit, such as mortgages, car loans, and credit cards, demonstrates your ability to handle different debts, benefiting your credit score.</li></ul>"
+    ) }}
+
+  {{ macros.section(
+    header='Credit Score Lowers:', 
+    text="""<ul><li>Missed payments: Failure to make credit card or loan payments reflects negatively on your credit report and score.</li><li>Excessive debt: A high debt-to-income ratio indicates greater risk to lenders, adversely impacting your credit score.</li><li>Frequent credit applications: Each new credit card or loan application triggers a \"hard inquiry,\" causing a slight credit score decrease.</li><li>Loan default: Ceasing loan payments and resulting in a charge-off by the lender significantly damages your credit score.</li><li>Limited credit history: Insufficient credit history makes it difficult for lenders to assess your credit responsibility, leading to a lower score.</li><li>Bankruptcy: Filing for bankruptcy has a substantial negative impact on your credit score, with bankruptcy records remaining on your report for up to ten years.</li></ul>"""
+    ) }}
+  
+{% endblock content %}

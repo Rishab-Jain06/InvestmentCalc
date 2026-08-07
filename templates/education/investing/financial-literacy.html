@@ -1,0 +1,41 @@
+{% extends "education/article-template.html" %}
+{% block educateTitle%}Financial Literacy{% endblock educateTitle %}
+{% block categoryTitle %}Investing{% endblock categoryTitle %}
+{% block headerTitle %}Financial Literacy{% endblock headerTitle %}
+{% block categoryLink %}investing{% endblock categoryLink %}
+{% block section %}
+
+{% endblock section %}
+{% block content %}
+  
+  {{ macros.section(
+    header='Introduction to Financial Literacy', 
+    text="Financial literacy encompasses a wide range of knowledge and skills related to handling money wisely. Many individuals face challenges in this area, often due to misconceptions or a lack of understanding. Our aim is to provide support and guidance on this crucial topic! Through our course, we strive to make you comfortable and answer your questions regarding this field."
+    ) }}
+    
+  {{ macros.section(
+    header='Is financial literacy solely about managing a budget?',
+    text="Not at all. While budgeting is an essential component of financial literacy, it is just one piece of the puzzle. Financial literacy also involves comprehending concepts like investment strategies, debt management, insurance, and retirement planning."
+    ) }}
+
+  {{ macros.section(
+    header='Can I develop financial literacy skills regardless of my current situation?', 
+    text="Absolutely! It is never too late to embark on the path of financial literacy. Start by educating yourself on the basics of budgeting, saving, and investing. We will walk you through this journey through our course. As you progress, you can delve deeper into various financial topics and continue to expand your expertise."
+    ) }}
+
+  {{ macros.section(
+    header='Why is financial literacy important?', 
+    text='''Financial responsibility is important as it means living within your means and making smart decisions. This means to make sure that you are not spending more money than you make as certain decisions can affect you later down the road. For example, not paying credit card bills on time could severely impact your credit score which is very hard to improve in the future. The rewards of financial planning are greater flexibility, improved standard of living, wise spending habits, and increased wealth. 
+    
+    A financial plan is a formalized report that summarizes your current financial situation, analyzes your financial needs, and recommends future financial activities. 
+
+    An individual financial plan defines financial goals and develops appropriate strategies to reach them. Effective financial goals should be realistic, stated in specific and measurable terms, based on a time frame, and action-oriented.'''  
+    ) }}
+
+  {{ macros.section(
+    header='Components of achieving financial success:', 
+    text="<strong>Obtaining: </strong>Obtaining financial resources is the foundation of financial planning since these resources are used for all financial activities--this information comes from employment, investments, or ownership. <br><strong>Planning: </strong>Planned spending through budgeting is the key to achieving goals and future financial security. Efforts to anticipate expenses, along with certain financial decisions can help in many areas and also might enable the individual to reduce taxes. <br><strong>Saving: </strong>Long-term financial security starts with a regular savings plan for emergencies, unexpected bills, the replacement of major items, and the purchase of special goods and services. Once a basic savings plan is established, additional money can be used for investments that offer greater financial growth. <br><strong>Borrowing:</strong> Maintaining control over your credit-buying habits will contribute to your financial goals and build a positive. The overuse and misuse of credit may cause a situation in which a person’s debts far exceed the resources available to pay those debts. Bankruptcy is a set of federal laws allowing an individual to either restructure debt or remove certain debts. <br><strong>Spending:</strong> Financial planning is designed not to prevent enjoyment of life but to help obtain items an individual needs and wants. Spending less than you earn is the only way to achieve long-term financial security. <br><strong>Managing Risk:</strong> Insurance coverage protects individuals and families against financial loss in the event of unforeseen circumstances such as illness, accidents, theft, or natural disasters. Without insurance coverage, the financial impact of such events could be devastating and could result in the loss of assets and financial stability. <br><strong>Investing: </strong>People invest for two primary reasons which are current income and long-term growth. Many types of investments are available and investment diversification can be achieved by including a variety of assets in an investment portfolio. <br><strong>Retirement and Estate Planning:</strong>Most people desire financial security upon completion of full-time employment. Researching all options can help one select the best course of action for funding current and future costs, and to maximize tax benefits while allocating these resources."
+  ) }}
+
+  
+{% endblock content %}
