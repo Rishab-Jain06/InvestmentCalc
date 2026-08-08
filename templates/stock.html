@@ -10,7 +10,6 @@
   <div class="price-actions">
     <button id="watch-btn" class="secondary-button">☆ Watch</button>
       <button id="ask-ai-stock" class="secondary-button" type="button">Ask AI about this stock</button>
-      <button id="analyze-btn" class="secondary-button analysis-trigger">Analyze setup</button>
     <div class="price-wrap"><div id="price" class="price">—</div><div id="change" class="change">—</div></div>
   </div>
 </section>
@@ -24,10 +23,10 @@
   <div><span>Avg. volume</span><strong id="avg-volume">—</strong></div>
 </section>
 
-<section id="signal-card" class="card signal-card hidden">
+<section id="signal-card" class="card signal-card">
   <div class="signal-head"><div><p class="eyebrow">TECHNICAL SIGNAL</p><h2 id="signal-label">—</h2></div><div id="signal-score" class="signal-score">—</div></div>
   <div id="signal-reasons" class="signal-reasons"></div>
-  <p class="small-muted">Rule-based technical read from price, EMA20/50, RSI and MACD — not personalized investment advice.</p>
+  <p id="signal-explanation" class="small-muted">Score is calculated from simple technical checks: price vs EMA20, price vs EMA50, EMA20 vs EMA50, RSI position, and MACD histogram. Bullish checks add points, bearish checks remove points. This is a rule-based read, not personalized investment advice.</p>
 </section>
 
 <section class="card chart-card">

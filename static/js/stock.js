@@ -135,14 +135,27 @@ function renderStats(tab){
   }).join("");
 }
 document.querySelectorAll("#stats-tabs button").forEach(b => b.addEventListener("click", () => renderStats(b.dataset.tab)));
-$("analyze-btn").addEventListener("click", async () => {
-  const a = await (await fetch(`/api/analyze/${s}`)).json();
-  $("signal-card").classList.remove("hidden");
-  $("signal-label").textContent = (a.signal || "unknown").toUpperCase();
-  $("signal-label").className = a.signal === "bullish" ? "positive" : a.signal === "bearish" ? "negative" : "";
-  $("signal-score").textContent = `${a.score}/100`;
-  $("signal-reasons").innerHTML = (a.reasons || []).map(x => `<span>${x}</span>`).join("");
-});
+
+async function loadSignal(){
+  try{
+    const a = await (await fetch(`/api/analyze/${s}`)).json();
+    if(a.error) throw Error(a.error);
+    $("signal-card")?.classList.remove("hidden");
+    $("signal-label").textContent = (a.signal || "unknown").toUpperCase();
+    $("signal-label").className = a.signal === "bullish" ? "positive" : a.signal === "bearish" ? "negative" : "";
+    $("signal-score").textContent = `${a.score}/100`;
+    $("signal-reasons").innerHTML = (a.reasons || []).map(x => `<span>${x}</span>`).join("");
+    const explanation = $("signal-explanation");
+    if(explanation){
+      explanation.textContent = "Score uses five simple checks: price vs EMA20, price vs EMA50, EMA20 vs EMA50, RSI above/below neutral 50, and MACD histogram positive/negative. Bullish checks raise the score and bearish checks lower it. It is a rule-based technical read, not personalized investment advice.";
+    }
+  }catch(e){
+    $("signal-label").textContent = "UNAVAILABLE";
+    $("signal-score").textContent = "—";
+    $("signal-reasons").innerHTML = '<span>Technical signal unavailable</span>';
+  }
+}
+
 const K = "investify_watchlist";
 const watchButton = $("watch-btn");
 function getWatch(){ return JSON.parse(localStorage.getItem(K) || "[]"); }
@@ -159,6 +172,7 @@ loadQuote();
 loadHistory(localStorage.getItem("investify_default_range") || "1D");
 loadTechnicals();
 loadStats();
+loadSignal();
 
 
 

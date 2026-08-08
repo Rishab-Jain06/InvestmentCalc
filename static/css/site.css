@@ -416,3 +416,32 @@ html[data-theme="dark"] .direction-toggle button.bearish.active{
 .preset-tools select{min-width:0;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:9px}
 .preset-tools .text-button{white-space:nowrap}
 @media(max-width:640px){.filter-toggle-row{flex-direction:column}.quick-options-actions{grid-template-columns:1fr}}
+
+.analysis-card{
+  position: relative;
+  padding-top: 52px;
+}
+
+.analysis-close-x{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  z-index: 5;
+}
+
+.analysis-close-x:hover{
+  color: var(--text);
+  border-color: var(--brand);
+}

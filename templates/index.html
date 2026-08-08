@@ -48,21 +48,6 @@
   <div id="home-news-list" class="home-news-list card"><div class="empty-cell">Loading headlines…</div></div>
 </section>
 
-<section class="feature-strip home-actions four-up">
-  <a href="/research"><article><div class="feature-icon">↗</div><div><h3>Stock Research</h3><p>Open quote pages, charts, statistics and technical signals.</p></div></article></a>
-  <a href="/news"><article><div class="feature-icon">◆</div><div><h3>News</h3><p>Load market and ticker headlines, then summarize with Gemini.</p></div></article></a>
-  <a href="/options"><article><div class="feature-icon">◎</div><div><h3>Options Lab</h3><p>Screen single legs and verticals with Greeks and payoff charts.</p></div></article></a>
-  <a href="/search"><article><div class="feature-icon">⌕</div><div><h3>AI Search</h3><p>Ask research questions using context and attached trades.</p></div></article></a>
-</section>
-
-<section class="home-section">
-  <div class="section-heading"><div><p class="eyebrow">MORE TOOLS</p><h2>Go directly to your workflow.</h2></div></div>
-  <div class="simple-grid home-tool-grid">
-    <a class="simple-card nav-card" href="/screener"><span>01</span><h3>Screener</h3><p>Filter stocks by liquidity and technical setup.</p></a>
-    <a class="simple-card nav-card" href="/watchlist"><span>02</span><h3>Watchlist</h3><p>Track your personal research universe locally.</p></a>
-    <a class="simple-card nav-card" href="/settings"><span>03</span><h3>Settings</h3><p>Change defaults and appearance preferences.</p></a>
-  </div>
-</section>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
