@@ -3,11 +3,12 @@ from dotenv import load_dotenv
 import yahoo_data
 import options_data
 import news_ai
+import os
 
 load_dotenv()
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "local-personal-tool"
+app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "local-personal-tool")
 
 @app.get("/")
 def home(): return render_template("index.html")
