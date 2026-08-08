@@ -445,3 +445,447 @@ html[data-theme="dark"] .direction-toggle button.bearish.active{
   color: var(--text);
   border-color: var(--brand);
 }
+
+.brand{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-logo{
+  height: 44px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.brand-logo-light{
+  display: none;
+}
+
+.brand-logo-dark{
+  display: block;
+}
+
+/* Light mode */
+[data-theme="light"] .brand-logo-dark{
+  display: none;
+}
+
+[data-theme="light"] .brand-logo-light{
+  display: block;
+}
+
+/* Fallback if theme uses class instead */
+.light .brand-logo-dark{
+  display: none;
+}
+
+.light .brand-logo-light{
+  display: block;
+}
+
+.theme-toggle{
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.theme-toggle:hover{
+  transform: translateY(-1px);
+  border-color: var(--brand);
+}
+
+.theme-toggle:active{
+  transform: translateY(0);
+}
+
+#theme-toggle-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* v24 final header layout + theme icon */
+.topbar-inner{
+  max-width:1180px;
+  margin:auto;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  justify-content:flex-start;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  flex:0 0 auto;
+}
+
+.brand-logo{
+  height:44px;
+  width:auto;
+  max-width:230px;
+  display:block;
+  object-fit:contain;
+}
+
+.brand-logo-light{
+  display:none;
+}
+
+.brand-logo-dark{
+  display:block;
+}
+
+html[data-theme="light"] .brand-logo-dark,
+body[data-theme="light"] .brand-logo-dark,
+.light .brand-logo-dark{
+  display:none;
+}
+
+html[data-theme="light"] .brand-logo-light,
+body[data-theme="light"] .brand-logo-light,
+.light .brand-logo-light{
+  display:block;
+}
+
+html[data-theme="dark"] .brand-logo-dark,
+body[data-theme="dark"] .brand-logo-dark{
+  display:block;
+}
+
+html[data-theme="dark"] .brand-logo-light,
+body[data-theme="dark"] .brand-logo-light{
+  display:none;
+}
+
+.global-ticker-search{
+  display:flex;
+  align-items:center;
+  gap:0;
+  margin-left:0;
+  margin-right:0;
+  flex:0 0 200px;
+  min-width:200px;
+}
+
+.global-ticker-search input{
+  width:100%;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+  border-radius:999px;
+  padding:9px 13px;
+  outline:none;
+  font-weight:700;
+}
+
+.global-ticker-search input:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(124,92,255,.16);
+}
+
+.global-ticker-search button{
+  display:none!important;
+}
+
+/* Final simple moon theme toggle */
+.nav-links{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:15px;
+  flex:1 1 auto;
+  min-width:0;
+  white-space:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+}
+
+.nav-links::-webkit-scrollbar{
+  display:none;
+}
+
+.nav-links a,
+.nav-theme-toggle{
+  flex:0 0 auto;
+}
+
+.nav-theme-toggle{
+  width:24px;
+  height:24px;
+  min-width:24px;
+  border:0;
+  background:transparent!important;
+  color:var(--text);
+  display:inline-grid;
+  place-items:center;
+  cursor:pointer;
+  padding:0;
+  margin-left:-4px;
+  position:relative;
+  box-shadow:none;
+  font-size:0!important;
+  line-height:1;
+  transform:none;
+}
+
+.nav-theme-toggle:hover{
+  color:var(--brand);
+  transform:none;
+}
+
+#theme-toggle-icon{
+  font-size:0!important;
+  width:15px;
+  height:15px;
+  display:block;
+  position:relative;
+}
+
+/* moon body */
+#theme-toggle-icon::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  background:var(--text);
+}
+
+/* moon cutout */
+#theme-toggle-icon::after{
+  content:"";
+  position:absolute;
+  width:12px;
+  height:12px;
+  top:-2px;
+  right:-2px;
+  border-radius:999px;
+  background:var(--bg);
+}
+
+.nav-theme-toggle:hover #theme-toggle-icon::before{
+  background:var(--brand);
+}
+
+/* keep it white moon in dark mode */
+html[data-theme="dark"] .nav-theme-toggle{
+  color:var(--text);
+}
+
+html[data-theme="dark"] #theme-toggle-icon::before{
+  background:var(--text);
+}
+
+html[data-theme="dark"] #theme-toggle-icon::after{
+  background:var(--bg);
+}
+
+html[data-theme="dark"] .nav-theme-toggle:hover #theme-toggle-icon::before{
+  background:var(--brand2);
+}
+
+/* keep search smaller so Settings + moon fit */
+.global-ticker-search{
+  flex:0 0 190px;
+  min-width:190px;
+  margin-left:0;
+  margin-right:0;
+}
+
+.global-ticker-search button{
+  display:none!important;
+}
+
+@media(max-width:1100px){
+  .global-ticker-search{
+    flex-basis:160px;
+    min-width:160px;
+  }
+
+  .nav-links{
+    gap:11px;
+    font-size:13px;
+  }
+
+  .brand-logo{
+    max-width:180px;
+  }
+}
+
+/* Final header layout: Settings + moon button at far right */
+.topbar-inner{
+  max-width:1180px;
+  margin:auto;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brand{
+  flex:0 0 auto;
+}
+
+.global-ticker-search{
+  flex:0 0 200px;
+  min-width:200px;
+  margin:0;
+}
+
+.global-ticker-search input{
+  width:100%;
+}
+
+.global-ticker-search button{
+  display:none!important;
+}
+
+.header-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  min-width:0;
+  flex:1 1 auto;
+}
+
+.nav-links{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:15px;
+  flex:0 1 auto;
+  min-width:0;
+  white-space:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+}
+
+.nav-links::-webkit-scrollbar{
+  display:none;
+}
+
+.nav-links a{
+  flex:0 0 auto;
+}
+
+.nav-theme-toggle{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--card)!important;
+  color:var(--text);
+  display:inline-grid;
+  place-items:center;
+  cursor:pointer;
+  padding:0;
+  margin:0;
+  flex:0 0 34px;
+  position:relative;
+  box-shadow:none;
+  font-size:0!important;
+  line-height:1;
+}
+
+.nav-theme-toggle:hover{
+  border-color:var(--brand);
+  transform:translateY(-1px);
+}
+
+#theme-toggle-icon{
+  font-size:0!important;
+  width:15px;
+  height:15px;
+  display:block;
+  position:relative;
+}
+
+/* Moon icon */
+#theme-toggle-icon::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  background:var(--text);
+}
+
+#theme-toggle-icon::after{
+  content:"";
+  position:absolute;
+  width:12px;
+  height:12px;
+  top:-2px;
+  right:-2px;
+  border-radius:999px;
+  background:var(--card);
+}
+
+html[data-theme="dark"] .nav-theme-toggle{
+  background:#10141a!important;
+  border-color:var(--line);
+}
+
+html[data-theme="dark"] #theme-toggle-icon::before{
+  background:#f3f4f6;
+}
+
+html[data-theme="dark"] #theme-toggle-icon::after{
+  background:#10141a;
+}
+
+@media(max-width:1100px){
+  .global-ticker-search{
+    flex-basis:160px;
+    min-width:160px;
+  }
+
+  .nav-links{
+    gap:11px;
+    font-size:13px;
+  }
+
+  .brand-logo{
+    max-width:180px;
+  }
+}
+
+@media(max-width:820px){
+  .topbar-inner{
+    flex-wrap:wrap;
+  }
+
+  .global-ticker-search{
+    flex:1 1 auto;
+    min-width:160px;
+  }
+
+  .header-actions{
+    width:100%;
+    flex-basis:100%;
+    justify-content:flex-start;
+  }
+
+  .nav-links{
+    justify-content:flex-start;
+  }
+}
