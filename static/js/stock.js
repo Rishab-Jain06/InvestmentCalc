@@ -1,3 +1,20 @@
+
+function newsSentimentLabel(score, fallback){
+  if(score==null)return fallback||"Unavailable";
+  const n=Number(score);
+  if(n>=75)return "Bullish";
+  if(n>=60)return "Moderately Bullish";
+  if(n<=25)return "Bearish";
+  if(n<=40)return "Moderately Bearish";
+  return "Neutral";
+}
+function sentimentTone(label){
+  const l=String(label||"").toLowerCase();
+  if(l.includes("bullish"))return "positive";
+  if(l.includes("bearish"))return "negative";
+  return "";
+}
+
 let chart = null;
 let statsCache = null;
 const s = window.INVESTIFY_SYMBOL;
@@ -142,3 +159,37 @@ loadQuote();
 loadHistory(localStorage.getItem("investify_default_range") || "1D");
 loadTechnicals();
 loadStats();
+
+
+
+
+
+
+
+
+
+
+
+
+// v16 Ask AI about this stock: no Gemini call here; it only passes context to AI Search.
+function sendStockToAI(){
+  const payload = {
+    ticker: s,
+    source: "Stock Research",
+    createdAt: new Date().toISOString(),
+    stock_context: {
+      symbol: s,
+      company: document.getElementById("company")?.textContent || "",
+      price: document.getElementById("price")?.textContent || "",
+      change: document.getElementById("change")?.textContent || "",
+      range: document.getElementById("range-label")?.textContent || "",
+      note: "This context was sent from Stock Research. Gemini is only called after the user sends a message in AI Search."
+    }
+  };
+  localStorage.setItem("investify_pending_ai_context", JSON.stringify(payload));
+  window.location.href = "/search";
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const ask = document.getElementById("ask-ai-stock");
+  if(ask) ask.onclick = sendStockToAI;
+});

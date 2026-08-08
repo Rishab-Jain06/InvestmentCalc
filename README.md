@@ -68,3 +68,153 @@ GEMINI_MODEL=gemini-1.5-flash
 ```
 
 News headlines require Finnhub. AI summaries require Gemini. If Gemini is missing, the app shows a fallback message instead of crashing.
+
+
+## v7 Gemini + Sentiment
+- Gemini calls now use the official REST `generateContent` endpoint directly, so the prior `from google import genai` package/import issue is removed.
+- Default model updated to `gemini-3.5-flash` with `gemini-3.6-flash` fallback.
+- News page now returns a 0–100 AI news-sentiment score, Bullish/Bearish/Neutral/Mixed label, article counts, confidence, themes, catalysts and risks.
+- Stock Research automatically loads recent company-news sentiment with green/red Bullish/Bearish presentation.
+- AI Search also shows the sentiment score alongside its brief.
+- Sentiment is an AI classification of fetched articles, not a price forecast.
+
+Recommended `.env`:
+```bash
+FINNHUB_API_KEY=...
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-3.5-flash
+```
+
+
+## v8 AI robustness
+- Keeps `gemini-3.5-flash`, which passed the direct connection and sentiment tests.
+- Automatically retries malformed Gemini JSON.
+- Strips markdown fences and common trailing-comma issues before parsing.
+- Uses a stricter second JSON attempt and a final plain-text JSON fallback.
+- Moves Stock Research news sentiment to the bottom of the page.
+- Removes permanent API-key/setup boxes from News and AI Search.
+- Uses cleaner fallback text instead of raw parser errors.
+
+
+## v9 AI Research Chatbot
+- Converts AI Search into a multi-turn AI Research Chat.
+- Saves chat threads locally in the browser.
+- Supports follow-up questions with conversation history.
+- Supports optional ticker context and live stock/news/sentiment context.
+- Adds "Ask AI about this trade" from Options Lab full trade analysis.
+- Sends selected options trade details to the AI chat as attached context.
+- Adds homepage dashboard with S&P 500, Nasdaq, Dow 30, and top market headlines.
+- Adds Appearance setting: system/light/dark.
+
+
+## v10 AI Trade Chat Polish
+- Adds Ask AI about this trade and Copy Trade buttons inside the full Options Trade Analysis card.
+- Sends full selected trade context into AI Research Chat.
+- Improves AI chat output formatting so markdown renders cleanly.
+- Adds animated typing dots while Gemini is responding.
+- Makes AI answers shorter and more trade-focused by default.
+- Adds options-specific quick prompts.
+- Makes Stock Research news sentiment manual with an Analyze recent news button instead of auto-running on every stock page load.
+
+
+## v11 Market Heatmap + Homepage Digest
+- Fixes missing Options Trade Analysis buttons by adding visible Ask AI about this trade and Copy Trade buttons.
+- Adds robust JS binding so selected trade data is sent to AI Research Chat.
+- Adds homepage spacing improvements.
+- Adds a 2-line AI Market Context digest on homepage.
+- Adds a Finviz-inspired Market Heat Map section to Markets page.
+- Heat map supports Mega Cap, Nasdaq, and Dow 30 universes.
+- Heat map auto-refreshes every 60 seconds while visible.
+
+
+## v12 Simple Automatic Sentiment
+- Keeps all V11 items:
+  - Options Trade Analysis Ask AI + Copy Trade buttons.
+  - Robust JS binding for selected trade into AI Research Chat.
+  - Homepage spacing improvements.
+  - 2-line AI Market Context digest on homepage.
+  - Finviz-inspired Market Heat Map on Markets page.
+  - Major indices section retained.
+  - Mega Cap, Nasdaq, and Dow 30 heat map universes.
+  - Heat map auto-refresh every 60 seconds while visible.
+- Stock Research sentiment is automatic again, but lightweight.
+- Sentiment now analyzes only 5-7 recent headlines for speed.
+- Sentiment labels use simple score bands:
+  - 75-100 Bullish
+  - 60-74 Moderately Bullish
+  - 41-59 Neutral
+  - 26-40 Moderately Bearish
+  - 1-25 Bearish
+- News page uses the same simple sentiment score/label concept.
+
+## v13 Sentiment + Heatmap Polish
+- Fixes Stock Research sentiment rendering using the working `/api/news/sentiment/<symbol>` JSON.
+- Replaces complex sentiment cards with a simple score line: Bearish → Neutral → Bullish.
+- Shows only score, label, and a short one-line context note.
+- Uses animated three dots for AI loading states instead of visible Loading/Thinking text.
+- News page sentiment uses the same simple score-line concept.
+- Keeps sentiment lightweight by analyzing a small recent headline set.
+- Improves Markets heat map: wider layout, denser tiles, stronger market-cap sizing, muted color scale, and breadth summary.
+
+
+## v14 AI Chat + Shared Sentiment
+- Removed the Markets heat map to keep Markets lightweight and focused.
+- Added shared `static/js/sentiment.js` so News and Stock Research use the same sentiment rendering logic.
+- Stock Research and News ticker mode now use the same `/api/news/sentiment/<symbol>` endpoint, so the same ticker should show the same score.
+- Added Ask AI about this stock from Stock Research.
+- Added AI chat rename and delete.
+- Added edit last user message and regenerate answer.
+- Added Short/Detailed answer style toggle.
+- Kept Options Ask AI about this trade and Copy Trade.
+
+
+## v15 Earnings + Manual Homepage Digest
+- Removed Stock Research news sentiment and Stock Research Ask AI button to reduce Gemini quota usage.
+- Homepage AI Market Context no longer calls Gemini automatically. It now calls Gemini only when the user clicks Refresh AI digest.
+- Homepage digest now shows last updated / last attempt time.
+- Removed Edit last message and Regenerate answer buttons from AI Search.
+- Kept Gemini usage in AI Chat, Options Ask AI, News, and manual homepage digest.
+- Added a simple Stock Research earnings card using Yahoo Finance via yfinance:
+  - EPS actual vs. estimate chart
+  - recent beat/miss rows
+  - simple fallback if earnings data is unavailable.
+
+
+## v16 Quota-safe AI + Stock AI Button
+- Gemini now uses only the configured `GEMINI_MODEL` once instead of trying fallback models, reducing quota burn.
+- Added friendly Gemini quota/service messages instead of raw 429/503 JSON.
+- Added `Ask AI about this stock` back to Stock Research.
+- The Stock Research button does not call Gemini by itself. It only sends context to AI Search; Gemini is called only after the user sends a chat message.
+- Kept Stock Research news sentiment removed.
+- Kept homepage digest manual-only.
+
+
+## v17 Header Search + No Earnings
+- Removed the Earnings section from Stock Research.
+- Removed the earnings backend endpoint and helper module.
+- Added a global ticker search bar in the top header/nav.
+- Search bar opens `/stock/<TICKER>` and pre-fills the ticker on stock pages.
+- Kept V16 quota-safe Gemini behavior.
+- Kept Ask AI about this stock button; it only passes context to AI Search and does not call Gemini until a chat message is sent.
+
+
+## v21 Options Left Panel Only
+- Built from the working V17 Options files supplied by the user.
+- Changed only the Options left-panel UX plus backend filter correctness.
+- Kept the working V17 right-side Candidate Trades / Trade Analysis structure unchanged.
+- Moved Find Trades and Best Match to the top under ticker/load.
+- Filters are hidden by default behind Show filters.
+- Clear filters blanks all filter fields and closes the filter panel.
+- Presets now save by name, load from a dropdown, and delete the selected preset.
+- Uses new localStorage key `investify_option_presets_v21` to avoid old broken presets.
+- Removed the hardcoded 30–45 DTE Put Credit preset button.
+- Bullish vertical spreads show Call Debit + Put Credit only.
+- Bearish vertical spreads show Call Credit + Put Debit only.
+- Vertical delta/IV filters apply to the short leg; min credit applies to final spread net credit.
+
+
+## v21.1 Options JS Fix
+- Fixed Options page JavaScript crash caused by duplicate `OPT_PRESET_KEY` declarations.
+- Kept only the v21 preset key: `investify_option_presets_v21`.
+- Verified `static/js/options.js` with `node --check`.
+- No right-side Options layout changes were made.

@@ -1,7 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Settings — Investify{% endblock %}
 {% block content %}
-<section class="page-head"><p class="eyebrow">SETTINGS</p><h1>Personalize Investify</h1><p class="sub">Preferences stay in your browser.</p></section>
+<section class="page-head"><p class="eyebrow">SETTINGS</p><h1>Personalize Investify</h1><p class="sub">Preferences stay in your browser.</p>
+  <div class="setting-row">
+    <div>
+      <h3>Appearance</h3>
+      <p class="small-muted">Choose light, dark, or system mode.</p>
+    </div>
+    <select id="appearance-select">
+      <option value="system">System</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </div>
+</section>
 <div class="settings-grid">
   <div class="card setting-card"><h3>Default ticker</h3><p class="small-muted">Used by Options Lab and quick links.</p><input id="default-ticker" value="SPY"></div>
   <div class="card setting-card"><h3>Default chart range</h3><select id="default-range"><option>1D</option><option>5D</option><option>1M</option><option>3M</option><option>6M</option><option>YTD</option><option>1Y</option><option>5Y</option><option>MAX</option></select></div>

@@ -36,11 +36,13 @@ $("ai-run").addEventListener("click",async()=>{
     const d=await (await fetch("/api/ai/search",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({symbol,query})})).json();
     if(d.error)throw Error(d.error);
     const brief=d.brief||{};
-    $("ai-brief").innerHTML=`<p class="eyebrow">AI BRIEF</p><h2>${safe(brief.sentiment||"Summary")}</h2><pre class="ai-summary-text">${safe(brief.summary)}</pre>`;
+    const tone=String(brief.sentiment||"").toLowerCase();
+    const cls=tone==="bullish"?"positive":tone==="bearish"?"negative":"";
+    $("ai-brief").innerHTML=`<div class="sentiment-head"><div><p class="eyebrow">AI BRIEF</p><h2 class="${cls}">${safe(brief.sentiment||"Summary")}</h2></div><div class="sentiment-score ${cls}">${brief.sentiment_score==null?"—":brief.sentiment_score+"/100"}</div></div><p class="ai-summary-body">${safe(brief.summary)}</p>${brief.question_answer?`<div class="ai-answer"><span>Answer</span><strong>${safe(brief.question_answer)}</strong></div>`:""}<p class="small-muted">Gemini model: ${safe(brief.model||"Unavailable")}</p>`;
     renderArticles(d.articles||[]);
   }catch(e){
     err(e.message);
-    $("ai-brief").innerHTML='<p class="small-muted">AI Search failed. Check your API keys in .env.</p>';
+    $("ai-brief").innerHTML='<p class="small-muted">AI analysis is temporarily unavailable. Source articles are still available.</p>';
   }
 });
 $("ai-save").addEventListener("click",()=>{

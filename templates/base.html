@@ -14,7 +14,13 @@
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="/"><span class="brand-mark">I</span><span>Investify</span></a>
-    <nav class="nav-links">
+    
+<form id="global-ticker-search" class="global-ticker-search" role="search">
+  <input id="global-ticker-input" type="search" placeholder="Search ticker…" autocomplete="off" />
+  <button type="submit">Go</button>
+</form>
+
+<nav class="nav-links">
       <a href="/">Home</a>
       <a href="/markets">Markets</a>
       <a href="/research">Stock Research</a>
@@ -41,6 +47,7 @@
     });
   })();
 </script>
+<script src="{{ url_for('static', filename='js/global_search.js') }}"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

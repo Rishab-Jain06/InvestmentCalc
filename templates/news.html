@@ -5,7 +5,7 @@
   <div>
     <p class="eyebrow">NEWS DASHBOARD</p>
     <h1>Major market news.</h1>
-    <p class="sub">Market headlines, ticker news and Gemini-powered summaries after you add your API keys.</p>
+    <p class="sub">Market headlines, ticker news, simple AI sentiment scoring, and concise Gemini summaries.</p>
   </div>
   <div class="data-pill">Finnhub + Gemini</div>
 </section>
@@ -35,15 +35,12 @@
     <div class="field">
       <label>AI question</label>
       <textarea id="news-question" rows="4">What are the biggest catalysts and risks?</textarea>
-      <p class="filter-help">Gemini summarizes only the loaded headlines and descriptions.</p>
+      <p class="filter-help">Gemini analyzes only the latest 5–7 loaded headlines for speed.</p>
     </div>
 
     <button id="summarize-news" class="primary-wide" type="button">Summarize with Gemini</button>
 
-    <div class="iv-rank-note">
-      <strong>Setup required:</strong><br>
-      Add <code>FINNHUB_API_KEY</code> and <code>GEMINI_API_KEY</code> to your <code>.env</code>. Headlines can load with Finnhub only; summaries need Gemini.
-    </div>
+    
   </aside>
 
   <section class="options-results">
@@ -52,6 +49,31 @@
       <div><span>Ticker</span><strong id="news-current-symbol">—</strong></div>
       <div><span>Headlines</span><strong id="news-count">—</strong></div>
       <div><span>AI</span><strong id="news-ai-state">Ready</strong></div>
+    </div>
+
+    
+
+<div id="news-sentiment" class="card sentiment-card simple-sentiment-card hidden">
+      <div class="simple-sentiment-head">
+        <div>
+          <p class="eyebrow">NEWS SENTIMENT</p>
+          <h2 id="news-sentiment-label">—</h2>
+        </div>
+        <div class="sentiment-score-wrap">
+          <div id="news-sentiment-score" class="sentiment-score">—</div>
+          <small id="news-sentiment-updated" class="small-muted"></small>
+        </div>
+      </div>
+      <div class="score-line-wrap">
+        <div class="score-line-track">
+          <div class="score-line-negative"></div>
+          <div class="score-line-neutral"></div>
+          <div class="score-line-positive"></div>
+          <div id="news-sentiment-marker" class="score-line-marker" style="left:50%"></div>
+        </div>
+        <div class="score-line-labels"><span>Bearish</span><span>Neutral</span><span>Bullish</span></div>
+      </div>
+      <p id="news-sentiment-summary" class="small-muted">AI-classified sentiment from the latest headlines.</p>
     </div>
 
     <div id="news-brief" class="card hidden"></div>
@@ -71,4 +93,5 @@
   </section>
 </section>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/news.js') }}"></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/sentiment.js') }}"></script>
+<script src="{{ url_for('static', filename='js/news.js') }}"></script>{% endblock %}

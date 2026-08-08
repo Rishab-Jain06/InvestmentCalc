@@ -1,60 +1,73 @@
 {% extends "base.html" %}
-{% block title %}AI Search Beta — Investify{% endblock %}
+{% block title %}AI Research Chat — Investify{% endblock %}
 {% block content %}
 <section class="page-head options-page-head">
   <div>
-    <p class="eyebrow">AI SEARCH BETA</p>
-    <h1>Ask about a stock or the market.</h1>
-    <p class="sub">A research command center that fetches news, then uses Gemini to summarize themes, catalysts and risks.</p>
+    <p class="eyebrow">AI RESEARCH CHAT</p>
+    <h1>Ask follow-up questions.</h1>
+    <p class="sub">Chat with Gemini using optional stock context, recent news, sentiment, technicals, or an attached options trade.</p>
   </div>
-  <div class="data-pill">Beta · Finnhub + Gemini</div>
+  <div class="data-pill">Gemini Research Chat</div>
 </section>
 
 <div id="ai-error" class="error hidden"></div>
 
-<section class="ai-search-hero card">
-  <div class="field">
-    <label>Optional ticker</label>
-    <input id="ai-symbol" placeholder="AAPL, SPY, QQQ...">
-  </div>
-  <div class="field">
-    <label>Question</label>
-    <textarea id="ai-query" rows="4">Why is this moving and what should I watch?</textarea>
-  </div>
-  <div class="dual-actions">
-    <button id="ai-run" class="primary-wide" type="button">Run AI Search</button>
-    <button id="ai-save" class="secondary-button best-match-button" type="button">Save Search</button>
-  </div>
-  <p class="small-muted">This tool summarizes fetched news only. It does not browse arbitrary web pages or give personalized buy/sell advice.</p>
-</section>
-
-<section class="news-layout ai-results-layout">
-  <aside class="filters-card card scroll-panel">
-    <div class="section-heading compact-heading">
-      <div><p class="eyebrow">SAVED</p><h2>Saved searches</h2></div>
+<section class="chat-shell">
+  <aside class="chat-sidebar card">
+    <div class="chat-side-head">
+      <div>
+        <p class="eyebrow">CHATS</p>
+        <h2>Saved chats</h2>
+      </div>
+      <button id="new-chat" class="secondary-button" type="button">New</button>
     </div>
-    <div id="saved-ai-searches" class="saved-search-list">
-      <p class="small-muted">No saved searches yet.</p>
-    </div>
-    <div class="iv-rank-note">
-      <strong>Keys needed:</strong><br>
-      <code>FINNHUB_API_KEY</code><br>
-      <code>GEMINI_API_KEY</code>
-    </div>
+    <div id="chat-list" class="chat-list"></div>
   </aside>
 
-  <section class="options-results">
-    <div id="ai-brief" class="card hidden"></div>
+  <section class="chat-main card">
+    <div class="chat-topbar">
+      <div>
+        <p class="eyebrow">CURRENT CHAT</p>
+        <h2 id="chat-title">New research chat</h2>
+      </div>
+      <div class="chat-top-actions">
+        <select id="answer-style" class="secondary-select">
+          <option value="short">Short</option>
+          <option value="detailed">Detailed</option>
+        </select>
+        <button id="rename-chat" class="secondary-button" type="button">Rename</button>
+        <button id="delete-chat" class="secondary-button danger-button" type="button">Delete</button>
+        <button id="clear-context" class="secondary-button" type="button">Clear Context</button>
+      </div>
+    </div>
 
-    <div class="card results-card">
-      <div class="section-heading compact-heading">
-        <div><p class="eyebrow">SOURCES</p><h2>Articles used</h2></div>
+    <div class="context-panel">
+      <div class="field compact-field">
+        <label>Ticker context</label>
+        <div class="input-with-button">
+          <input id="chat-symbol" placeholder="AAPL, SPY, QQQ...">
+          <button id="attach-stock" type="button">Attach</button>
+        </div>
       </div>
-      <div id="ai-articles" class="news-list">
-        <div class="empty-cell">Run an AI Search to see sources.</div>
-      </div>
+      <div id="context-chips" class="context-chips"></div>
+      <p class="small-muted">Use quick context only when needed. Option trades sent from Options Lab will appear here automatically.</p>
+    </div>
+
+    <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+
+    <div class="prompt-chips">
+      <button type="button" data-prompt="Explain this trade simply.">Explain trade</button>
+      <button type="button" data-prompt="What are the main risks of this setup?">Main risks</button>
+      <button type="button" data-prompt="What happens if the stock is flat?">If flat</button>
+      <button type="button" data-prompt="What happens if the stock moves up 1%?">Up 1%</button>
+      <button type="button" data-prompt="Explain the Greeks for this trade.">Greeks</button>
+      <button type="button" data-prompt="Check liquidity and bid/ask risk.">Liquidity</button>
+    </div>
+<div class="chat-input-row">
+      <textarea id="chat-input" rows="3" placeholder="Ask about a stock, news, technical setup, or attached options trade..."></textarea>
+      <button id="send-chat" type="button">Send</button>
     </div>
   </section>
 </section>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/ai_search.js') }}"></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/ai_chat.js') }}"></script>{% endblock %}

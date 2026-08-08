@@ -1,3 +1,68 @@
+
+function summarizeTradeText(x){
+  const symbol=document.getElementById("opt-symbol")?.value?.trim()?.toUpperCase()||x.symbol||"";
+  const fmtLocal=(v,d=2)=>v==null||Number.isNaN(Number(v))?"—":Number(v).toFixed(d);
+  const strategyLabel=typeof labelStrategy==="function"?labelStrategy(x.strategy):(x.strategy||"Trade");
+  const lines=[];
+  lines.push(`${symbol} ${strategyLabel} ${x.expiration||""} ${x.dte??"—"} DTE`);
+  if(x.net_premium!=null)lines.push(`Net premium: ${x.net_premium>=0?"Credit":"Debit"} $${fmtLocal(Math.abs(x.net_premium))}`);
+  if(x.max_profit!=null)lines.push(`Max profit: ${typeof x.max_profit==="number"?"$"+fmtLocal(x.max_profit):x.max_profit}`);
+  if(x.max_loss!=null)lines.push(`Max loss: ${typeof x.max_loss==="number"?"$"+fmtLocal(x.max_loss):x.max_loss}`);
+  if(x.breakeven!=null)lines.push(`Breakeven: $${fmtLocal(x.breakeven)}`);
+  if(x.ror!=null)lines.push(`Return on risk: ${fmtLocal(x.ror)}%`);
+  if(x.position_greeks){
+    const g=x.position_greeks;
+    lines.push(`Position Greeks: Delta ${fmtLocal(g.delta,4)}, Gamma ${fmtLocal(g.gamma,4)}, Theta ${fmtLocal(g.theta,4)}, Vega ${fmtLocal(g.vega,4)}, Rho ${fmtLocal(g.rho,4)}`);
+  }
+  if(x.legs?.length){
+    lines.push("Legs:");
+    x.legs.forEach(l=>{
+      lines.push(`- ${String(l.action||"").toUpperCase()} ${l.strike} ${String(l.type||"").toUpperCase()} @ ${l.expiration||x.expiration||""}; bid ${l.bid??"—"}, ask ${l.ask??"—"}, mark ${l.mark??"—"}, last ${l.last??"—"}, IV ${l.iv??"—"}, volume ${l.volume??"—"}, OI ${l.open_interest??"—"}, delta ${l.delta??"—"}, theta ${l.theta??"—"}`);
+    });
+  }
+  return lines.join("\\n");
+}
+function buildTradeAIContext(x){
+  const symbol=document.getElementById("opt-symbol")?.value?.trim()?.toUpperCase()||x.symbol||"";
+  return {
+    ticker:symbol,
+    trade:{
+      ...x,
+      symbol,
+      strategy_label:typeof labelStrategy==="function"?labelStrategy(x.strategy):(x.strategy||"Trade"),
+      summary_text:summarizeTradeText(x)
+    },
+    source:"Options Lab",
+    createdAt:new Date().toISOString()
+  };
+}
+function sendTradeToAI(x){
+  localStorage.setItem("investify_pending_ai_context",JSON.stringify(buildTradeAIContext(x)));
+  window.location.href="/search";
+}
+async function copyTradeToClipboard(x){
+  const text=summarizeTradeText(x);
+  try{
+    await navigator.clipboard.writeText(text);
+    const b=document.getElementById("copy-trade");
+    if(b){const old=b.textContent;b.textContent="Copied";setTimeout(()=>b.textContent=old,1200);}
+  }catch(e){
+    window.prompt("Copy trade details:", text);
+  }
+}
+function bindTradeActionButtons(x){
+  const ask=document.getElementById("ask-ai-trade");
+  const copy=document.getElementById("copy-trade");
+  if(ask){ask.onclick=()=>sendTradeToAI(x); ask.disabled=false;}
+  if(copy){copy.onclick=()=>copyTradeToClipboard(x); copy.disabled=false;}
+}
+
+
+
+
+
+
+
 const payoffGuidePlugin = {
   id: "payoffGuide",
   afterDatasetsDraw(chart, args, opts){
@@ -69,29 +134,28 @@ function syncDeltaLabels(){
   $("min-delta-label").textContent = vertical ? "Min short |Delta|" : "Min |Delta|";
   $("max-delta-label").textContent = vertical ? "Max short |Delta|" : "Max |Delta|";
 }
+
 function syncStrategies(){
-  const container=strategyType==="single"?$("single-strategies"):$("vertical-strategies");
+  const container = strategyType === "single" ? $("single-strategies") : $("vertical-strategies");
 
-  if(strategyType==="single"){
-    container.querySelectorAll("button").forEach(b=>b.classList.toggle("hidden",b.dataset.direction!==direction));
-  } else {
-    // Show all four vertical spreads at all times: Call Debit, Put Credit, Call Credit, Put Debit.
-    container.querySelectorAll("button").forEach(b=>b.classList.remove("hidden"));
-  }
+  container.querySelectorAll("button").forEach(b => {
+    b.classList.toggle("hidden", b.dataset.direction !== direction);
+  });
 
-  const candidates = strategyType==="single"
-    ? [...container.querySelectorAll(`button[data-direction="${direction}"]`)]
-    : [...container.querySelectorAll("button")];
-
-  const current=candidates.find(b=>b.dataset.value===strategy);
-  const preferred = strategyType==="vertical"
-    ? candidates.find(b=>b.dataset.direction===direction) || candidates[0]
+  const candidates = [...container.querySelectorAll(`button[data-direction="${direction}"]`)];
+  const current = candidates.find(b => b.dataset.value === strategy);
+  const preferred = strategyType === "vertical"
+    ? candidates.find(b => direction === "bullish" ? b.dataset.value === "put_credit" : b.dataset.value === "call_credit") || candidates[0]
     : candidates[0];
 
-  const chosen=current||preferred;
-  if(chosen){selectGroup(container,chosen);strategy=chosen.dataset.value}
+  const chosen = current || preferred;
+  if(chosen){
+    selectGroup(container, chosen);
+    strategy = chosen.dataset.value;
+  }
   syncDeltaLabels();
 }
+
 function setStrategyType(value){
   strategyType = value;
   const btn = [...$("strategy-type").querySelectorAll("button")].find(b => b.dataset.value === value);
@@ -138,27 +202,95 @@ async function loadExpirations(){
 }
 $("load-options").addEventListener("click", loadExpirations);
 
-$("put-credit-preset").addEventListener("click", () => {
-  setStrategyType("vertical");
-  setDirection("bullish");
-  setStrategy("put_credit");
-  setVal("expiration", "AUTO");
-  setVal("min-dte", "30"); setVal("max-dte", "45");
-  setVal("min-delta", ".10"); setVal("max-delta", ".15");
-  setVal("min-iv", "20"); setVal("min-oi", "100"); setVal("min-volume", "10");
-  setVal("max-bid-ask", ".05"); setVal("min-credit", ".25"); setVal("max-debit", "");
-  setVal("min-ror", "20"); setVal("spread-width", "1"); setVal("max-loss", "100"); setVal("max-width", "");
+
+const FILTER_IDS = ["min-dte","max-dte","min-delta","max-delta","min-iv","min-oi","min-volume","max-bid-ask","min-credit","max-debit","min-ror","spread-width","max-loss","max-width"];
+
+function clearFilterValues(){
+  FILTER_IDS.forEach(id => setVal(id, ""));
   setVal("trend-filter", "off");
-});
+}
+
+function toggleFilters(forceOpen=null){
+  const panel = $("filters-panel");
+  const btn = $("filters-toggle");
+  if(!panel || !btn) return;
+  const open = forceOpen === null ? panel.classList.contains("hidden") : forceOpen;
+  panel.classList.toggle("hidden", !open);
+  btn.textContent = open ? "Hide filters" : "Show filters";
+}
+
+
+const OPT_PRESET_KEY = "investify_option_presets_v21";
+const optPresets = () => {
+  try { return JSON.parse(localStorage.getItem(OPT_PRESET_KEY) || "{}"); }
+  catch(e) { return {}; }
+};
+function saveOptPresets(x){ localStorage.setItem(OPT_PRESET_KEY, JSON.stringify(x)); }
+
+function optionState(){
+  const ids = ["opt-symbol","expiration","min-dte","max-dte","min-delta","max-delta","min-iv","min-oi","min-volume","max-bid-ask","min-credit","max-debit","min-ror","spread-width","max-loss","max-width","trend-filter"];
+  const fields = {};
+  ids.forEach(id => { if($(id)) fields[id] = $(id).value || ""; });
+  return {strategyType, direction, strategy, fields};
+}
+
+function applyOptionState(p){
+  if(!p) return;
+  setStrategyType(p.strategyType || "single");
+  setDirection(p.direction || "bullish");
+  setStrategy(p.strategy || strategy);
+  Object.entries(p.fields || {}).forEach(([id,v]) => setVal(id, v ?? ""));
+  toggleFilters(true);
+}
+
+function refreshOptionPresets(){
+  const p = optPresets();
+  const names = Object.keys(p).sort((a,b)=>a.localeCompare(b));
+  const select = $("option-preset-select");
+  if(!select) return;
+  select.innerHTML = '<option value="">Saved preset…</option>' + names.map(name => `<option value="${name}">${name}</option>`).join("");
+}
+
+function bindPresetControls(){
+  $("option-save-preset")?.addEventListener("click", () => {
+    const raw = prompt("Preset name");
+    const name = (raw || "").trim();
+    if(!name) return;
+    const p = optPresets();
+    p[name] = optionState();
+    saveOptPresets(p);
+    refreshOptionPresets();
+    $("option-preset-select").value = name;
+  });
+
+  $("option-delete-preset")?.addEventListener("click", () => {
+    const name = $("option-preset-select")?.value;
+    if(!name){ alert("Select a saved preset first."); return; }
+    if(!confirm(`Delete preset "${name}"?`)) return;
+    const p = optPresets();
+    delete p[name];
+    saveOptPresets(p);
+    
+  });
+
+  $("option-preset-select")?.addEventListener("change", () => {
+    const name = $("option-preset-select").value;
+    if(name) applyOptionState(optPresets()[name]);
+  });
+}
+
 
 function query(){
-  const p = new URLSearchParams({expiration: $("expiration").value, strategy_type: strategyType, strategy, trend_filter: $("trend-filter").value});
+  const p = new URLSearchParams({expiration: $("expiration").value, strategy_type: strategyType, strategy});
+  const trend = $("trend-filter")?.value;
+  if(trend && trend !== "off") p.set("trend_filter", trend);
   [["min_dte","min-dte"],["max_dte","max-dte"],["min_delta","min-delta"],["max_delta","max-delta"],["min_iv","min-iv"],["min_oi","min-oi"],["min_volume","min-volume"],["max_bid_ask","max-bid-ask"],["min_credit","min-credit"],["max_debit","max-debit"],["min_ror","min-ror"],["spread_width","spread-width"],["max_loss","max-loss"],["max_width","max-width"]].forEach(([k,id]) => {
     const v = $(id)?.value;
     if(v !== "") p.set(k, v);
   });
   return p.toString();
 }
+
 async function findTrades(){
   clearError();
   const sym = $("opt-symbol").value.trim().toUpperCase();
@@ -200,7 +332,12 @@ function legCard(l){
   return `<article class="leg-card"><div class="leg-head"><div><span class="leg-action ${l.action}">${l.action.toUpperCase()}</span><h4>${label}</h4><small>${l.contract || ""}</small></div><strong>$${fmt(l.price)}</strong></div><div class="leg-quote-grid">${metric("Bid",`$${fmt(l.bid)}`)}${metric("Ask",`$${fmt(l.ask)}`)}${metric("Mark",`$${fmt(l.mid)}`)}${metric("Last",`$${fmt(l.last)}`)}${metric("IV",pct(l.iv))}${metric("Volume",l.volume ?? "—")}${metric("Open interest",l.open_interest ?? "—")}</div><div class="leg-greeks"><div><span>Delta</span><strong>${fmt(l.delta,4)}</strong></div><div><span>Gamma</span><strong>${fmt(l.gamma,4)}</strong></div><div><span>Theta</span><strong>${fmt(l.theta,4)}</strong></div><div><span>Vega</span><strong>${fmt(l.vega,4)}</strong></div><div><span>Rho</span><strong>${fmt(l.rho,4)}</strong></div></div></article>`;
 }
 async function analyze(x, isBest=false){
-  $("trade-analysis").classList.remove("hidden");
+  const analysisPanel = $("trade-analysis");
+  if(analysisPanel){
+    analysisPanel.classList.remove("hidden");
+    analysisPanel.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  bindTradeActionButtons(x);
   $("analysis-title").textContent = `${isBest ? "★ Best Match · " : ""}${labelStrategy(x.strategy)}`;
   $("analysis-subtitle").textContent = `${$("underlying").textContent} · ${x.expiration || $("expiration").value} · ${x.dte ?? "—"} DTE`;
   const bb = $("analysis-bias");
@@ -240,47 +377,9 @@ async function analyze(x, isBest=false){
       scales:{ x:{grid:{color:dark?"rgba(255,255,255,.06)":"rgba(17,24,39,.06)"}, ticks:{color:dark?"#9ca3af":"#6b7280"}, title:{display:true,text:"Underlying price at expiration",color:dark?"#9ca3af":"#6b7280"}}, y:{grid:{color:dark?"rgba(255,255,255,.06)":"rgba(17,24,39,.06)"}, ticks:{color:dark?"#9ca3af":"#6b7280", callback:v=>"$"+v}, title:{display:true,text:"Profit / Loss ($)",color:dark?"#9ca3af":"#6b7280"}} }
     }
   });
-  $("trade-analysis").scrollIntoView({behavior:"smooth", block:"start"});
 }
 
-const OPT_PRESET_KEY = "investify_option_presets";
-const optPresets = () => JSON.parse(localStorage.getItem(OPT_PRESET_KEY) || "{}");
-function saveOptPresets(x){ localStorage.setItem(OPT_PRESET_KEY, JSON.stringify(x)); }
-function optionState(){
-  const ids = ["opt-symbol","expiration","min-dte","max-dte","min-delta","max-delta","min-iv","min-oi","min-volume","max-bid-ask","min-credit","max-debit","min-ror","spread-width","max-loss","max-width","trend-filter"];
-  const fields = {};
-  ids.forEach(id => { if($(id)) fields[id] = $(id).value; });
-  return {strategyType, direction, strategy, fields};
-}
-function applyOptionState(p){
-  if(!p) return;
-  Object.entries(p.fields || {}).forEach(([id,v]) => setVal(id,v));
-  setStrategyType(p.strategyType || "single");
-  setDirection(p.direction || "bullish");
-  setStrategy(p.strategy || strategy);
-}
-function refreshOptionPresets(){
-  const p = optPresets();
-  $("option-preset-select").innerHTML = '<option value="">Saved preset…</option>' + Object.keys(p).map(k => `<option value="${k}">${k}</option>`).join("");
-}
-$("option-save-preset").addEventListener("click", () => {
-  const name = prompt("Preset name");
-  if(!name) return;
-  const p = optPresets();
-  p[name] = optionState();
-  saveOptPresets(p);
-  refreshOptionPresets();
-  $("option-preset-select").value = name;
-});
-$("option-delete-preset").addEventListener("click", () => {
-  const name = $("option-preset-select").value;
-  if(!name) return;
-  const p = optPresets();
-  delete p[name];
-  saveOptPresets(p);
-  refreshOptionPresets();
-});
-$("option-preset-select").addEventListener("change", () => applyOptionState(optPresets()[$("option-preset-select").value]));
+
 function whyMatched(x){
   const bits = [];
   if(x.short_delta != null || x.delta != null) bits.push(`Delta ${fmt(x.short_delta ?? x.delta,3)}`);
@@ -304,6 +403,16 @@ $("best-option").addEventListener("click", () => {
   setTimeout(() => $("jump-analysis")?.addEventListener("click", () => $("trade-analysis")?.scrollIntoView({behavior:"smooth", block:"start"})), 100);
 });
 
-refreshOptionPresets();
+
 syncStrategies();
+
+bindPresetControls();
+
+$("filters-toggle")?.addEventListener("click", () => toggleFilters());
+$("clear-filters")?.addEventListener("click", () => { clearFilterValues(); toggleFilters(false); });
+
+$("close-trade-analysis")?.addEventListener("click", () => {
+  $("trade-analysis")?.classList.add("hidden");
+});
+
 loadExpirations();

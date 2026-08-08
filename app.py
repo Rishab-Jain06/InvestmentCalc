@@ -167,6 +167,16 @@ def api_news_company(symbol):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
+@app.get("/api/news/sentiment/<symbol>")
+def api_news_sentiment(symbol):
+    try:
+        days = int(request.args.get("days", 14))
+        limit = int(request.args.get("limit", 6))
+        return jsonify(news_ai.sentiment_for_symbol(symbol, days_back=days, limit=min(limit, 7)))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 @app.post("/api/ai/summarize-news")
 def api_ai_summarize_news():
     try:
@@ -187,6 +197,38 @@ def api_ai_search():
         return jsonify(news_ai.ai_search(query, symbol=symbol))
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@app.post("/api/ai/chat")
+def api_ai_chat():
+    try:
+        body = request.get_json(force=True)
+        messages = body.get("messages") or []
+        context = body.get("context") or {}
+        symbol = (body.get("symbol") or context.get("ticker") or "").strip().upper()
+
+        # Build live context only when requested. This avoids slow calls for every chat.
+        if body.get("include_live_context") and symbol:
+            live = news_ai.build_stock_chat_context(symbol)
+            live.update(context or {})
+            context = live
+
+        return jsonify(news_ai.chat_with_gemini(messages, context=context))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.get("/api/news/digest")
+def api_news_digest():
+    try:
+        limit = int(request.args.get("limit", 8))
+        return jsonify(news_ai.market_context_digest(limit=limit))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+
+
 
 if __name__=="__main__":
     app.run(debug=True)

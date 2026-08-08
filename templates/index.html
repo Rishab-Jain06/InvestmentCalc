@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Investify — Personal Market Analytics{% endblock %}
 {% block content %}
-<section class="home-hero">
+<section class="home-hero compact-home">
   <div class="hero-copy">
     <p class="eyebrow">PERSONAL MARKET ANALYTICS</p>
     <h1>Research the stock.<br>Filter the option.</h1>
-    <p class="sub">A focused workspace for charts, technicals, watchlists and options analytics.</p>
+    <p class="sub">A focused workspace for charts, technicals, watchlists, options analytics and AI research.</p>
     <form id="ticker-form" class="search-shell">
       <span class="search-icon">⌕</span>
       <input id="ticker" autocomplete="off" placeholder="Search ticker — SPY, QQQ, AAPL, NVDA" maxlength="12" required>
@@ -16,21 +16,56 @@
   </div>
 </section>
 
+
+
+<section class="home-section home-digest-section">
+  <div class="section-heading compact-heading">
+    <div>
+      <p class="eyebrow">AI MARKET CONTEXT</p>
+      <h2>Today’s quick read</h2>
+    </div>
+    <button id="refresh-market-digest" class="secondary-button" type="button">Refresh AI digest</button>
+  </div>
+  <div id="home-digest" class="card home-digest-card">
+    <p>Click refresh to generate a 2-line market context digest.</p>
+    <p>Uses Gemini only when you click the button.</p>
+    <small id="home-digest-updated" class="small-muted">Not updated yet.</small>
+  </div>
+</section>
+
+
+<section class="home-section">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">MARKET SNAPSHOT</p><h2>Major indexes</h2></div><a class="secondary-button" href="/markets">Open Markets</a></div>
+  <div class="market-grid home-index-grid">
+    <a class="market-tile" data-symbol="^GSPC" href="/stock/%5EGSPC"><span class="symbol">S&P 500</span><small class="muted">^GSPC</small><strong class="m-price">—</strong><span class="m-change muted">Loading…</span></a>
+    <a class="market-tile" data-symbol="^IXIC" href="/stock/%5EIXIC"><span class="symbol">Nasdaq</span><small class="muted">^IXIC</small><strong class="m-price">—</strong><span class="m-change muted">Loading…</span></a>
+    <a class="market-tile" data-symbol="^DJI" href="/stock/%5EDJI"><span class="symbol">Dow 30</span><small class="muted">^DJI</small><strong class="m-price">—</strong><span class="m-change muted">Loading…</span></a>
+  </div>
+</section>
+
+<section class="home-section">
+  <div class="section-heading compact-heading"><div><p class="eyebrow">HEADLINES</p><h2>Biggest market news</h2></div><a class="secondary-button" href="/news">Open News</a></div>
+  <div id="home-news-list" class="home-news-list card"><div class="empty-cell">Loading headlines…</div></div>
+</section>
+
 <section class="feature-strip home-actions four-up">
   <a href="/research"><article><div class="feature-icon">↗</div><div><h3>Stock Research</h3><p>Open quote pages, charts, statistics and technical signals.</p></div></article></a>
   <a href="/news"><article><div class="feature-icon">◆</div><div><h3>News</h3><p>Load market and ticker headlines, then summarize with Gemini.</p></div></article></a>
   <a href="/options"><article><div class="feature-icon">◎</div><div><h3>Options Lab</h3><p>Screen single legs and verticals with Greeks and payoff charts.</p></div></article></a>
-  <a href="/search"><article><div class="feature-icon">⌕</div><div><h3>AI Search</h3><p>Ask research questions using fetched sources.</p></div></article></a>
+  <a href="/search"><article><div class="feature-icon">⌕</div><div><h3>AI Search</h3><p>Ask research questions using context and attached trades.</p></div></article></a>
 </section>
 
 <section class="home-section">
   <div class="section-heading"><div><p class="eyebrow">MORE TOOLS</p><h2>Go directly to your workflow.</h2></div></div>
   <div class="simple-grid home-tool-grid">
-    <a class="simple-card nav-card" href="/markets"><span>01</span><h3>Markets</h3><p>Quick board for index ETFs and major names.</p></a>
-    <a class="simple-card nav-card" href="/screener"><span>02</span><h3>Screener</h3><p>Filter stocks by liquidity and technical setup.</p></a>
-    <a class="simple-card nav-card" href="/search"><span>03</span><h3>Search <em>Beta</em></h3><p>A placeholder workspace for searching your research ideas later.</p></a>
-    <a class="simple-card nav-card" href="/settings"><span>04</span><h3>Settings</h3><p>Change defaults and preferences stored in your browser.</p></a>
+    <a class="simple-card nav-card" href="/screener"><span>01</span><h3>Screener</h3><p>Filter stocks by liquidity and technical setup.</p></a>
+    <a class="simple-card nav-card" href="/watchlist"><span>02</span><h3>Watchlist</h3><p>Track your personal research universe locally.</p></a>
+    <a class="simple-card nav-card" href="/settings"><span>03</span><h3>Settings</h3><p>Change defaults and appearance preferences.</p></a>
   </div>
 </section>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/home.js') }}"></script>{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+<script src="{{ url_for('static', filename='js/markets.js') }}"></script>
+<script src="{{ url_for('static', filename='js/home_news.js') }}"></script>
+{% endblock %}

@@ -291,7 +291,7 @@ def build_vertical_candidates(chain, strategy, filters):
     aliases = {"bull_call": "call_debit", "bear_call": "call_credit", "bull_put": "put_credit", "bear_put": "put_debit"}
     strategy = aliases.get(strategy, strategy)
     contracts = chain["calls"] if strategy.startswith("call_") else chain["puts"]
-    valid = [c for c in contracts if _contract_passes(c, filters)]
+    valid = [c for c in contracts if _contract_passes(c, filters, check_delta=False, check_iv=False)]
     out = []
 
     max_width = filters.get("max_width")
@@ -345,6 +345,9 @@ def build_vertical_candidates(chain, strategy, filters):
                 breakeven = sell["strike"] - credit
                 bias = "bullish"
 
+            if not _short_leg_passes(sell, filters):
+                continue
+
             ror = max_profit / max_loss * 100 if max_loss > 0 else None
             if filters.get("min_ror") is not None and (ror is None or ror < filters["min_ror"]):
                 continue
@@ -384,15 +387,17 @@ def _ask(c):
 def _bid(c):
     return float(c.get("bid") or c.get("mid") or c.get("last") or 0)
 
-def _contract_passes(c, f):
+def _contract_passes(c, f, check_delta=True, check_iv=True):
     delta = c.get("delta")
     iv = c.get("iv")
-    if f.get("min_delta") is not None and (delta is None or abs(delta) < f["min_delta"]):
-        return False
-    if f.get("max_delta") is not None and (delta is None or abs(delta) > f["max_delta"]):
-        return False
-    if f.get("min_iv") is not None and (iv is None or iv * 100 < f["min_iv"]):
-        return False
+    if check_delta:
+        if f.get("min_delta") is not None and (delta is None or abs(delta) < f["min_delta"]):
+            return False
+        if f.get("max_delta") is not None and (delta is None or abs(delta) > f["max_delta"]):
+            return False
+    if check_iv:
+        if f.get("min_iv") is not None and (iv is None or iv * 100 < f["min_iv"]):
+            return False
     if c.get("open_interest", 0) < f.get("min_oi", 0):
         return False
     if c.get("volume", 0) < f.get("min_volume", 0):
@@ -401,6 +406,18 @@ def _contract_passes(c, f):
         w = c.get("spread_width")
         if w is None or w > f["max_bid_ask"]:
             return False
+    return True
+
+def _short_leg_passes(c, f):
+    """For vertical spreads, delta and IV filters describe the short leg."""
+    delta = c.get("delta")
+    iv = c.get("iv")
+    if f.get("min_delta") is not None and (delta is None or abs(delta) < f["min_delta"]):
+        return False
+    if f.get("max_delta") is not None and (delta is None or abs(delta) > f["max_delta"]):
+        return False
+    if f.get("min_iv") is not None and (iv is None or iv * 100 < f["min_iv"]):
+        return False
     return True
 
 def payoff(legs, low_price, high_price, points=121):
