@@ -2,14 +2,16 @@
 {% block title %}{{ symbol }} — Investify{% endblock %}
 {% block content %}
 <div id="error" class="error hidden"></div>
-<section class="stock-top">
-  <div class="stock-identity">
-    <div class="ticker-badge">{{ symbol[:1] }}</div>
-    <div><div class="stock-line"><h1 id="symbol">{{ symbol }}</h1><span id="market-badge" class="market-badge">Market</span></div><p id="company" class="muted">Loading…</p></div>
+<section class="stock-top refined-stock-top">
+  <div class="stock-identity no-logo">
+    <div>
+      <div class="stock-line"><h1 id="symbol">{{ symbol }}</h1><span id="market-badge" class="market-badge">Market</span></div>
+      <p id="company" class="muted">Loading…</p>
+    </div>
   </div>
   <div class="price-actions">
     <button id="watch-btn" class="secondary-button">☆ Watch</button>
-      <button id="ask-ai-stock" class="secondary-button" type="button">Ask AI about this stock</button>
+    <button id="ask-ai-stock" class="secondary-button" type="button">Ask AI about this stock</button>
     <div class="price-wrap"><div id="price" class="price">—</div><div id="change" class="change">—</div></div>
   </div>
 </section>
@@ -23,27 +25,66 @@
   <div><span>Avg. volume</span><strong id="avg-volume">—</strong></div>
 </section>
 
-<section id="signal-card" class="card signal-card">
-  <div class="signal-head"><div><p class="eyebrow">TECHNICAL SIGNAL</p><h2 id="signal-label">—</h2></div><div id="signal-score" class="signal-score">—</div></div>
-  <div id="signal-reasons" class="signal-reasons"></div>
-  <p id="signal-explanation" class="small-muted">Score is calculated from simple technical checks: price vs EMA20, price vs EMA50, EMA20 vs EMA50, RSI position, and MACD histogram. Bullish checks add points, bearish checks remove points. This is a rule-based read, not personalized investment advice.</p>
+<section id="stock-signal-card" class="card signal-card stock-signal-card">
+  <div class="signal-head">
+    <div>
+      <p class="eyebrow">STOCK SIGNAL</p>
+      <h2 id="signal-label">—</h2>
+      <p id="signal-summary" class="small-muted">Loading overall signal…</p>
+    </div>
+    <div id="signal-score" class="signal-score">—</div>
+  </div>
+
+  <div class="signal-tabs" id="signal-tabs">
+    <button class="active" data-signal-tab="overall">Overall</button>
+    <button data-signal-tab="technical">Technical</button>
+    <button data-signal-tab="fundamental">Fundamental</button>
+  </div>
+
+  <div id="signal-body"></div>
+</section>
+
+<section class="card company-overview-card">
+  <div class="section-heading compact-heading">
+    <div>
+      <p class="eyebrow">COMPANY OVERVIEW</p>
+      <h2>Business summary</h2>
+      <p class="small-muted">Gemini summary is button-triggered and cached for 7 days.</p>
+    </div>
+    <button id="generate-company-summary" class="secondary-button" type="button">Generate AI summary</button>
+  </div>
+  <div id="company-summary" class="company-summary small-muted">Click the button to generate a 4–5 sentence company overview.</div>
 </section>
 
 <section class="card chart-card">
   <div class="chart-toolbar">
-    <div><p class="eyebrow">PRICE</p><div class="chart-title-row"><h2>Chart</h2><span id="range-change"></span></div><p id="range-label" class="small-muted">1D</p></div>
+    <div>
+      <p class="eyebrow">PRICE</p>
+      <div class="chart-title-row enhanced-chart-title">
+        <h2>Chart</h2>
+        <div class="chart-live-value">
+          <span id="chart-price-label">1D end price</span>
+          <strong id="chart-price">—</strong>
+          <small id="chart-price-change">—</small>
+        </div>
+      </div>
+      <p id="range-label" class="small-muted">1D</p>
+      <span id="range-change" class="hidden"></span>
+    </div>
     <div class="range-tabs">{% for r in ['1D','5D','1M','3M','6M','YTD','1Y','5Y','MAX'] %}<button class="range-tab {% if r=='1D' %}active{% endif %}" data-range="{{r}}">{{r}}</button>{% endfor %}</div>
   </div>
-  <div class="chart-box"><canvas id="price-chart"></canvas></div>
+  <div class="chart-box chart-box-clean">
+    <canvas id="price-chart"></canvas>
+  </div>
 </section>
 
 <section class="card indicator-card">
-  <div class="section-heading compact-heading"><div><p class="eyebrow">TECHNICALS</p><h2>Indicators</h2></div></div>
+  <div class="section-heading compact-heading"><div><p class="eyebrow">TECHNICALS</p><h2>Indicators</h2><p class="small-muted">Grouped by trend, momentum, volatility and volume. Hover ? for quick definitions.</p></div></div>
   <div id="technical-grid" class="stats-panel-grid"></div>
 </section>
 
 <section class="card key-stats-card">
-  <div class="section-heading compact-heading"><div><p class="eyebrow">KEY STATISTICS</p><h2>Company metrics</h2><p class="small-muted">Yahoo fields vary by security; unavailable values show —.</p></div></div>
+  <div class="section-heading compact-heading"><div><p class="eyebrow">KEY STATISTICS</p><h2>Company metrics</h2><p class="small-muted">Yahoo fields vary by security; unavailable values show —. Hover ? for definitions.</p></div></div>
   <div id="stats-tabs" class="stats-tabs">
     <button class="active" data-tab="market">Market</button><button data-tab="valuation">Valuation</button><button data-tab="profitability">Profitability</button><button data-tab="financial">Financials</button><button data-tab="dividend">Dividend</button>
   </div>
@@ -52,6 +93,17 @@
 
 
 
+
+<section class="card sec-filings-card">
+  <div class="section-heading compact-heading">
+    <div>
+      <p class="eyebrow">SEC FILINGS</p>
+      <h2>Recent filings</h2>
+      <p class="small-muted">Links open the SEC filing documents when available.</p>
+    </div>
+  </div>
+  <div id="sec-filings" class="filings-list small-muted">Loading filings…</div>
+</section>
 
 <p class="footnote">Yahoo Finance data via yfinance for personal research. Data availability and timing vary by market.</p>
 {% endblock %}

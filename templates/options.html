@@ -54,16 +54,18 @@
     </div>
 
     <div class="field">
-      <label>Expiration</label>
-      <select id="expiration"><option>Load ticker first</option></select>
+      <label>Risk level</label>
+      <div class="segmented risk-profile-toggle" id="risk-profile">
+        <button data-value="conservative">Conservative</button>
+        <button class="active" data-value="balanced">Balanced</button>
+        <button data-value="aggressive">Aggressive</button>
+      </div>
+      <p class="filter-help">Controls default delta, strike distance and spread-width selection so results stay near the stock price.</p>
     </div>
 
-    <div class="preset-tools">
-      <select id="option-preset-select">
-        <option value="">Saved preset…</option>
-      </select>
-      <button id="option-save-preset" class="secondary-button" type="button">Save preset</button>
-      <button id="option-delete-preset" class="text-button" type="button">Delete preset</button>
+    <div class="field">
+      <label>Expiration</label>
+      <select id="expiration"><option>Load ticker first</option></select>
     </div>
 
     <div class="filter-toggle-row">
@@ -125,6 +127,8 @@
         <button id="close-trade-analysis" class="analysis-close-x" type="button" aria-label="Close trade analysis">×</button>
       </div>
 
+      <div id="selected-trade-summary" class="selected-trade-summary hidden"></div>
+
       <div class="analysis-topline">
         <div>
           <div class="analysis-action-row">
@@ -137,6 +141,8 @@
         </div>
         <span id="analysis-bias" class="bias-badge">—</span>
       </div>
+
+      <div id="trade-quality-card" class="trade-quality-card hidden"></div>
 
       <div class="analysis-metrics" id="analysis-metrics"></div>
 
@@ -158,6 +164,7 @@
         <div class="section-heading compact-heading">
           <div><p class="eyebrow">PAYOFF</p><h3>Profit / loss at expiration</h3></div>
         </div>
+        <div id="payoff-summary" class="payoff-summary"></div>
         <div class="chart-box payoff-box"><canvas id="payoff-chart"></canvas></div>
       </section>
 

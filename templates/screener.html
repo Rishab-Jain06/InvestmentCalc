@@ -4,84 +4,129 @@
 <section class="page-head options-page-head">
   <div>
     <p class="eyebrow">SCREENER</p>
-    <h1>Find stocks that fit.</h1>
-    <p class="sub">Screen a personal universe using price, liquidity, RSI and a rule-based technical setup score.</p>
+    <h1>Find the top 10.</h1>
+    <p class="sub">Screen S&P 500 stocks using Investify’s overall, technical and fundamental scores.</p>
   </div>
-  <div class="data-pill">Yahoo Finance · Personal research</div>
+  <div class="data-pill">Yahoo Finance · SEC EDGAR cache · Personal research</div>
 </section>
 
 <section class="screener-workspace">
   <aside class="filters-card card scroll-panel">
-    <div class="field">
-      <label>Universe</label>
-      <textarea id="screen-symbols" rows="5">SPY, QQQ, AAPL, NVDA, MSFT, AMZN, META, GOOGL, TSLA, AMD</textarea>
-      <p class="filter-help">Comma-separated tickers to scan. Keep this list smaller for faster Yahoo requests.</p>
+    <div class="filter-section-title">Universe</div>
+    <div class="filter-grid one-col">
+      <label>Universe
+        <select id="screen-universe">
+          <option value="sp500" selected>S&P 500</option>
+          <option value="custom">Custom tickers</option>
+        </select>
+        <small>S&P 500 list is cached; custom tickers are comma-separated.</small>
+      </label>
+      <label id="custom-symbols-wrap" class="hidden">Custom tickers
+        <textarea id="screen-symbols" rows="4">AAPL, MSFT, NVDA, AMZN, META, GOOGL, JPM, AVGO, LLY, COST</textarea>
+        <small>Used only when Universe is Custom.</small>
+      </label>
+      <label>Scan size
+        <select id="screen-scan-size">
+          <option value="50">50 stocks · fastest</option>
+          <option value="100" selected>100 stocks · recommended</option>
+          <option value="250">250 stocks</option>
+          <option value="500">500 stocks · slower</option>
+        </select>
+        <small>Shows the top 10 from the batch scanned. Larger scans use more Yahoo requests.</small>
+      </label>
     </div>
 
-    <div class="preset-tools">
-      <select id="screen-preset-select"><option value="">Saved preset…</option></select>
-      <button id="screen-save-preset" class="secondary-button">Save preset</button>
-      <button id="screen-delete-preset" class="text-button">Delete</button>
-    </div>
-
-    <div class="filter-section-title">Price & liquidity</div>
+    <div class="filter-section-title">Price</div>
     <div class="filter-grid one-col">
       <label>Minimum Price $
         <input id="screen-min-price" type="number" step=".01" placeholder="Example: 20">
-        <small>Exclude very low-priced names.</small>
       </label>
       <label>Maximum Price $
         <input id="screen-max-price" type="number" step=".01" placeholder="Example: 500">
-        <small>Cap the stock price if you only want lower-priced names.</small>
-      </label>
-      <label>Minimum Volume
-        <input id="screen-min-volume" type="number" value="1000000">
-        <small>Higher volume usually means better liquidity.</small>
       </label>
     </div>
 
-    <div class="filter-section-title">Technical setup</div>
+    <div class="filter-section-title">Score filters</div>
     <div class="filter-grid one-col">
-      <label>Minimum Technical Score
-        <input id="screen-min-score" type="number" min="0" max="100" value="50">
-        <small>0–100 score from EMA20/50, RSI and MACD. Higher is more bullish.</small>
-      </label>
-      <label>Signal
-        <select id="screen-signal">
+      <label>Overall rating
+        <select id="screen-overall-rating">
           <option value="any">Any</option>
-          <option value="bullish">Bullish</option>
-          <option value="neutral">Neutral</option>
-          <option value="bearish">Bearish</option>
+          <option value="Strong Buy">Strong Buy</option>
+          <option value="Buy">Buy</option>
+          <option value="Hold">Hold</option>
+          <option value="Sell">Sell</option>
+          <option value="Strong Sell">Strong Sell</option>
         </select>
-        <small>Filter by the rule-based technical label.</small>
       </label>
-      <label>Minimum RSI
-        <input id="screen-min-rsi" type="number" min="0" max="100" placeholder="Example: 45">
-        <small>Useful for avoiding weak momentum.</small>
+      <label>Technical rating
+        <select id="screen-technical-rating">
+          <option value="any">Any</option>
+          <option value="Strong Buy">Strong Buy</option>
+          <option value="Buy">Buy</option>
+          <option value="Hold">Hold</option>
+          <option value="Sell">Sell</option>
+          <option value="Strong Sell">Strong Sell</option>
+        </select>
       </label>
-      <label>Maximum RSI
-        <input id="screen-max-rsi" type="number" min="0" max="100" placeholder="Example: 70">
-        <small>Useful for avoiding overbought names.</small>
+      <label>Fundamental rating
+        <select id="screen-fundamental-rating">
+          <option value="any">Any</option>
+          <option value="Strong Buy">Strong Buy</option>
+          <option value="Buy">Buy</option>
+          <option value="Hold">Hold</option>
+          <option value="Sell">Sell</option>
+          <option value="Strong Sell">Strong Sell</option>
+        </select>
+      </label>
+      <label>Minimum overall score
+        <input id="screen-min-overall" type="number" min="0" max="100" placeholder="Example: 60">
+      </label>
+      <label>Minimum technical score
+        <input id="screen-min-technical" type="number" min="0" max="100" placeholder="Example: 55">
+      </label>
+      <label>Minimum fundamental score
+        <input id="screen-min-fundamental" type="number" min="0" max="100" placeholder="Example: 65">
+        <small>Fast scan uses cached fundamentals only. Use Deep fundamentals if you want to refresh them.</small>
       </label>
     </div>
 
-    <button id="run-screen" class="primary-wide">Run Screener</button>
+    <div class="filter-section-title">Mode</div>
+    <label class="check-row">
+      <input id="screen-deep" type="checkbox">
+      <span>Deep fundamentals refresh</span>
+    </label>
+    <p class="filter-help">Leave unchecked for faster scans. Deep mode may call SEC/Yahoo fundamentals for each scanned ticker and can be slower.</p>
+
+    <button id="run-screen" class="primary-wide">Find Top 10</button>
   </aside>
 
   <section class="options-results">
     <div class="card results-card">
       <div class="section-heading compact-heading">
-        <div><p class="eyebrow">RESULTS</p><h2>Matches</h2><p class="small-muted">Results are sorted by technical score and liquidity.</p></div>
-        <button id="screen-best" class="secondary-button">★ Best Match</button>
+        <div>
+          <p class="eyebrow">RESULTS</p>
+          <h2>Top 10 matches</h2>
+          <p id="screen-status" class="small-muted">Choose filters, then run the screener.</p>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Symbol</th><th>Price</th><th>Change</th><th>Volume</th><th>RSI</th><th>Signal</th><th>Score</th></tr></thead>
-          <tbody id="screen-body"><tr><td colspan="7" class="empty-cell">Run the screener.</td></tr></tbody>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Company</th>
+              <th>Price</th>
+              <th>Change</th>
+              <th>Overall</th>
+              <th>Technical</th>
+              <th>Fundamental</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody id="screen-body"><tr><td colspan="8" class="empty-cell">Run the screener.</td></tr></tbody>
         </table>
       </div>
     </div>
-    <div id="screen-best-card" class="card hidden"></div>
   </section>
 </section>
 {% endblock %}

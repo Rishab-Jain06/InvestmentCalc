@@ -1,14 +1,24 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from dotenv import load_dotenv
 import yahoo_data
 import options_data
 import news_ai
+import sec_data
+import screener_data
 import os
+import time
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "local-personal-tool")
+
+_COMPANY_AI_CACHE = {}
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, "static", "img"), "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
 @app.get("/")
 def home(): return render_template("index.html")
@@ -58,6 +68,70 @@ def api_analyze(symbol):
     try: return jsonify(yahoo_data.analyze_stock(symbol))
     except Exception as e: return jsonify({"error":str(e)}),400
 
+@app.get("/api/fundamentals/<symbol>")
+def api_fundamentals(symbol):
+    try: return jsonify(sec_data.fundamental_signal(symbol))
+    except Exception as e: return jsonify({"error":str(e)}),400
+
+@app.get("/api/stock-signal/<symbol>")
+def api_stock_signal(symbol):
+    try: return jsonify(sec_data.overall_signal(symbol))
+    except Exception as e: return jsonify({"error":str(e)}),400
+
+@app.get("/api/sec-filings/<symbol>")
+def api_sec_filings(symbol):
+    try: return jsonify(sec_data.recent_filings(symbol, limit=int(request.args.get("limit",8))))
+    except Exception as e: return jsonify({"error":str(e)}),400
+
+@app.route("/api/company-summary/<symbol>", methods=["GET","POST"])
+def api_company_summary(symbol):
+    s = symbol.upper()
+    refresh = request.args.get("refresh") == "1"
+    now = time.time()
+    cached = _COMPANY_AI_CACHE.get(s)
+    if cached and not refresh and cached.get("expires_at", 0) > now:
+        return jsonify(cached["value"])
+    try:
+        ctx = sec_data.company_context(s)
+        identity = ctx.get("identity") or {}
+        filings = ctx.get("recent_filings") or []
+        prompt = f"""
+You are writing a concise company overview for a personal stock research app.
+Use only the provided context. Do not invent revenue segments if they are not provided.
+Write 4-5 short sentences covering:
+1. main business,
+2. sector/industry,
+3. important products/services or segments if known,
+4. useful investor context or key business quality,
+5. mention if important details are unavailable.
+
+Context:
+Ticker: {s}
+Company name: {identity.get('name')}
+Sector: {identity.get('sector')}
+Industry: {identity.get('industry')}
+Country: {identity.get('country')}
+Employees: {identity.get('employees')}
+Website: {identity.get('website')}
+Business description: {identity.get('description')}
+Fundamental snapshot: {ctx.get('fundamental')}
+Recent SEC filings: {filings[:3]}
+"""
+        try:
+            text, model = news_ai._gemini_rest(prompt)
+            value = {"symbol": s, "summary": text.strip(), "mode": "gemini", "model": model, "cached": False}
+        except Exception as ai_error:
+            desc = (identity.get("description") or "").strip()
+            fallback = "Company overview unavailable because Gemini is not configured and no business description was available."
+            if desc:
+                sentences = [x.strip() for x in desc.replace("\\n"," ").split(".") if x.strip()]
+                fallback = ". ".join(sentences[:4]) + ("." if sentences else "")
+            value = {"symbol": s, "summary": fallback, "mode": "fallback", "model": None, "error": str(ai_error), "cached": False}
+        _COMPANY_AI_CACHE[s] = {"value": {**value, "cached": True}, "expires_at": now + 60*60*24*7}
+        return jsonify(value)
+    except Exception as e:
+        return jsonify({"error":str(e)}),400
+
 @app.get("/api/search")
 def api_search():
     try: return jsonify(yahoo_data.search_symbols(request.args.get("q","")))
@@ -66,23 +140,12 @@ def api_search():
 @app.post("/api/screener")
 def api_screener():
     try:
-        body=request.get_json(force=True)
-        symbols=body.get("symbols") or []
-        rows=yahoo_data.bulk_snapshot(symbols)
-        f=body.get("filters") or {}
-        def passed(x):
-            if x.get("error"): return False
-            if f.get("min_price") is not None and (x.get("price") or 0)<f["min_price"]: return False
-            if f.get("max_price") is not None and (x.get("price") or 0)>f["max_price"]: return False
-            if f.get("min_volume") is not None and (x.get("volume") or 0)<f["min_volume"]: return False
-            if f.get("min_score") is not None and (x.get("score") or 0)<f["min_score"]: return False
-            if f.get("signal") and f["signal"]!="any" and x.get("signal")!=f["signal"]: return False
-            if f.get("min_rsi") is not None and (x.get("rsi") is None or x["rsi"]<f["min_rsi"]): return False
-            if f.get("max_rsi") is not None and (x.get("rsi") is None or x["rsi"]>f["max_rsi"]): return False
-            return True
-        rows=[x for x in rows if passed(x)]
-        rows.sort(key=lambda x:(x.get("score") or 0,x.get("volume") or 0), reverse=True)
-        return jsonify({"results":rows,"count":len(rows)})
+        body = request.get_json(force=True) or {}
+        filters = body.get("filters") or {}
+        if body.get("symbols") and not filters.get("symbols"):
+            filters["symbols"] = ",".join(body.get("symbols"))
+            filters["universe"] = "custom"
+        return jsonify(screener_data.run_screener(filters))
     except Exception as e:
         return jsonify({"error":str(e)}),400
 
@@ -108,15 +171,28 @@ def api_options_screen(symbol):
     expiration=request.args.get("expiration","AUTO")
     strategy_type=request.args.get("strategy_type","single")
     strategy=request.args.get("strategy","buy_call")
+    risk_profile=request.args.get("risk_profile","balanced")
     min_dte,max_dte=_i("min_dte"),_i("max_dte")
+    if expiration == "AUTO" and min_dte is None and max_dte is None:
+        if risk_profile == "conservative":
+            min_dte, max_dte = 30, 60
+        elif risk_profile == "aggressive":
+            min_dte, max_dte = 7, 30
+        else:
+            min_dte, max_dte = 21, 45
     filters={
       "min_delta":_f("min_delta"),"max_delta":_f("max_delta"),"min_iv":_f("min_iv"),
       "min_oi":int(_f("min_oi",0) or 0),"min_volume":int(_f("min_volume",0) or 0),
       "max_bid_ask":_f("max_bid_ask"),"min_credit":_f("min_credit"),"max_debit":_f("max_debit"),
-      "min_ror":_f("min_ror"),"spread_width":_f("spread_width"),"max_loss":_f("max_loss"),"max_width":_f("max_width")
+      "min_ror":_f("min_ror"),"spread_width":_f("spread_width"),"max_loss":_f("max_loss"),"max_width":_f("max_width"),
+      "risk_profile": risk_profile, "strategy": strategy
     }
     try:
         scan=options_data.expirations_in_dte(symbol,min_dte,max_dte,limit=8) if expiration=="AUTO" else [expiration]
+        try:
+            technical=options_data.technical_snapshot(symbol)
+        except Exception:
+            technical={"status":"unknown","score":0,"signals":[],"reason":"Trend snapshot unavailable"}
         all_results=[]; spot=None
         for exp in scan:
             chain=options_data.option_chain(symbol,exp);spot=chain["spot"]
@@ -135,11 +211,13 @@ def api_options_screen(symbol):
             else:
                 rows=options_data.build_vertical_candidates(chain,strategy,filters)
             all_results.extend(rows)
-        if strategy_type=="vertical":
-            all_results.sort(key=lambda x:(x.get("ror") or -999,x.get("open_interest") or 0),reverse=True)
-        else:
-            all_results.sort(key=lambda x:(x.get("open_interest") or 0,x.get("volume") or 0),reverse=True)
-        return jsonify({"symbol":symbol.upper(),"spot":spot,"results":all_results[:400],"count":min(len(all_results),400),"expirations_scanned":scan,"dte_min":min_dte,"dte_max":max_dte})
+        all_results=[options_data.score_trade_quality(x, technical) for x in all_results]
+        # Sort in relevant natural order: closest useful strike first, then numerically outward.
+        try:
+            all_results.sort(key=lambda x: options_data._natural_sort_key(x, spot))
+        except Exception:
+            all_results.sort(key=lambda x:(x.get("expiration") or "", float(x.get("strike") or 0)))
+        return jsonify({"symbol":symbol.upper(),"spot":spot,"results":all_results[:400],"count":min(len(all_results),400),"expirations_scanned":scan,"dte_min":min_dte,"dte_max":max_dte,"trend":technical})
     except Exception as e: return jsonify({"error":str(e)}),400
 
 @app.post("/api/options/payoff")
