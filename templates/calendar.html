@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Market Calendar — Investify{% endblock %}
+{% block content %}
+<section class="page-head portfolio-head calendar-page-head compact-calendar-head">
+  <div>
+    <p class="eyebrow">MARKET CALENDAR</p>
+    <h1>Earnings + macro events.</h1>
+    <p class="sub">Compact market calendar for earnings and major U.S. macro events. Macro schedule is curated by Investify and enriched with Alpha Vantage values when available.</p>
+  </div>
+  <div class="data-pill">Investify macro calendar + Alpha Vantage cache</div>
+</section>
+
+<div id="calendar-error" class="error hidden"></div>
+
+<section class="calendar-shell calendar-shell-wide calendar-shell-compact">
+  <aside class="card calendar-side calendar-side-compact">
+    <div class="calendar-month-controls">
+      <button id="prev-month" class="secondary-button" type="button">←</button>
+      <div>
+        <p class="eyebrow">MONTH</p>
+        <h2 id="calendar-title">Calendar</h2>
+      </div>
+      <button id="next-month" class="secondary-button" type="button">→</button>
+    </div>
+
+    <div class="calendar-filters">
+      <label><input id="show-earnings" type="checkbox" checked> Show earnings</label>
+      <label><input id="show-economic" type="checkbox" checked> Show economic events</label>
+      <label>Earnings view
+        <select id="earnings-view" class="secondary-select">
+          <option value="portfolio_watchlist" selected>Portfolio + Watchlist</option>
+          <option value="portfolio">My Portfolio</option>
+          <option value="watchlist">My Watchlist</option>
+          <option value="all">All Earnings</option>
+          <option value="custom">Custom Symbols</option>
+        </select>
+      </label>
+      <label id="custom-symbol-filter-wrap" class="hidden">Custom symbols / names
+        <input id="calendar-symbol-filter" placeholder="Apple, NVDA, Microsoft">
+      </label>
+    </div>
+
+    <button id="refresh-calendar" class="primary-wide" type="button">Refresh Calendar</button>
+    <p id="calendar-cache-meta" class="small-muted calendar-cache-meta">Calendar data is cached for 24 hours in browser and backend.</p>
+
+    <div class="calendar-legend">
+      <span><i class="event-dot earnings"></i>Earnings</span>
+      <span><i class="event-dot economic"></i>Macro</span>
+      <span><i class="event-dot high"></i>High impact</span>
+    </div>
+
+    <div class="calendar-stats">
+      <div><span>Earnings</span><strong id="earnings-count">0</strong></div>
+      <div><span>Macro</span><strong id="economic-count">0</strong></div>
+    </div>
+
+    <div class="calendar-source-note">
+      <strong>Data note</strong>
+      <p>Macro dates use Investify's curated major U.S. event schedule. Alpha Vantage supplies latest indicator values where available; unsupported events still show explanations.</p>
+    </div>
+  </aside>
+
+  <section class="card calendar-main calendar-main-wide calendar-main-compact">
+    <div class="calendar-weekdays">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+  </section>
+
+  <aside class="card calendar-detail calendar-detail-rich calendar-detail-compact" id="calendar-detail">
+    <div class="calendar-detail-empty">
+      <p class="eyebrow">DETAILS</p>
+      <h2>Select an event</h2>
+      <p class="small-muted">Click an earnings or macro event to see what it means, why it matters, affected assets and AI explanation.</p>
+    </div>
+  </aside>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>{% endblock %}

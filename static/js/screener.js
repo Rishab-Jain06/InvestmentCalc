@@ -71,7 +71,7 @@ function render(rows){
 }
 $("run-screen").onclick = async () => {
   const v = values();
-  $("screen-body").innerHTML = `<tr><td colspan="8" class="empty-cell">Scanning ${v.filters.scan_size} stocks…</td></tr>`;
+  $("screen-body").innerHTML = `<tr><td colspan="8" class="empty-cell">${dots(`Scanning ${v.filters.scan_size} stocks`)}</td></tr>`;
   $("screen-status").textContent = v.filters.deep_fundamentals
     ? "Deep mode may take longer because it can refresh fundamentals."
     : "Fast mode uses cached fundamentals when available and avoids heavy SEC refreshes.";
@@ -87,3 +87,27 @@ $("run-screen").onclick = async () => {
     $("screen-status").textContent = "Unable to complete screener run.";
   }
 };
+
+const filterToggle=$("toggle-screener-filters");
+const filterBody=$("screener-filter-body");
+function setFilterCollapsed(collapsed){
+  if(!filterToggle||!filterBody)return;
+  filterBody.classList.toggle("collapsed", collapsed);
+  filterToggle.textContent = collapsed ? "Show filters ▾" : "Hide filters ▴";
+}
+if(filterToggle){
+  const small=window.matchMedia("(max-width: 900px)").matches;
+  setFilterCollapsed(small);
+  filterToggle.addEventListener("click",()=>setFilterCollapsed(!filterBody.classList.contains("collapsed")));
+}
+
+document.querySelectorAll(".filter-collapse-trigger").forEach(btn=>{
+  const target=document.getElementById(`filter-section-${btn.dataset.filterTarget}`);
+  if(!target)return;
+  function label(){
+    const base=btn.dataset.filterTarget==="score"?"Score filters":btn.dataset.filterTarget.charAt(0).toUpperCase()+btn.dataset.filterTarget.slice(1);
+    btn.textContent=base + (target.classList.contains("collapsed") ? " ▾" : " ▴");
+  }
+  label();
+  btn.addEventListener("click",()=>{target.classList.toggle("collapsed");label();});
+});

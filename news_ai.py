@@ -226,27 +226,43 @@ def analyze_news_with_gemini(articles, symbol=None, question=None):
     if not articles:
         return _fallback_summary([], question, "No articles were supplied.")
 
+    context_label = symbol or "broad market"
+    analyst_mode = "company news analyst" if symbol else "market strategist"
+    focus_rules = """
+For market mode:
+- Explain what is moving the broad market today: rates, yields, inflation, Fed expectations, earnings, geopolitics, oil, sectors, or megacap tech when visible in the loaded headlines.
+- Include upcoming catalysts only when supported by the headlines or when they are broad recurring macro items to monitor, such as CPI, PPI, jobs data, Fed speakers/meetings, Treasury yields, major earnings, or geopolitical developments.
+- Make the answer useful for deciding what to watch next, not a generic news recap.
+""" if not symbol else """
+For ticker mode:
+- Explain the company-specific story: business driver, stock catalyst, tailwinds, headwinds, risks, and what upcoming events to watch.
+- Tie the headlines back to the company whenever possible.
+- If the loaded headlines are thin, clearly say the current article set is limited.
+"""
+
     base_prompt = f"""
-You are analyzing financial news for a personal research dashboard.
-Use ONLY the supplied article headlines and descriptions. Do not invent facts.
+You are Investify AI, acting as a senior {analyst_mode} inside a financial research app.
+Use ONLY the supplied article headlines/descriptions plus the broad watchlist guidance below. Do not invent article facts.
 Do not give personalized financial advice or tell the user to buy or sell.
 
-Context: {symbol or "broad market"}
-Question: {question or "Summarize the important news."}
+Context: {context_label}
+User question: {question or "Summarize the important news and what to watch next."}
+
+{focus_rules}
 
 Return ONLY compact valid JSON, with no markdown and no commentary, using exactly these fields:
 {{
   "sentiment_score": integer from 0 to 100 where 50 is neutral,
-  "sentiment": "Bullish" or "Bearish" or "Neutral" or "Mixed",
+  "sentiment": "Bullish" or "Bearish" or "Neutral" or "Mixed" or "Moderately Bullish" or "Moderately Bearish",
   "confidence": number from 0 to 1,
   "positive_count": integer,
   "neutral_count": integer,
   "negative_count": integer,
-  "summary": "1-2 sentence concise summary",
-  "themes": ["up to 3 short themes"],
-  "catalysts": ["up to 3 catalysts"],
+  "summary": "2-3 sentence analyst-style summary that explains the current state, main driver, and what to watch next",
+  "themes": ["up to 3 short market/company themes"],
+  "catalysts": ["up to 3 specific catalysts or upcoming watch items"],
   "risks": ["up to 3 risks"],
-  "question_answer": "short direct answer to the question, or empty string"
+  "question_answer": "direct answer to the user question in 1-2 strong sentences"
 }}
 
 Articles:
@@ -325,13 +341,17 @@ def _format_context_for_chat(context):
     if ticker:
         parts.append(f"Ticker context: {ticker}")
 
+    market_quotes = context.get("market_quotes") or {}
+    if market_quotes:
+        parts.append("Market quotes: " + json.dumps(market_quotes, default=str)[:1500])
+
     quote = context.get("quote") or {}
     if quote:
         parts.append(
             "Quote: "
             + ", ".join(
                 f"{k}={v}" for k, v in quote.items()
-                if v is not None and k in {"price", "previous_close", "percent_change", "volume", "day_high", "day_low"}
+                if v is not None and k in {"price", "previous_close", "percent_change", "volume", "day_high", "day_low", "market_cap", "name"}
             )
         )
 
@@ -344,6 +364,20 @@ def _format_context_for_chat(context):
                 if v is not None and k in {"rsi14", "macd", "macd_histogram", "ema20", "ema50", "ema200", "sma50", "sma200"}
             )
         )
+
+    stats = context.get("stats") or {}
+    if stats:
+        slim = {k: stats.get(k) for k in ("identity", "valuation", "profitability", "financial") if stats.get(k)}
+        parts.append("Company/fundamental stats: " + json.dumps(slim, default=str)[:2500])
+
+    stock_signal = context.get("stock_signal") or {}
+    if stock_signal:
+        slim = {k: stock_signal.get(k) for k in ("score", "rating", "summary")}
+        slim["technical_score"] = (stock_signal.get("technical") or {}).get("score")
+        slim["technical_signal"] = (stock_signal.get("technical") or {}).get("signal")
+        slim["fundamental_score"] = (stock_signal.get("fundamental") or {}).get("score")
+        slim["fundamental_rating"] = (stock_signal.get("fundamental") or {}).get("rating")
+        parts.append("Investify stock signal: " + json.dumps(slim, default=str)[:1500])
 
     sentiment = context.get("sentiment") or {}
     if sentiment:
@@ -359,18 +393,84 @@ def _format_context_for_chat(context):
     if trade:
         parts.append("Attached options trade:\n" + json.dumps(trade, indent=2, default=str)[:3500])
 
+    portfolio = context.get("portfolio") or {}
+    if portfolio:
+        slim = {
+            "totals": portfolio.get("totals"),
+            "sector_exposure": portfolio.get("sector_exposure"),
+            "industry_exposure": portfolio.get("industry_exposure"),
+            "largest_positions": portfolio.get("largest_positions"),
+            "cash": portfolio.get("cash"),
+            "watchlist": portfolio.get("watchlist"),
+            "holdings": (portfolio.get("holdings") or [])[:30],
+        }
+        parts.append("Attached portfolio context:\n" + json.dumps(slim, indent=2, default=str)[:6500])
+
     articles = context.get("articles") or []
     if articles:
         parts.append("Recent news articles:\n" + _compact_article_lines(articles, limit=8))
 
     return "\n\n".join([p for p in parts if p.strip()])
 
-def chat_with_gemini(messages, context=None):
+def _mode_prompt(mode):
+    mode = (mode or "general").lower()
+    if mode == "general":
+        return """
+Mode: General assistant.
+Answer the user's question directly and practically. You may use attached ticker, market, news, or options context if it is present, but do not force the response into a market/ticker/options format when the user is asking a general question.
+Preferred response structure:
+- Direct answer first.
+- Then short bullets or steps when useful.
+- If financial context is attached, clearly distinguish context-based observations from general explanation.
+- If the user asks a non-financial question, answer normally and do not invent market data.
+"""
+    if mode == "ticker":
+        return """
+Mode: Company/Ticker analyst.
+Act like a CFA-style equity analyst. Use ticker context, company stats, stock signal, recent headlines, and SEC/Yahoo-derived metrics when provided.
+Preferred response structure:
+- Current read: 1 direct sentence.
+- Business / stock story: explain what the company does and what is driving the stock now.
+- Tailwinds: 2-4 bullets.
+- Headwinds / risks: 2-4 bullets.
+- Valuation + fundamentals: mention P/E, growth, margins, balance sheet, or missing data when relevant.
+- What to watch next: earnings, guidance, macro, product cycle, filings, or news catalysts.
+Do not invent facts. If data is missing, say what is missing.
+"""
+    if mode == "options":
+        return """
+Mode: Options strategist.
+If an attached options trade exists, analyze that exact trade and do not replace it with a generic strategy.
+Preferred response structure:
+- Trade read: what the setup is and whether it is conservative/balanced/aggressive.
+- Payoff: max profit, max loss, breakeven, and best/worst case when available.
+- Probability + trend: connect delta/probability to technical trend and underlying movement.
+- Greeks: explain delta/theta/vega/gamma only as they matter to this trade.
+- Liquidity / execution: bid-ask, volume, OI, stale data risk, and fill considerations.
+- Scenarios: what happens if underlying is flat, up, or down.
+- Bottom line: Good / OK / Avoid with the main reason.
+Never say you can place trades. Do not give personalized financial advice.
+"""
+    return """
+Mode: Market strategist.
+Act like a senior macro/market strategist. Use market quotes, recent headlines, sector/index context, and the user's question.
+Preferred response structure:
+- Market read: bullish/bearish/neutral with one direct reason.
+- Today's drivers: rates/yields, inflation/Fed, earnings, sectors, geopolitics, oil, megacap tech, or risk appetite when supported.
+- Upcoming catalysts: CPI, PPI, jobs data, Fed speakers/meetings, Treasury yields/auctions, major earnings, or geopolitical headlines when relevant.
+- Risks: 2-4 concrete risks.
+- What to watch next: 3 bullets.
+Avoid generic filler. If the supplied headlines do not support a claim, say the loaded context is limited.
+"""
+
+
+def chat_with_gemini(messages, context=None, mode="general"):
     """
     Multi-turn research chat. Messages should be a list of {role: "user"/"assistant", content: "..."}.
-    Uses Gemini directly through REST.
+    Uses Gemini directly through REST with mode-specific analyst behavior.
     """
     messages = messages or []
+    mode = (mode or "market").lower()
     context_text = _format_context_for_chat(context or {})
 
     history_lines = []
@@ -379,29 +479,26 @@ def chat_with_gemini(messages, context=None):
         history_lines.append(f"{role}: {str(m.get('content','')).strip()}")
 
     prompt = f"""
-You are Investify AI Research, a helpful investing research assistant inside a personal market analytics app.
+You are Investify AI Analyst inside a personal market analytics app.
 
-Rules:
-- Use the supplied context when relevant.
-- Be clear, practical, and educational.
+Core rules:
+- Use the supplied context first. Do not invent live facts that are not in context.
+- Be direct, specific, and practical; avoid generic textbook answers.
 - Do not say you can place trades.
 - Do not give personalized financial advice or tell the user they should buy or sell.
-- You may discuss trade mechanics, risks, Greeks, breakeven, liquidity, and scenario analysis.
-- If an attached options trade exists, analyze the exact attached trade. Do not replace it with general options advice.
-- If the user asks about current news, rely on supplied recent headlines/context; do not invent new headlines.
-- Keep answers concise by default: 3 to 5 short sections max. If the latest user message asks for detailed output, provide more detail but stay organized.
-- Use plain clean markdown only: short headings, normal bullets, no ### headings, no tables unless the user asks.
-- For attached options trades, prioritize: what the trade is, breakeven, max loss/profit, Greeks, liquidity, main risks, and simple scenarios.
-- Do not over-nuance or write long essays unless the user asks to go deeper.
-- End with a brief "What to watch" section when the question involves markets, stocks, or options.
+- Use clean markdown with short headings and tight bullets.
+- Keep answers concise unless the user requests detail.
+- End with a concrete "What to watch" section when the question involves markets, stocks, or options.
 
-Context:
+{_mode_prompt(mode)}
+
+Attached/context data:
 {context_text or "No live context attached."}
 
 Conversation:
 {chr(10).join(history_lines)}
 
-Answer the latest user message.
+Answer the latest user message in {mode} mode.
 """.strip()
 
     try:
@@ -413,6 +510,27 @@ Answer the latest user message.
             "model": None,
             "answer": f"AI chat is temporarily unavailable. {e}"
         }
+
+def build_market_chat_context(limit=10):
+    """Lightweight market context for AI chat/digests."""
+    context = {"mode": "market"}
+    try:
+        import yahoo_data
+        quotes = {}
+        for sym, name in [("^GSPC", "S&P 500"), ("^IXIC", "Nasdaq"), ("^DJI", "Dow"), ("^VIX", "VIX"), ("SPY", "SPY"), ("QQQ", "QQQ")]:
+            try:
+                q = yahoo_data.quote(sym)
+                quotes[name] = {"symbol": sym, "price": q.get("price"), "percent_change": q.get("percent_change"), "change": q.get("change")}
+            except Exception:
+                pass
+        context["market_quotes"] = quotes
+    except Exception:
+        pass
+    try:
+        context["articles"] = market_news(limit=limit)
+    except Exception:
+        pass
+    return context
 
 def build_stock_chat_context(symbol):
     """
@@ -431,6 +549,16 @@ def build_stock_chat_context(symbol):
     except Exception:
         pass
     try:
+        import yahoo_data
+        context["stats"] = yahoo_data.stats(symbol)
+    except Exception:
+        pass
+    try:
+        import sec_data
+        context["stock_signal"] = sec_data.overall_signal(symbol)
+    except Exception:
+        pass
+    try:
         articles = company_news(symbol, days_back=14, limit=8)
         context["articles"] = articles
         # use cache-aware sentiment endpoint but do not fail context if Gemini is slow/unavailable
@@ -441,19 +569,20 @@ def build_stock_chat_context(symbol):
     return context
 
 
-def market_context_digest(limit=8):
-    """Return a compact 2-line AI market context digest from current market headlines."""
+def market_context_digest(limit=10):
+    """Return a compact 3-sentence AI market context digest from current market headlines."""
     try:
         articles = market_news(limit=limit)
     except Exception as e:
         return {"mode": "fallback", "digest": f"Market headlines unavailable: {e}", "articles": []}
 
     prompt = f"""
-You are writing a tiny market context digest for a personal investing dashboard.
-Use only the headlines below.
-Return exactly 2 concise lines, no markdown, no bullet symbols.
-Line 1: What is driving the market today.
-Line 2: What to watch next.
+You are writing a concise market context digest for the Investify home dashboard.
+Use only the headlines below and broad market reasoning.
+Return exactly 3 short sentences, no markdown and no bullets:
+Sentence 1: current market tone and main driver.
+Sentence 2: key themes behind the move.
+Sentence 3: what investors should watch next, including likely macro/earnings catalysts if relevant.
 Do not give buy/sell advice.
 
 Headlines:
@@ -461,11 +590,29 @@ Headlines:
 """.strip()
     try:
         text, model = _gemini_rest(prompt, json_mode=False)
-        lines = [x.strip(" -•\t") for x in text.strip().splitlines() if x.strip()]
-        digest = "\n".join(lines[:2]) if lines else text.strip()
-        return {"mode": "gemini", "model": model, "digest": digest, "articles": articles[:5]}
+        sentences = [x.strip(" -•\t") for x in re.split(r"(?<=[.!?])\s+|\n+", text.strip()) if x.strip()]
+        digest = "\n".join(sentences[:3]) if sentences else text.strip()
+        return {"mode": "gemini", "model": model, "digest": digest, "articles": articles[:6], "generated_at": datetime.now().isoformat()}
     except Exception:
-        # Fallback uses first two headlines, so homepage still works fast.
-        h = [a.get("headline", "") for a in articles[:2]]
-        digest = "Market context: " + (h[0] if h else "Headlines loaded.") + ("\nWatch next: " + h[1] if len(h) > 1 else "")
-        return {"mode": "fallback", "digest": digest, "articles": articles[:5]}
+        h = [a.get("headline", "") for a in articles[:3]]
+        digest = "\n".join([
+            "Market tone is being driven by the latest broad headlines and index moves.",
+            h[0] if h else "Recent headlines are loaded, but Gemini is unavailable.",
+            "Watch upcoming inflation data, Fed commentary, Treasury yields, earnings and geopolitical headlines."
+        ])
+        return {"mode": "fallback", "digest": digest, "articles": articles[:6], "generated_at": datetime.now().isoformat()}
+
+
+def market_strategy_digest(limit=12):
+    """Structured AI market brief for Markets page. Called only when user clicks Refresh AI."""
+    try:
+        articles = market_news(limit=limit)
+    except Exception as e:
+        return {"mode": "fallback", "error": str(e), "articles": [], "brief": _fallback_summary([], None, str(e))}
+
+    brief = analyze_news_with_gemini(
+        articles,
+        symbol=None,
+        question="Give a market strategist brief: current state of the market, main drivers, upcoming catalysts, biggest risks, and bottom line."
+    )
+    return {"mode": brief.get("mode"), "model": brief.get("model"), "brief": brief, "articles": articles[:8], "generated_at": datetime.now().isoformat()}

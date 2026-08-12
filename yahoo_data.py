@@ -100,6 +100,10 @@ def quote(symbol):
         return {
             "symbol": s,
             "name": info.get("shortName") or info.get("longName") or s,
+            "sector": info.get("sector"),
+            "industry": info.get("industry"),
+            "market_cap": _safe_int(info.get("marketCap")),
+            "quote_type": info.get("quoteType"),
             "exchange": _display_exchange(raw_exchange),
             "exchange_raw": raw_exchange,
             "currency": info.get("currency") or fi.get("currency"),
@@ -532,7 +536,7 @@ def search_symbols(query):
         except Exception:
             return [{"symbol": q.upper(), "name": q.upper(), "exchange": None}]
 
-    return _cache_fetch(f"search:{q.lower()}", 900, _load, stale_grace_seconds=86400)
+    return _cache_fetch(f"search:{q.lower()}", 60*60*24*7, _load, stale_grace_seconds=60*60*24*30)
 
 
 def bulk_snapshot(symbols):

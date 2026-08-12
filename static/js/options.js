@@ -352,6 +352,7 @@ function setStrategyType(value){
   $("vertical-strategies").classList.toggle("hidden", !vertical);
   document.querySelectorAll(".vertical-only").forEach(x => x.classList.toggle("hidden", !vertical));
   syncStrategies();
+  syncBrowseControlVisibility();
 }
 function setDirection(value){
   direction = value;
@@ -376,15 +377,27 @@ $("risk-profile")?.querySelectorAll("button").forEach(b => b.addEventListener("c
   selectGroup($("risk-profile"), b);
 }));
 
+
+async function resolveOptionSymbol(){
+  const input=$("opt-symbol");
+  if(window.InvestifySymbols?.resolveInput){
+    try{return await window.InvestifySymbols.resolveInput(input);}
+    catch{}
+  }
+  return input.value.trim().toUpperCase();
+}
+
 async function loadExpirations(){
   clearError();
-  const sym = $("opt-symbol").value.trim().toUpperCase();
+  const sym = await resolveOptionSymbol();
   if(!sym) return;
   $("expiration").innerHTML = "<option>Loading…</option>";
   try{
     const d = await (await fetch(`/api/options/expirations/${sym}`)).json();
     if(d.error) throw Error(d.error);
     $("expiration").innerHTML = `<option value="AUTO">Any expiration matching DTE</option>` + d.expirations.map(x => `<option value="${x.date}">${x.date} · ${x.dte} DTE</option>`).join("");
+    lastBrowseExpiration = null;
+    syncBrowseExpirationOptions(d.expirations.map(x => x.date));
     $("underlying").textContent = sym;
   }catch(e){
     error(e.message);
@@ -395,10 +408,26 @@ $("load-options").addEventListener("click", loadExpirations);
 
 
 const FILTER_IDS = ["min-dte","max-dte","min-delta","max-delta","min-iv","min-oi","min-volume","max-bid-ask","min-credit","max-debit","min-ror","spread-width","max-loss","max-width"];
+const ADVANCED_FILTER_IDS = ["min-dte","max-dte","min-delta","max-delta","min-iv","min-oi","min-volume","max-bid-ask","min-credit","max-debit","min-ror","max-loss","max-width"];
+let lastBrowseExpiration = null;
+let lastScreenPayload = null;
+let lastDisplayedRows = [];
 
 function clearFilterValues(){
   FILTER_IDS.forEach(id => setVal(id, ""));
   setVal("trend-filter", "off");
+  const bw = $("browse-width");
+  if(bw) bw.value = "1";
+}
+
+function advancedFiltersActive(){
+  const anyNumeric = ADVANCED_FILTER_IDS.some(id => String($(id)?.value || "").trim() !== "");
+  const trend = $("trend-filter")?.value || "off";
+  return anyNumeric || trend !== "off";
+}
+
+function isBrowseMode(){
+  return !advancedFiltersActive();
 }
 
 function toggleFilters(forceOpen=null){
@@ -419,22 +448,157 @@ function query(){
     const v = $(id)?.value;
     if(v !== "") p.set(k, v);
   });
+  if(strategyType === "vertical" && isBrowseMode()){
+    const browseWidth = $("browse-width")?.value || "1";
+    if(browseWidth){
+      p.set("spread_width", browseWidth);
+      setVal("spread-width", browseWidth);
+    }
+  }
   return p.toString();
+}
+
+function syncBrowseControlVisibility(){
+  const wrap = $("browse-width-wrap");
+  if(wrap) wrap.classList.toggle("hidden", strategyType !== "vertical");
+}
+
+function syncBrowseExpirationOptions(dates=[]){
+  const sel = $("browse-expiration");
+  if(!sel) return;
+  const current = lastBrowseExpiration || ($("expiration")?.value !== "AUTO" ? $("expiration")?.value : "");
+  const clean = [...new Set((dates || []).filter(Boolean))];
+  sel.innerHTML = clean.length
+    ? clean.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("")
+    : `<option value="">No expiration</option>`;
+  if(current && clean.includes(current)) sel.value = current;
+}
+
+function browseExpirationFromRows(rows){
+  const explicit = $("expiration")?.value;
+  if(explicit && explicit !== "AUTO") return explicit;
+  const dates = [...new Set((rows || []).map(x => x.expiration).filter(Boolean))];
+  if(lastBrowseExpiration && dates.includes(lastBrowseExpiration)) return lastBrowseExpiration;
+  return dates[0] || explicit || "";
+}
+
+function rowPrimaryStrike(x){
+  if(strategyType === "vertical"){
+    const legs = orderedLegs(x);
+    const shortLeg = legs.find(l => l.action === "sell");
+    const ref = shortLeg || legs[0] || {};
+    return Number(ref.strike ?? x.strike);
+  }
+  const leg = (x.legs || [])[0] || {};
+  return Number(x.strike ?? leg.strike);
+}
+
+function rowOptionKind(x){
+  const leg = (x.legs || [])[0] || {};
+  if(leg.type) return leg.type;
+  return String(x.strategy || "").includes("put") ? "put" : "call";
+}
+
+function browseAscending(rows){
+  const sample = (rows || []).find(x => Number.isFinite(rowPrimaryStrike(x))) || rows?.[0] || {};
+  return rowOptionKind(sample) === "call";
+}
+
+function sortedBrowseRows(rows){
+  const asc = browseAscending(rows);
+  return [...(rows || [])].sort((a,b) => {
+    const ka = rowPrimaryStrike(a), kb = rowPrimaryStrike(b);
+    if(!Number.isFinite(ka) || !Number.isFinite(kb)) return 0;
+    return asc ? ka - kb : kb - ka;
+  });
+}
+
+function currentPriceLine(cols){
+  const sym = $("underlying")?.textContent || $("opt-symbol")?.value?.trim()?.toUpperCase() || "Underlying";
+  return `<tr class="current-price-row"><td colspan="${cols}"><div><span></span><b>${esc(sym)} share price: $${fmt(lastSpot)}</b><span></span></div></td></tr>`;
+}
+
+function withCurrentPriceLine(rows, rowHtml, cols){
+  if(!rows.length) return "";
+  const asc = browseAscending(rows);
+  const spot = Number(lastSpot);
+  let html = "";
+  let inserted = false;
+  rows.forEach((x,i) => {
+    const strike = rowPrimaryStrike(x);
+    if(!inserted && Number.isFinite(spot) && Number.isFinite(strike) && ((asc && spot <= strike) || (!asc && spot >= strike))){
+      html += currentPriceLine(cols);
+      inserted = true;
+    }
+    html += rowHtml(x,i);
+  });
+  if(!inserted && Number.isFinite(spot)) html += currentPriceLine(cols);
+  return html;
+}
+
+function browsePriceChip(x){
+  const label = x.net_premium == null
+    ? "—"
+    : `${x.net_premium >= 0 ? "Credit" : "Debit"} $${fmt(Math.abs(x.net_premium))}`;
+  const cls = x.net_premium >= 0 ? "credit" : "debit";
+  return `<span class="browse-price-action ${cls}">${label}</span>`;
+}
+
+function renderBrowseRows(rows){
+  const exp = browseExpirationFromRows(rows);
+  lastBrowseExpiration = exp || lastBrowseExpiration;
+  const dates = [...new Set((rows || []).map(x => x.expiration).filter(Boolean))];
+  syncBrowseExpirationOptions(dates);
+  if($("browse-expiration") && exp) $("browse-expiration").value = exp;
+
+  const displayRows = exp ? rows.filter(x => x.expiration === exp) : rows;
+  const ordered = sortedBrowseRows(displayRows);
+  lastDisplayedRows = ordered;
+  $("match-count").textContent = ordered.length;
+  const cols = 11;
+  if(strategyType === "single"){
+    return ordered.length
+      ? withCurrentPriceLine(ordered, (x,i) => `<tr class="browse-row" data-i="${lastOptionRows.indexOf(x)}"><td>${scoreBadge(x)}</td><td>${qualityPill(riskText(x))}</td><td>${labelStrategy(x.strategy)}</td><td>${x.expiration}</td><td>${x.dte}</td><td class="browse-strike">$${fmt(x.strike, x.strike % 1 ? 1 : 0)}</td><td>$${fmt(x.bid)}</td><td>$${fmt(x.ask)}</td><td>${fmt(x.delta,3)}</td><td>${pct(x.iv)}</td><td>${oiText(x.open_interest)}</td></tr>`, cols)
+      : `<tr><td colspan="11" class="empty-cell">No contracts match this expiration.</td></tr>`;
+  }
+  return ordered.length
+    ? withCurrentPriceLine(ordered, (x,i) => `<tr class="browse-row" data-i="${lastOptionRows.indexOf(x)}"><td>${scoreBadge(x)}</td><td>${qualityPill(riskText(x))}</td><td>${labelStrategy(x.strategy)}</td><td>${x.expiration}</td><td>${x.dte}</td><td class="browse-strike">${orderedLegs(x).map(l => `${l.action === "buy" ? "B" : "S"} ${l.strike}${l.type === "call" ? "C" : "P"}`).join(" / ")}</td><td>${browsePriceChip(x)}</td><td>$${fmt(x.max_loss)}</td><td>${fmt(x.ror)}%</td><td>${fmt(x.short_delta,3)}</td><td>${oiText(x.open_interest)}</td></tr>`, cols)
+    : `<tr><td colspan="11" class="empty-cell">No spreads match this expiration/width.</td></tr>`;
+}
+
+function renderNormalRows(rows){
+  const b = $("results-body");
+  lastDisplayedRows = rows || [];
+  if(strategyType === "single"){
+    b.innerHTML = lastDisplayedRows.length ? lastDisplayedRows.map((x,i) => `<tr data-i="${i}"><td>${scoreBadge(x)}</td><td>${qualityPill(riskText(x))}</td><td>${labelStrategy(x.strategy)}</td><td>${x.expiration}</td><td>${x.dte}</td><td>${x.strike}</td><td>$${fmt(x.bid)}</td><td>$${fmt(x.ask)}</td><td>${fmt(x.delta,3)}</td><td>${pct(x.iv)}</td><td>${oiText(x.open_interest)}</td></tr>`).join("") : `<tr><td colspan="11" class="empty-cell">No contracts match. If this happens with no filters, the data provider may have returned zero/missing option quotes; try Clear filters, a specific expiration, or wait and reload.</td></tr>`;
+  }else{
+    b.innerHTML = lastDisplayedRows.length ? lastDisplayedRows.map((x,i) => `<tr data-i="${i}"><td>${scoreBadge(x)}</td><td>${qualityPill(riskText(x))}</td><td>${labelStrategy(x.strategy)}</td><td>${x.expiration}</td><td>${x.dte}</td><td>${orderedLegs(x).map(l => `${l.action === "buy" ? "B" : "S"} ${l.strike}${l.type === "call" ? "C" : "P"}`).join(" / ")}</td><td>${x.net_premium >= 0 ? "Credit " : "Debit "}$${fmt(Math.abs(x.net_premium))}</td><td>$${fmt(x.max_loss)}</td><td>${fmt(x.ror)}%</td><td>${fmt(x.short_delta,3)}</td><td>${oiText(x.open_interest)}</td></tr>`).join("") : `<tr><td colspan="11" class="empty-cell">No spreads match. Try Clear filters, a wider expiration/strike range, or wait if the provider returned zero/missing quotes.</td></tr>`;
+  }
 }
 
 async function findTrades(){
   clearError();
-  const sym = $("opt-symbol").value.trim().toUpperCase();
+  const sym = await resolveOptionSymbol();
   if(!sym || !$("expiration").value) return;
   $("results-body").innerHTML = `<tr><td class="empty-cell">Screening…</td></tr>`;
   try{
     const d = await (await fetch(`/api/options/screen/${sym}?${query()}`)).json();
     if(d.error) throw Error(d.error);
+    lastScreenPayload = d;
     lastSpot = d.spot;
     $("underlying").textContent = d.symbol;
     $("opt-spot").textContent = d.spot ? `$${Number(d.spot).toFixed(2)}` : "—";
     $("opt-dte").textContent = d.dte_min != null || d.dte_max != null ? `${d.dte_min ?? "—"}–${d.dte_max ?? "—"}` : (d.results?.[0]?.dte ?? "—");
     $("match-count").textContent = d.count;
+    const sourceEl = $("opt-source");
+    if(sourceEl){
+      const label = d.source || (d.provider === "tradier" ? "Tradier Sandbox" : "Yahoo fallback") || "—";
+      const suffix = d.delayed ? " · delayed" : "";
+      const cacheTag = d.stale ? " · stale cache" : (d.cached ? " · cached" : "");
+      sourceEl.textContent = `${label}${suffix}${cacheTag}`;
+      sourceEl.title = d.fallback_error ? `Tradier fallback reason: ${d.fallback_error}` : (d.math_note || "");
+      sourceEl.className = d.provider === "tradier" ? "provider-ok" : "provider-fallback";
+    }
     renderResults(d.results || []);
   }catch(e){
     error(e.message);
@@ -447,14 +611,39 @@ function renderResults(rows){
   lastOptionRows = rows || [];
   const h = $("results-head");
   const b = $("results-body");
+  const table = $("results-table");
+  const browse = isBrowseMode();
+
+  const browseControls = $("browse-controls");
+  if(browseControls) browseControls.classList.toggle("hidden", !browse);
+  syncBrowseControlVisibility();
+
   if(strategyType === "single"){
     h.innerHTML = "<th>Score</th><th>Risk Level</th><th>Trade</th><th>Exp</th><th>DTE</th><th>Strike</th><th>Bid</th><th>Ask</th><th>Delta</th><th>IV</th><th>OI</th>";
-    b.innerHTML = lastOptionRows.length ? lastOptionRows.map((x,i) => `<tr data-i="${i}"><td>${scoreBadge(x)}</td><td>${qualityPill(riskText(x))}</td><td>${labelStrategy(x.strategy)}</td><td>${x.expiration}</td><td>${x.dte}</td><td>${x.strike}</td><td>$${fmt(x.bid)}</td><td>$${fmt(x.ask)}</td><td>${fmt(x.delta,3)}</td><td>${pct(x.iv)}</td><td>${oiText(x.open_interest)}</td></tr>`).join("") : `<tr><td colspan="11" class="empty-cell">No contracts match. If this happens with no filters, Yahoo may have returned zero/missing option quotes; try Clear filters, a specific expiration, or wait and reload.</td></tr>`;
   }else{
     h.innerHTML = "<th>Score</th><th>Risk Level</th><th>Strategy</th><th>Exp</th><th>DTE</th><th>Legs</th><th>Credit/Debit</th><th>Max Loss</th><th>ROR</th><th>Short Δ</th><th>OI</th>";
-    b.innerHTML = lastOptionRows.length ? lastOptionRows.map((x,i) => `<tr data-i="${i}"><td>${scoreBadge(x)}</td><td>${qualityPill(riskText(x))}</td><td>${labelStrategy(x.strategy)}</td><td>${x.expiration}</td><td>${x.dte}</td><td>${orderedLegs(x).map(l => `${l.action === "buy" ? "B" : "S"} ${l.strike}${l.type === "call" ? "C" : "P"}`).join(" / ")}</td><td>${x.net_premium >= 0 ? "Credit " : "Debit "}$${fmt(Math.abs(x.net_premium))}</td><td>$${fmt(x.max_loss)}</td><td>${fmt(x.ror)}%</td><td>${fmt(x.short_delta,3)}</td><td>${oiText(x.open_interest)}</td></tr>`).join("") : `<tr><td colspan="11" class="empty-cell">No spreads match. Try Clear filters, a wider expiration/strike range, or wait if Yahoo returned zero/missing quotes.</td></tr>`;
   }
-  b.querySelectorAll("tr[data-i]").forEach(tr => tr.addEventListener("click", () => analyze(lastOptionRows[Number(tr.dataset.i)])));
+
+  table?.classList.toggle("browse-results-table", browse);
+  const label = $("results-mode-label");
+  if(label){
+    label.textContent = browse
+      ? "Browse mode: ordered by strike with current stock price line. Expiration and width are quick controls."
+      : "Screener mode: advanced filters are active, so results are ranked with the standard Investify table.";
+  }
+
+  if(browse){
+    b.innerHTML = renderBrowseRows(lastOptionRows);
+  }else{
+    $("match-count").textContent = lastOptionRows.length;
+    renderNormalRows(lastOptionRows);
+  }
+
+  b.querySelectorAll("tr[data-i]").forEach(tr => tr.addEventListener("click", () => {
+    const idx = Number(tr.dataset.i);
+    const row = lastOptionRows[idx];
+    if(row) analyze(row);
+  }));
 }
 function metric(label,val){ return `<div><span>${label}</span><strong>${val}</strong></div>`; }
 function greekBox(name,val,help){ return `<div class="greek-box"><span>${name}</span><strong>${fmt(val,4)}</strong><small>${help}</small></div>`; }
@@ -620,6 +809,21 @@ $("best-option").addEventListener("click", () => {
   setTimeout(() => $("jump-analysis")?.addEventListener("click", () => $("trade-analysis")?.scrollIntoView({behavior:"smooth", block:"start"})), 100);
 });
 
+
+
+$("browse-expiration")?.addEventListener("change", () => {
+  const v = $("browse-expiration")?.value;
+  if(!v) return;
+  lastBrowseExpiration = v;
+  if($("expiration")) $("expiration").value = v;
+  if(lastOptionRows.length) findTrades();
+});
+
+$("browse-width")?.addEventListener("change", () => {
+  const v = $("browse-width")?.value || "1";
+  setVal("spread-width", v);
+  if(lastOptionRows.length && strategyType === "vertical") findTrades();
+});
 
 syncStrategies();
 

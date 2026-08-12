@@ -16,6 +16,37 @@ const CONTEXT_KEY="investify_pending_ai_context";
 let chats=JSON.parse(localStorage.getItem(CHAT_KEY)||"[]");
 let activeId=null;
 let context={};
+let aiMode=localStorage.getItem("investify_ai_mode")||"general";
+const MODE_PROMPTS={
+  general:[
+    ["Explain simply","Explain this clearly and simply."],
+    ["Pros and cons","Give me the pros and cons."],
+    ["Step-by-step","Walk me through this step by step."],
+    ["Compare choices","Compare the main options and recommend a practical next step."],
+    ["Improve answer","Make this more useful and specific."]
+  ],
+  market:[
+    ["Why is the market moving today?","Why is market moving today?"],
+    ["Upcoming catalysts","What are the biggest upcoming catalysts to watch this week?"],
+    ["Fed / inflation","How are inflation, yields and Fed expectations affecting the market?"],
+    ["Sector rotation","What sectors look strong or weak today?"],
+    ["Biggest risks","What are the biggest market risks right now?"]
+  ],
+  ticker:[
+    ["Company story","Explain the business, current stock story, and what matters now."],
+    ["Tailwinds","What are the biggest tailwinds for this company?"],
+    ["Risks","What are the biggest company-specific risks?"],
+    ["Valuation","How does valuation look based on available context?"],
+    ["News drivers","What recent news is driving the stock?"]
+  ],
+  options:[
+    ["Explain trade","Explain this attached options trade simply."],
+    ["Main risks","What are the main risks of this setup?"],
+    ["If flat","What happens if the stock is flat?"],
+    ["Scenarios","What happens if the stock moves up or down 3%?"],
+    ["Greeks","Explain the Greeks and liquidity risk for this trade."]
+  ]
+};
 
 function uid(){return "chat_"+Date.now()+"_"+Math.random().toString(16).slice(2)}
 function save(){localStorage.setItem(CHAT_KEY,JSON.stringify(chats.slice(0,30)))}
@@ -60,6 +91,31 @@ function loadPendingContext(){
   localStorage.removeItem(CONTEXT_KEY);
   try{return JSON.parse(raw)}catch{return null}
 }
+function setMode(mode){
+  aiMode=mode||"market";
+  localStorage.setItem("investify_ai_mode", aiMode);
+  if(context){context.mode=aiMode; const c=active(); if(c){c.context=context; save();}}
+  document.querySelectorAll("#ai-mode-tabs button").forEach(b=>b.classList.toggle("active", b.dataset.mode===aiMode));
+  const input=$("chat-input");
+  if(input){
+    input.placeholder = aiMode==="general"
+      ? "Ask anything, or attach ticker/trade context for a more specific answer…"
+      : aiMode==="market"
+        ? "Ask about market direction, macro catalysts, sectors, rates, or risk…"
+        : aiMode==="ticker"
+          ? "Ask about the attached ticker, business, valuation, drivers, tailwinds, or risks…"
+          : "Ask about an attached options trade, payoff, Greeks, liquidity, or scenarios…";
+  }
+  renderPromptChips();
+  renderContext();
+}
+function renderPromptChips(){
+  const row=document.querySelector(".prompt-chips");
+  if(!row)return;
+  const prompts=MODE_PROMPTS[aiMode]||MODE_PROMPTS.general;
+  row.innerHTML=prompts.map(([label,prompt])=>`<button type="button" data-prompt="${safe(prompt)}">${safe(label)}</button>`).join("");
+  row.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>sendMessage(b.dataset.prompt)));
+}
 function renderChatList(){
   $("chat-list").innerHTML=chats.length?chats.map(c=>`
     <button class="chat-list-item ${c.id===activeId?"active":""}" data-id="${c.id}">
@@ -67,22 +123,25 @@ function renderChatList(){
       <span>${new Date(c.createdAt).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</span>
     </button>`).join(""):'<p class="small-muted">No saved chats yet.</p>';
   document.querySelectorAll(".chat-list-item").forEach(b=>b.addEventListener("click",()=>{
-    activeId=b.dataset.id;context=active().context||{};renderAll();
+    activeId=b.dataset.id;context=active().context||{};aiMode=context.mode||aiMode;renderAll();setMode(aiMode);
   }));
 }
 function contextName(){
+  if(context.portfolio)return "Attached portfolio context";
   if(context.trade)return `Attached trade: ${context.trade.symbol||context.ticker||""} ${context.trade.strategy_label||context.trade.strategy||""}`;
   if(context.ticker)return `Ticker: ${context.ticker}`;
   return "No context attached";
 }
 function renderContext(){
   const chips=[];
+  chips.push(`<span>${safe((aiMode||"market").toUpperCase())} mode</span>`);
   if(context.ticker)chips.push(`<span>${safe(context.ticker)}</span>`);
   if(context.quote)chips.push(`<span>Quote</span>`);
   if(context.technicals)chips.push(`<span>Technicals</span>`);
   if(context.sentiment)chips.push(`<span>Sentiment</span>`);
   if(context.articles?.length)chips.push(`<span>News ${context.articles.length}</span>`);
   if(context.trade)chips.push(`<span>Options trade</span>`);
+  if(context.portfolio)chips.push(`<span>Portfolio</span>`);
   $("context-chips").innerHTML=chips.length?chips.join(""):'<span class="muted-chip">No context attached</span>';
   $("chat-title").textContent=active()?.title||"New research chat";
 }
@@ -101,10 +160,15 @@ function renderMessages(){
   $("chat-messages").scrollTop=$("chat-messages").scrollHeight;
 }
 function renderAll(){renderChatList();renderContext();renderMessages()}
+async function resolveChatSymbol(){
+  const input=$("chat-symbol");
+  if(window.InvestifySymbols?.resolveInput){try{return await window.InvestifySymbols.resolveInput(input);}catch{}}
+  return input.value.trim().toUpperCase();
+}
 async function attachStock(){
-  const symbol=$("chat-symbol").value.trim().toUpperCase();
+  const symbol=await resolveChatSymbol();
   if(!symbol)return;
-  context={...context,ticker:symbol};
+  context={...context,ticker:symbol,mode:aiMode};
   active().context=context;save();renderContext();
 }
 async function sendMessage(text=null){
@@ -123,9 +187,10 @@ async function sendMessage(text=null){
   try{
     const res=await fetch("/api/ai/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       messages:c.messages.filter(m=>!m.loading).map((m,i,arr)=> i===arr.length-1 && m.role==="user" ? {...m, content:enhancePromptWithStyle(m.content)} : m),
-      context,
-      symbol:context.ticker||$("chat-symbol").value.trim().toUpperCase(),
-      include_live_context: !!context.ticker && !context.trade
+      context:{...context, mode:aiMode},
+      mode:aiMode,
+      symbol:context.ticker||await resolveChatSymbol(),
+      include_live_context: aiMode==="market" || !!context.ticker || !!context.trade
     })});
     const d=await res.json();
     if(d.error)throw Error(d.error);
@@ -137,19 +202,31 @@ async function sendMessage(text=null){
 }
 $("new-chat").addEventListener("click",()=>newChat());
 $("attach-stock").addEventListener("click",attachStock);
-$("clear-context").addEventListener("click",()=>{context={};active().context={};save();renderContext()});
+$("clear-context").addEventListener("click",()=>{context={mode:aiMode};active().context=context;save();renderContext()});
 $("send-chat").addEventListener("click",()=>sendMessage());
 $("chat-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});
-document.querySelectorAll(".prompt-chips button").forEach(b=>b.addEventListener("click",()=>sendMessage(b.dataset.prompt)));
+document.querySelectorAll("#ai-mode-tabs button").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.mode)));
 
 const pending=loadPendingContext();
 if(pending){
+  if(pending.trade) aiMode="options";
+  else if(pending.ticker) aiMode="ticker";
+  else aiMode="general";
+  localStorage.setItem("investify_ai_mode", aiMode);
+  pending.mode=aiMode;
   newChat(pending);
   if(pending.ticker)$("chat-symbol").value=pending.ticker;
-  active().title=pending.trade?`Trade: ${pending.trade.symbol||pending.ticker} ${pending.trade.strategy_label||pending.trade.strategy||""}`:`${pending.ticker} research`;
-  active().messages.push({role:"assistant",content:`${contextName()}\n\nAsk me about risks, breakeven, Greeks, liquidity, payoff, or scenarios.`});
+  if(pending.portfolio){
+    active().title="Portfolio review";
+    active().messages.push({role:"assistant",content:"Portfolio context attached. Ask about diversification, concentration, sector exposure, cash positioning, or risks."});
+    if(pending.portfolio_prompt)$("chat-input").value=pending.portfolio_prompt;
+  }else{
+    active().title=pending.trade?`Trade: ${pending.trade.symbol||pending.ticker} ${pending.trade.strategy_label||pending.trade.strategy||""}`:`${pending.ticker} research`;
+    active().messages.push({role:"assistant",content:`${contextName()}\n\nAsk me about risks, breakeven, Greeks, liquidity, payoff, or scenarios.`});
+  }
   save();renderAll();
-}else if(!chats.length){newChat()}else{activeId=chats[0].id;context=chats[0].context||{};renderAll()}
+}else if(!chats.length){newChat({mode:aiMode})}else{activeId=chats[0].id;context=active().context||{};aiMode=context.mode||aiMode;renderAll()}
+setMode(aiMode);
 
 
 // v14 chat management: rename, delete, edit last, regenerate, answer style

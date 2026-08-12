@@ -10,6 +10,20 @@
   <div class="data-pill">Yahoo Finance · Personal research</div>
 </section>
 
+<section class="market-section markets-ai-section">
+  <div class="section-heading compact-heading">
+    <div>
+      <p class="eyebrow">AI MARKET BRIEF</p>
+      <h2>Market digest</h2>
+      <p class="small-muted">Cached locally. Gemini runs only when you click refresh.</p>
+    </div>
+    <button id="refresh-markets-digest" class="secondary-button" type="button">Refresh AI brief</button>
+  </div>
+  <div id="markets-ai-brief" class="card markets-ai-brief">
+    <p>Click refresh to generate a market strategist brief with themes, catalysts, risks and bottom line.</p>
+    <small id="markets-ai-updated" class="small-muted">Not updated yet.</small>
+  </div>
+</section>
 
 <section class="market-section">
   <div class="section-heading compact-heading"><div><p class="eyebrow">MAJOR INDEXES</p><h2>U.S. benchmarks</h2></div></div>
@@ -26,7 +40,7 @@
       <span class="symbol">{{name}}</span>
       <small class="muted">{{s}}</small>
       <strong class="m-price">—</strong>
-      <span class="m-change muted">Loading…</span>
+      <span class="m-change muted"><span class="loading-dots">Loading</span></span>
     </a>
     {% endfor %}
   </div>
@@ -39,7 +53,7 @@
     <a class="market-tile" data-symbol="{{s}}" href="/stock/{{s}}">
       <span class="symbol">{{s}}</span>
       <strong class="m-price">—</strong>
-      <span class="m-change muted">Loading…</span>
+      <span class="m-change muted"><span class="loading-dots">Loading</span></span>
     </a>
     {% endfor %}
   </div>

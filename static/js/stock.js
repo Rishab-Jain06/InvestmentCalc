@@ -23,8 +23,42 @@ const num = v => v == null ? "—" : Number(v).toLocaleString();
 const pct = v => v == null ? "—" : `${Number(v).toFixed(2)}%`;
 const compact = v => v == null ? "—" : Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:2}).format(v);
 const historyCache = {};
+let latestQuote = null;
 
+function dots(label="Loading"){return `<span class="loading-dots">${label}</span>`;}
 function showErr(m){ $("error").textContent = m; $("error").classList.remove("hidden"); }
+
+function setupStockCollapsibles(){
+  const cards=[
+    ["stock-signal-card","Stock signal"],
+    [null,"Price chart",".chart-card"],
+    [null,"Business summary",".company-overview-card"],
+    [null,"Technicals",".indicator-card"],
+    [null,"Key statistics",".key-stats-card"],
+    [null,"SEC filings",".sec-filings-card"]
+  ];
+  cards.forEach(([id,title,selector])=>{
+    const card=id?document.getElementById(id):document.querySelector(selector);
+    if(!card || card.dataset.collapsibleReady)return;
+    card.dataset.collapsibleReady="1";
+    const content=document.createElement("div");
+    content.className="stock-collapse-content";
+    while(card.firstChild)content.appendChild(card.firstChild);
+    const btn=document.createElement("button");
+    btn.className="stock-collapse-toggle";
+    btn.type="button";
+    btn.innerHTML=`<span>${title}</span><b>Show ▾</b>`;
+    card.appendChild(btn);
+    card.appendChild(content);
+    card.classList.add("stock-collapsible","collapsed");
+    btn.addEventListener("click",()=>{
+      const collapsed=card.classList.toggle("collapsed");
+      btn.querySelector("b").textContent=collapsed?"Show ▾":"Hide ▴";
+      if(!collapsed && chart) setTimeout(()=>chart.resize(),80);
+    });
+  });
+}
+
 function rememberTicker(){
   const key = "investify_recent_tickers";
   const list = JSON.parse(localStorage.getItem(key) || "[]");
@@ -47,6 +81,12 @@ function setChartPrice(v, change=null, pctChange=null, label="End price"){
     }
   }
 }
+
+function setChartToQuote(){
+  if(!latestQuote) return;
+  setChartPrice(latestQuote.price, latestQuote.change, latestQuote.percent_change, "Current price");
+}
+
 const stockCrosshairPlugin = {
   id: "stockCrosshair",
   afterDatasetsDraw(chart,args,opts){
@@ -118,12 +158,13 @@ async function loadQuote(){
   try{
     const q = await (await fetch(`/api/quote/${s}`)).json();
     if(q.error) throw Error(q.error);
+    latestQuote = q;
     const exchange = q.exchange || q.exchange_raw || "";
     $("company").textContent = [q.name, exchange].filter(Boolean).join(" · ");
     const badge = $("market-badge");
     if(badge) badge.textContent = exchange || "Market";
     $("price").textContent = money(q.price);
-    if($("chart-price")?.textContent === "—") setChartPrice(q.price, null, null, "quote");
+    setChartToQuote();
     $("change").textContent = `${q.change>=0?"+":""}${money(q.change)} (${q.percent_change>=0?"+":""}${pct(q.percent_change)})`;
     $("change").className = `change ${q.percent_change>=0?"positive":"negative"}`;
     $("prev").textContent = money(q.previous_close);
@@ -139,7 +180,7 @@ async function loadHistory(range){
   const d = await getHistory(range);
   if(d.error){ showErr(d.error); return; }
   const vals = d.values || [];
-  setChartSnapshot(vals, range);
+  setChartToQuote();
 
   if(chart) chart.destroy();
   const dark = document.documentElement.dataset.theme === "dark";
@@ -202,12 +243,16 @@ async function loadHistory(range){
       }
     }
   });
-  canvas.onmouseleave = () => setChartSnapshot(vals, range);
+  canvas.onmouseleave = () => setChartToQuote();
   $("range-label").textContent = range;
 }
 document.querySelectorAll(".range-tab").forEach(b => b.addEventListener("click", () => loadHistory(b.dataset.range)));
 
-function statBox(label,val){ return `<div><span>${label}</span><strong>${val}</strong></div>`; }
+function statBox(label,val,extra=""){ return `<div class="overall-mini-tile"><span>${label}</span><strong>${val}</strong>${extra?`<small>${extra}</small>`:""}</div>`; }
+function ratingPill(score, label){
+  const tone = signalTone(score);
+  return `<span class="rating-pill ${tone}">${label || signalRating(score)}</span>`;
+}
 function helpTip(text){ return `<b class="metric-help" tabindex="0">?<i>${text}</i></b>`; }
 const metricHelp = {
   "RSI 14":"Momentum oscillator from 0–100. Above 50 leans bullish; below 50 leans weak. Very high/low can mean extended/oversold.",
@@ -358,23 +403,29 @@ function renderOverallSignal(d){
   const t = d.technical || {};
   const f = d.fundamental || {};
   const score = d.score == null ? 0 : Math.max(0, Math.min(100, Number(d.score)));
+  const weights = d.weights || {technical:50, fundamental:50};
+  const cap = d.cap_reason ? `<div class="overall-cap-note">${d.cap_reason}</div>` : "";
+  const raw = d.raw_score != null && Math.round(d.raw_score) !== Math.round(d.score ?? d.raw_score)
+    ? `<small>Raw blend ${Math.round(d.raw_score)}/100 before risk cap</small>` : "";
   return `
-    <div class="overall-hero-card">
+    <div class="overall-hero-card compact-overall-hero">
       <div>
         <span>Overall stock score</span>
         <strong class="${signalTone(d.score)}">${d.rating || signalRating(d.score)}</strong>
-        <p>${d.summary || "Overall blends technical and fundamental scores equally."}</p>
+        <p>${d.summary || "Overall dynamically blends technical and fundamental scores."}</p>
+        ${raw}
       </div>
       <div class="overall-score-ring"><b>${scoreText(d.score)}</b><i style="width:${score}%"></i></div>
     </div>
-    <div class="overall-signal-grid refined-overall-grid">
-      <div>${statBox("Technical", `${scoreText(t.score)} · ${(t.signal || "—").toUpperCase()}`)}</div>
-      <div>${statBox("Fundamental", `${scoreText(f.score)} · ${f.rating || "—"}`)}</div>
-      <div>${statBox("Blend", "50% / 50%")}</div>
+    ${cap}
+    <div class="overall-signal-grid refined-overall-grid compact-overall-grid">
+      ${statBox("Technical", scoreText(t.score), `${ratingPill(t.score, (t.signal || "—").toUpperCase())} · ${weights.technical ?? 0}% weight`)}
+      ${statBox("Fundamental", scoreText(f.score), `${ratingPill(f.score, f.rating || "—")} · ${weights.fundamental ?? 0}% weight`)}
+      ${statBox("Blend rule", `${weights.technical ?? 0}/${weights.fundamental ?? 0}`, "Tech/Fund · adjusts by data confidence")}
     </div>
     <details class="signal-details" open>
       <summary>How is overall calculated?</summary>
-      <p class="small-muted">Overall Score = 50% Technical + 50% Fundamental when both are available. Rating bands are Strong Sell, Sell, Hold, Buy and Strong Buy.</p>
+      <p class="small-muted">Overall uses a dynamic blend. High-confidence fundamentals weight fundamental quality more heavily; low-confidence fundamentals weight technicals more heavily. Severe weakness in either technicals or fundamentals can cap the final rating.</p>
     </details>`;
 }
 function renderTechnicalIndicatorGroups(t){
@@ -482,8 +533,8 @@ async function loadCompanySummary(refresh=false){
   const btn = $("generate-company-summary");
   if(!box || !btn) return;
   btn.disabled = true;
-  btn.textContent = refresh ? "Refreshing…" : "Generating…";
-  box.textContent = "Generating company overview…";
+  btn.innerHTML = refresh ? dots("Refreshing") : dots("Generating");
+  box.innerHTML = dots("Generating company overview");
   try{
     const d = await (await fetch(`/api/company-summary/${s}${refresh ? "?refresh=1" : ""}`, {method:"POST"})).json();
     if(d.error) throw Error(d.error);
@@ -508,6 +559,7 @@ watchButton.addEventListener("click", () => {
   syncWatch();
 });
 syncWatch();
+setupStockCollapsibles();
 rememberTicker();
 loadQuote();
 loadHistory(localStorage.getItem("investify_default_range") || "1D");

@@ -218,3 +218,12 @@ GEMINI_MODEL=gemini-3.5-flash
 - Kept only the v21 preset key: `investify_option_presets_v21`.
 - Verified `static/js/options.js` with `node --check`.
 - No right-side Options layout changes were made.
+
+## v45 Notes
+- Calendar economic events use Investify's curated major U.S. macro event schedule and Alpha Vantage values when an indicator mapping is available.
+- Calendar earnings filter is now a clear dropdown: Portfolio, Watchlist, Portfolio + Watchlist, All Earnings, or Custom Symbols.
+- Calendar browser/backend cache is 24 hours, with Alpha Vantage macro values cached longer in alpha_vantage_data.py.
+- Portfolio holdings are scroll-limited to about 10 visible rows.
+- Allocation list is scroll-limited to about 5 visible items and includes a cash toggle.
+- Portfolio AI review is shortened to a score, label, headline, and 2-3 bullets.
+- Ask AI about portfolio sends portfolio context to AI Search.

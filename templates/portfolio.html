@@ -7,7 +7,10 @@
     <h1>Portfolio + watchlist.</h1>
     <p class="sub">Track manual Robinhood-style holdings, cash, cost basis, returns, allocation and your research watchlist. Stored locally in this browser until login is added later.</p>
   </div>
-  <div class="data-pill">Local portfolio · Live quote refresh</div>
+  <div class="portfolio-head-actions">
+    <button id="refresh-portfolio-top" class="secondary-button refresh-top-button" type="button">Refresh Portfolio</button>
+    <div class="data-pill">Local portfolio · Live quote refresh</div>
+  </div>
 </section>
 
 <div id="portfolio-error" class="error hidden"></div>
@@ -37,13 +40,14 @@
       </article>
     </div>
 
-    <div class="portfolio-grid portfolio-grid-v45">
-      <article class="card allocation-card allocation-card-v45">
-        <div class="section-heading compact-heading">
-          <div>
-            <p class="eyebrow">ALLOCATION</p>
-            <h2>Portfolio mix</h2>
-          </div>
+    <article class="card allocation-card allocation-card-v47">
+      <div class="section-heading compact-heading allocation-heading-v47">
+        <div>
+          <p class="eyebrow">ALLOCATION</p>
+          <h2>Portfolio mix</h2>
+        </div>
+        <div class="allocation-controls-v47">
+          <label class="allocation-cash-toggle"><input id="include-cash-allocation" type="checkbox" checked> Include cash</label>
           <select id="portfolio-sort" class="secondary-select">
             <option value="value">Total value</option>
             <option value="invested_value">Market value</option>
@@ -56,36 +60,38 @@
             <option value="symbol">Ticker</option>
           </select>
         </div>
-        <label class="allocation-cash-toggle"><input id="include-cash-allocation" type="checkbox" checked> Include cash in allocation</label>
-        <div class="portfolio-donut-wrap portfolio-donut-wrap-v45">
+      </div>
+      <div class="allocation-horizontal-v47">
+        <div class="portfolio-donut-wrap portfolio-donut-wrap-v47">
           <canvas id="portfolio-chart"></canvas>
           <div class="portfolio-donut-center">
             <strong id="donut-total">$0</strong>
             <span id="donut-return">—</span>
           </div>
         </div>
-        <div class="allocation-list-head"><span id="allocation-count">Top allocation</span><small>scroll for more</small></div>
-        <div id="allocation-list" class="allocation-list allocation-list-scroll"></div>
-      </article>
+        <div class="allocation-side-list-v47">
+          <div class="allocation-list-head"><span id="allocation-count">Top allocation</span><small>scroll for more</small></div>
+          <div id="allocation-list" class="allocation-list allocation-list-scroll allocation-list-scroll-v47"></div>
+        </div>
+      </div>
+    </article>
 
-      <article class="card portfolio-ai-card portfolio-ai-card-v45">
-        <div class="section-heading compact-heading ai-heading-v45">
-          <div>
-            <p class="eyebrow">AI PORTFOLIO REVIEW</p>
-            <h2>Portfolio health</h2>
-            <p class="small-muted">High-level read only: diversification, concentration, industry coverage and market positioning.</p>
-          </div>
-          <div class="ai-action-stack">
-            <button id="ai-review" class="secondary-button" type="button">Analyze Portfolio</button>
-            <button id="ask-ai-portfolio" class="secondary-button" type="button">Ask AI about portfolio</button>
-          </div>
+    <article class="card portfolio-ai-card portfolio-ai-card-v47">
+      <div class="section-heading compact-heading ai-heading-v47">
+        <div>
+          <p class="eyebrow">AI PORTFOLIO REVIEW</p>
+          <h2>Portfolio health</h2>
         </div>
-        <div id="ai-review-meta" class="small-muted">No review yet.</div>
-        <div id="ai-review-body" class="portfolio-ai-body portfolio-ai-body-brief">
-          Add holdings, refresh prices, then generate a short portfolio health review.
+        <div class="ai-action-stack ai-action-stack-v47">
+          <button id="ai-review" class="secondary-button" type="button">Analyze Portfolio</button>
+          <button id="ask-ai-portfolio" class="secondary-button" type="button">Ask AI about portfolio</button>
         </div>
-      </article>
-    </div>
+      </div>
+      <div id="ai-review-meta" class="small-muted">No review yet.</div>
+      <div id="ai-review-body" class="portfolio-ai-body portfolio-ai-body-brief portfolio-ai-body-v47">
+        Add holdings, refresh prices, then generate a short portfolio health review.
+      </div>
+    </article>
 
     <article class="card portfolio-table-card holdings-card-v45">
       <div class="section-heading compact-heading">
@@ -95,7 +101,6 @@
           <p class="small-muted">Market value = current price × shares. All-time return compares current value to your average cost.</p>
           <p id="holdings-count" class="small-muted holdings-count">Showing 0 holdings.</p>
         </div>
-        <button id="refresh-portfolio" class="secondary-button" type="button">Refresh Prices</button>
       </div>
       <div class="table-wrap holdings-scroll-wrap">
         <table id="holdings-table">

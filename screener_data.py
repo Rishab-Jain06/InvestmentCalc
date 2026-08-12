@@ -135,14 +135,9 @@ def score_symbol(symbol, deep_fundamentals=False):
 
         f_score = fundamental.get("score") if fundamental else None
         t_score = t.get("score")
-        if f_score is not None and t_score is not None:
-            overall = round((float(t_score) * 0.5) + (float(f_score) * 0.5))
-        elif t_score is not None:
-            overall = round(float(t_score))
-        elif f_score is not None:
-            overall = round(float(f_score))
-        else:
-            overall = None
+        overall, raw_overall, blend_weights, cap_reason = sec_data._overall_blend(
+            t_score, f_score, fundamental.get("confidence") if fundamental else None
+        )
 
         return {
             "symbol": s,
@@ -153,6 +148,9 @@ def score_symbol(symbol, deep_fundamentals=False):
             "volume": q.get("volume"),
             "overall_score": overall,
             "overall_rating": _rating(overall),
+            "overall_raw_score": raw_overall,
+            "blend_weights": blend_weights,
+            "cap_reason": cap_reason,
             "technical_score": t_score,
             "technical_rating": _rating(t_score),
             "technical_signal": t.get("signal"),

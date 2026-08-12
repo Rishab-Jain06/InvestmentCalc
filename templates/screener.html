@@ -10,10 +10,12 @@
   <div class="data-pill">Yahoo Finance · SEC EDGAR cache · Personal research</div>
 </section>
 
-<section class="screener-workspace">
-  <aside class="filters-card card scroll-panel">
-    <div class="filter-section-title">Universe</div>
-    <div class="filter-grid one-col">
+<section class="screener-workspace screener-workspace-v46">
+  <aside class="filters-card card scroll-panel filters-card-v46">
+    <button id="toggle-screener-filters" class="secondary-button filter-toggle-v46" type="button">Show filters ▾</button>
+    <div id="screener-filter-body" class="screener-filter-body">
+    <button class="filter-section-title filter-collapse-trigger" data-filter-target="universe" type="button">Universe ▴</button>
+    <div id="filter-section-universe" class="filter-grid one-col filter-section-content">
       <label>Universe
         <select id="screen-universe">
           <option value="sp500" selected>S&P 500</option>
@@ -36,8 +38,8 @@
       </label>
     </div>
 
-    <div class="filter-section-title">Price</div>
-    <div class="filter-grid one-col">
+    <button class="filter-section-title filter-collapse-trigger" data-filter-target="price" type="button">Price ▴</button>
+    <div id="filter-section-price" class="filter-grid one-col filter-section-content">
       <label>Minimum Price $
         <input id="screen-min-price" type="number" step=".01" placeholder="Example: 20">
       </label>
@@ -46,8 +48,8 @@
       </label>
     </div>
 
-    <div class="filter-section-title">Score filters</div>
-    <div class="filter-grid one-col">
+    <button class="filter-section-title filter-collapse-trigger" data-filter-target="score" type="button">Score filters ▾</button>
+    <div id="filter-section-score" class="filter-grid one-col filter-section-content collapsed">
       <label>Overall rating
         <select id="screen-overall-rating">
           <option value="any">Any</option>
@@ -90,14 +92,17 @@
       </label>
     </div>
 
-    <div class="filter-section-title">Mode</div>
+    <button class="filter-section-title filter-collapse-trigger" data-filter-target="mode" type="button">Mode ▴</button>
+    <div id="filter-section-mode" class="filter-section-content">
     <label class="check-row">
       <input id="screen-deep" type="checkbox">
       <span>Deep fundamentals refresh</span>
     </label>
     <p class="filter-help">Leave unchecked for faster scans. Deep mode may call SEC/Yahoo fundamentals for each scanned ticker and can be slower.</p>
+    </div>
 
     <button id="run-screen" class="primary-wide">Find Top 10</button>
+    </div>
   </aside>
 
   <section class="options-results">

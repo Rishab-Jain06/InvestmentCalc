@@ -12,7 +12,7 @@ function friendlyAIError(msg){
 
 function safeHomeNews(s){return String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}
 
-const HOME_DIGEST_KEY = "investify_home_ai_digest_v1";
+const HOME_DIGEST_KEY = "investify_home_ai_digest_v2";
 
 function renderSavedHomeDigest(){
   const box=document.getElementById("home-digest");
@@ -22,7 +22,8 @@ function renderSavedHomeDigest(){
     if(!saved || !saved.lines?.length)return;
     const updated=saved.updatedAt ? new Date(saved.updatedAt) : null;
     const label=updated ? updated.toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) : "previously";
-    box.innerHTML=`<p>${safeHomeNews(saved.lines[0]||"Market digest unavailable.")}</p><p>${safeHomeNews(saved.lines[1]||"Open News for more context.")}</p><small id="home-digest-updated" class="small-muted">Last updated ${label}</small>`;
+    const lines=(saved.lines||[]).slice(0,3);
+    box.innerHTML=`${lines.map(x=>`<p>${safeHomeNews(x)}</p>`).join("")}<small id="home-digest-updated" class="small-muted">Last updated ${label}</small>`;
   }catch(e){}
 }
 
@@ -80,9 +81,9 @@ async function fetchHomeArticles(){
 async function refreshHomeDigest(){
   const box=document.getElementById("home-digest");
   if(!box)return;
-  box.innerHTML='<div class="typing inline"><span></span><span></span><span></span></div><small id="home-digest-updated" class="small-muted">Generating with Gemini…</small>';
+  box.innerHTML='<div class="typing inline"><span></span><span></span><span></span></div><small id="home-digest-updated" class="small-muted">Generating</small>';
   try{
-    const d=await (await fetch("/api/news/digest?limit=8")).json();
+    const d=await (await fetch("/api/news/digest?limit=10")).json();
     if(d.error)throw Error(d.error);
     const lines=String(d.digest||"").split("\n").filter(Boolean).slice(0,2);
     const saved={lines, updatedAt:new Date().toISOString()};

@@ -8,7 +8,7 @@
     <p class="sub">A focused workspace for charts, technicals, watchlists, options analytics and AI research.</p>
     <form id="ticker-form" class="search-shell">
       <span class="search-icon">⌕</span>
-      <input id="ticker" autocomplete="off" placeholder="Search ticker — SPY, QQQ, AAPL, NVDA" maxlength="12" required>
+      <input id="ticker" autocomplete="off" placeholder="Search company" required>
       <button type="submit">Research</button>
     </form>
     <div class="quick-links"><span>Popular</span><a href="/stock/SPY">SPY</a><a href="/stock/QQQ">QQQ</a><a href="/stock/AAPL">AAPL</a><a href="/stock/NVDA">NVDA</a></div>
@@ -16,6 +16,25 @@
   </div>
 </section>
 
+<section class="home-section home-portfolio-section">
+  <div class="section-heading compact-heading">
+    <div>
+      <p class="eyebrow">MY PORTFOLIO</p>
+      <h2>Portfolio snapshot</h2>
+    </div>
+    <a class="secondary-button" href="/portfolio">Open Portfolio</a>
+  </div>
+  <div class="home-portfolio-card card">
+    <button id="home-hide-value" class="eye-button portfolio-privacy-toggle" type="button" aria-label="Hide or show portfolio value">Hide</button>
+    <div>
+      <p id="home-portfolio-sub" class="small-muted">Connects to your local portfolio.</p>
+    </div>
+    <div class="home-portfolio-value">
+      <strong id="home-portfolio-total">—</strong>
+      <span id="home-portfolio-change" class="small-muted">—</span>
+    </div>
+  </div>
+</section>
 
 
 <section class="home-section home-digest-section">
@@ -27,7 +46,7 @@
     <button id="refresh-market-digest" class="secondary-button" type="button">Refresh AI digest</button>
   </div>
   <div id="home-digest" class="card home-digest-card">
-    <p>Click refresh to generate a 2-line market context digest.</p>
+    <p>Click refresh to generate a 3-sentence market context digest.</p>
     <p>Uses Gemini only when you click the button.</p>
     <small id="home-digest-updated" class="small-muted">Not updated yet.</small>
   </div>
@@ -37,9 +56,9 @@
 <section class="home-section">
   <div class="section-heading compact-heading"><div><p class="eyebrow">MARKET SNAPSHOT</p><h2>Major indexes</h2></div><a class="secondary-button" href="/markets">Open Markets</a></div>
   <div class="market-grid home-index-grid">
-    <a class="market-tile" data-symbol="^GSPC" href="/stock/%5EGSPC"><span class="symbol">S&P 500</span><small class="muted">^GSPC</small><strong class="m-price">—</strong><span class="m-change muted">Loading…</span></a>
-    <a class="market-tile" data-symbol="^IXIC" href="/stock/%5EIXIC"><span class="symbol">Nasdaq</span><small class="muted">^IXIC</small><strong class="m-price">—</strong><span class="m-change muted">Loading…</span></a>
-    <a class="market-tile" data-symbol="^DJI" href="/stock/%5EDJI"><span class="symbol">Dow 30</span><small class="muted">^DJI</small><strong class="m-price">—</strong><span class="m-change muted">Loading…</span></a>
+    <a class="market-tile" data-symbol="^GSPC" href="/stock/%5EGSPC"><span class="symbol">S&P 500</span><small class="muted">^GSPC</small><strong class="m-price">—</strong><span class="m-change muted"><span class="loading-dots">Loading</span></span></a>
+    <a class="market-tile" data-symbol="^IXIC" href="/stock/%5EIXIC"><span class="symbol">Nasdaq</span><small class="muted">^IXIC</small><strong class="m-price">—</strong><span class="m-change muted"><span class="loading-dots">Loading</span></span></a>
+    <a class="market-tile" data-symbol="^DJI" href="/stock/%5EDJI"><span class="symbol">Dow 30</span><small class="muted">^DJI</small><strong class="m-price">—</strong><span class="m-change muted"><span class="loading-dots">Loading</span></span></a>
   </div>
 </section>
 

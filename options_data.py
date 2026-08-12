@@ -60,8 +60,57 @@ def bs_greeks(spot, strike, years, rate, iv, kind):
     return {"delta": delta, "gamma": gamma, "theta": theta, "vega": vega, "rho": rho}
 
 
+def bs_price(spot, strike, years, rate, iv, kind):
+    try:
+        spot, strike, years, rate, iv = map(float, (spot, strike, years, rate, iv))
+    except (TypeError, ValueError):
+        return None
+    if spot <= 0 or strike <= 0 or years <= 0 or iv <= 0:
+        return None
+    rt = math.sqrt(years)
+    disc = math.exp(-rate * years)
+    d1 = (math.log(spot / strike) + (rate + 0.5 * iv * iv) * years) / (iv * rt)
+    d2 = d1 - iv * rt
+    if kind == "call":
+        return spot * _cdf(d1) - strike * disc * _cdf(d2)
+    return strike * disc * _cdf(-d2) - spot * _cdf(-d1)
+
+
+def implied_volatility(price, spot, strike, years, rate, kind):
+    try:
+        price, spot, strike, years, rate = map(float, (price, spot, strike, years, rate))
+    except (TypeError, ValueError):
+        return None
+    if price <= 0 or spot <= 0 or strike <= 0 or years <= 0:
+        return None
+    intrinsic = max(0.0, spot - strike) if kind == "call" else max(0.0, strike - spot)
+    if price < intrinsic * 0.98:
+        return None
+    lo, hi = 0.01, 5.0
+    for _ in range(70):
+        mid = (lo + hi) / 2
+        model = bs_price(spot, strike, years, rate, mid, kind)
+        if model is None:
+            return None
+        if model > price:
+            hi = mid
+        else:
+            lo = mid
+    return round((lo + hi) / 2, 6)
+
+
 def expirations(symbol):
     s = symbol.upper()
+    # Tradier Sandbox/Production is the preferred options source when configured.
+    try:
+        import tradier_data
+        if tradier_data.is_configured():
+            payload = tradier_data.expirations(s)
+            dates = payload.get("expirations") if isinstance(payload, dict) else payload
+            if dates:
+                return list(dates)
+    except Exception:
+        pass
     return _cache_fetch(
         f"options:expirations:{s}",
         900,
@@ -105,6 +154,14 @@ def _spot(ticker):
 
 def option_chain(symbol, expiration, risk_free_rate=0.043):
     symbol = symbol.upper()
+    # Tradier is the primary options provider when TRADIER_SANDBOX_TOKEN or TRADIER_PRODUCTION_TOKEN is set.
+    tradier_error = None
+    try:
+        import tradier_data
+        if tradier_data.is_configured():
+            return tradier_data.option_chain(symbol, expiration, risk_free_rate=risk_free_rate)
+    except Exception as e:
+        tradier_error = str(e)
 
     def _load():
         ticker = yf.Ticker(symbol)
@@ -123,11 +180,16 @@ def option_chain(symbol, expiration, risk_free_rate=0.043):
                 iv = _num(r.get("impliedVolatility"))
                 mid = (bid + ask) / 2 if bid is not None and ask is not None and bid > 0 and ask > 0 and ask >= bid else last
                 width = (ask - bid) if bid is not None and ask is not None and bid > 0 and ask > 0 and ask >= bid else None
+                iv_estimated = False
+                if (iv is None or iv <= 0) and mid and strike and spot:
+                    iv = implied_volatility(mid, spot, strike, years, risk_free_rate, kind)
+                    iv_estimated = iv is not None
                 greeks = bs_greeks(spot, strike, years, risk_free_rate, iv, kind) if iv else {}
                 rows.append({
                     "contract": str(r.get("contractSymbol", "")),
                     "type": kind,
                     "strike": strike,
+                    "expiration": expiration,
                     "bid": bid,
                     "ask": ask,
                     "last": last,
@@ -137,7 +199,11 @@ def option_chain(symbol, expiration, risk_free_rate=0.043):
                     "open_interest": _int_or_none(r.get("openInterest")),
                     "open_interest_available": _int_or_none(r.get("openInterest")) is not None,
                     "iv": iv,
+                    "iv_estimated": iv_estimated,
+                    "greeks_estimated": bool(greeks),
+                    "greeks_source": "calculated" if greeks else "unavailable",
                     "in_the_money": bool(r.get("inTheMoney", False)),
+                    "source": "Yahoo Finance fallback",
                     **greeks,
                 })
             return rows
@@ -150,6 +216,10 @@ def option_chain(symbol, expiration, risk_free_rate=0.043):
             "risk_free_rate": risk_free_rate,
             "calls": convert(chain.calls, "call"),
             "puts": convert(chain.puts, "put"),
+            "source": "Yahoo Finance fallback",
+            "provider": "yfinance",
+            "fallback_error": tradier_error,
+            "math_note": "Missing IV/Greeks are estimated with Black-Scholes when enough quote data is available.",
         }
 
     return _cache_fetch(
@@ -1285,3 +1355,22 @@ def payoff(legs, low_price, high_price, points=121):
             pnl += mult * (intrinsic - premium) * 100
         data.append({"price": round(s, 2), "pnl": round(pnl, 2)})
     return data
+
+
+def chain_rows(chain, limit_each_side=14):
+    spot = chain.get("spot")
+    by_strike = {}
+    for c in chain.get("calls") or []:
+        by_strike.setdefault(c.get("strike"), {})["call"] = c
+    for p in chain.get("puts") or []:
+        by_strike.setdefault(p.get("strike"), {})["put"] = p
+
+    rows = []
+    for strike in sorted([x for x in by_strike.keys() if x is not None]):
+        rows.append({"strike": strike, **by_strike.get(strike, {})})
+
+    if spot:
+        below = [r for r in rows if float(r["strike"]) <= float(spot)]
+        above = [r for r in rows if float(r["strike"]) > float(spot)]
+        rows = below[-limit_each_side:] + above[:limit_each_side]
+    return rows

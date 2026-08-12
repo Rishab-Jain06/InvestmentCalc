@@ -16,6 +16,11 @@ const $=id=>document.getElementById(id);
 const err=m=>{const e=$("news-error");e.textContent=m;e.classList.remove("hidden")};
 const clearErr=()=>$("news-error").classList.add("hidden");
 function safe(s){return String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}
+async function resolveNewsSymbol(){
+  const input=$("news-symbol");
+  if(window.InvestifySymbols?.resolveInput){try{return await window.InvestifySymbols.resolveInput(input);}catch{}}
+  return input.value.trim().toUpperCase()||"SPY";
+}
 function renderArticles(articles){
   currentArticles=articles||[];
   $("news-count").textContent=currentArticles.length;
@@ -61,13 +66,8 @@ async function loadNews(){
     let url="/api/news/market?limit=24";
     $("news-current-mode").textContent=newsMode[0].toUpperCase()+newsMode.slice(1);
     if(newsMode==="ticker"){
-      const s=$("news-symbol").value.trim().toUpperCase()||"SPY";
+      const s=await resolveNewsSymbol();
       $("news-current-symbol").textContent=s;
-      url=`/api/news/company/${encodeURIComponent(s)}?limit=24&days=21`;
-    }else if(newsMode==="watchlist"){
-      const list=JSON.parse(localStorage.getItem("investify_watchlist")||'["SPY","QQQ"]');
-      const s=(list[0]||"SPY").toUpperCase();
-      $("news-current-symbol").textContent=list.slice(0,5).join(", ");
       url=`/api/news/company/${encodeURIComponent(s)}?limit=24&days=21`;
     }else{
       $("news-current-symbol").textContent="—";
@@ -91,7 +91,7 @@ $("summarize-news").addEventListener("click",async()=>{
   try{
     let d;
     if(newsMode==="ticker"){
-      const sym=$("news-symbol").value.trim().toUpperCase()||"SPY";
+      const sym=await resolveNewsSymbol();
       d=await (await fetch(`/api/news/sentiment/${encodeURIComponent(sym)}?days=10&limit=6`)).json();
       if(d.error)throw Error(d.error);
       d=d.analysis||{};

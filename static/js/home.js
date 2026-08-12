@@ -16,10 +16,64 @@ function renderRecentTickers(){
 }
 const form = document.getElementById("ticker-form");
 if(form){
-  form.addEventListener("submit", e => {
+  form.addEventListener("submit", async e => {
     e.preventDefault();
-    const s = document.getElementById("ticker").value.trim().toUpperCase();
+    const input = document.getElementById("ticker");
+    let s = input.value.trim().toUpperCase();
+    if(window.InvestifySymbols?.resolveInput){
+      try{s = await window.InvestifySymbols.resolveInput(input);}catch{}
+    }
+    s = String(s||"").trim().toUpperCase();
     if(s){ saveRecentTicker(s); location.href = `/stock/${encodeURIComponent(s)}`; }
   });
 }
 renderRecentTickers();
+
+// v46 home portfolio snapshot
+(async function renderHomePortfolioSnapshot(){
+  const totalEl=document.getElementById("home-portfolio-total");
+  const changeEl=document.getElementById("home-portfolio-change");
+  const subEl=document.getElementById("home-portfolio-sub");
+  const eye=document.getElementById("home-hide-value");
+  if(!totalEl||!changeEl||!subEl)return;
+  const H="investify_portfolio_holdings_v1", C="investify_portfolio_cash_v1", V="investify_home_portfolio_hidden_v1", Q="investify_home_portfolio_quote_cache_v1";
+  const money=v=>Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}):"—";
+  const pct=v=>Number.isFinite(Number(v))?`${Number(v)>=0?"+":""}${Number(v).toFixed(2)}%`:"—";
+  const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f));}catch{return f;}};
+  const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+  const holdings=load(H,[]), cash=load(C,[]);
+  const cashTotal=cash.reduce((s,x)=>s+Number(x.amount||0),0);
+  async function quote(sym){
+    const s=String(sym||"").toUpperCase();
+    const cache=load(Q,{});
+    if(cache[s] && Date.now()-cache[s].ts<60000)return cache[s].data;
+    const d=await (await fetch(`/api/quote/${encodeURIComponent(s)}`)).json();
+    if(!d.error){cache[s]={ts:Date.now(),data:d};save(Q,cache);}
+    return d;
+  }
+  let holdingsValue=0, totalReturn=0, dayChange=0, quoteCount=0;
+  if(holdings.length){
+    totalEl.innerHTML='<span class="loading-dots">Loading</span>';
+    for(const h of holdings){
+      const shares=Number(h.shares||0), avg=Number(h.avg_cost||0);
+      let price=0, prev=0;
+      try{const q=await quote(h.symbol); price=Number(q.price||0); prev=Number(q.previous_close||0); quoteCount++;}catch{}
+      if(!price)price=avg;
+      const value=shares*price;
+      holdingsValue+=value;
+      totalReturn+=value-(shares*avg);
+      if(prev)dayChange+=(price-prev)*shares;
+    }
+  }
+  const total=holdingsValue+cashTotal;
+  function draw(){
+    const h=localStorage.getItem(V)==="1";
+    totalEl.textContent=h?"••••••":money(total);
+    changeEl.textContent=h?"Hidden":`${dayChange>=0?"+":""}${money(dayChange)} today · ${totalReturn>=0?"+":""}${money(totalReturn)} all-time`;
+    changeEl.className=`${dayChange>=0?"positive":"negative"}`;
+    subEl.textContent=`${holdings.length} holdings · ${cash.length} cash ${cash.length===1?"entry":"entries"}${quoteCount?` · live quotes`:""}`;
+    if(eye){eye.textContent=h?"Show":"Hide";eye.setAttribute("aria-pressed", h?"true":"false");}
+  }
+  if(eye)eye.addEventListener("click",()=>{localStorage.setItem(V,localStorage.getItem(V)==="1"?"0":"1");draw();});
+  draw();
+})();

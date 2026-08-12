@@ -1,14 +1,19 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from dotenv import load_dotenv
+import os
+import time
+import json
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
 import yahoo_data
 import options_data
 import news_ai
 import sec_data
 import screener_data
-import os
-import time
-
-load_dotenv()
+import tradier_data
+import calendar_data
+import alpha_vantage_data
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "local-personal-tool")
@@ -28,8 +33,10 @@ def markets(): return render_template("markets.html")
 def research(): return render_template("research.html")
 @app.get("/stock/<symbol>")
 def stock(symbol): return render_template("stock.html", symbol=symbol.upper())
+@app.get("/portfolio")
+def portfolio(): return render_template("portfolio.html")
 @app.get("/watchlist")
-def watchlist(): return render_template("watchlist.html")
+def watchlist(): return render_template("portfolio.html")
 @app.get("/screener")
 def screener(): return render_template("screener.html")
 @app.get("/options")
@@ -153,7 +160,48 @@ def api_screener():
 def api_options_expirations(symbol):
     try:
         exps=options_data.expirations(symbol)
-        return jsonify({"symbol":symbol.upper(),"expirations":[{"date":x,"dte":options_data.dte_for(x)} for x in exps]})
+        status=tradier_data.provider_status()
+        return jsonify({
+            "symbol":symbol.upper(),
+            "expirations":[{"date":x,"dte":options_data.dte_for(x)} for x in exps],
+            "provider":"tradier" if status.get("configured") else "yfinance",
+            "source":status.get("label") if status.get("configured") else "Yahoo Finance fallback",
+            "delayed": status.get("env") == "sandbox" if status.get("configured") else False
+        })
+    except Exception as e: return jsonify({"error":str(e)}),400
+
+
+@app.get("/api/options/chain/<symbol>")
+def api_options_chain(symbol):
+    try:
+        requested = request.args.get("expiration") or "AUTO"
+        exps = options_data.expirations(symbol)
+        if not exps:
+            raise RuntimeError("No option expirations found")
+        expiration = exps[0] if requested == "AUTO" else requested
+        if expiration not in exps and requested != "AUTO":
+            # Keep the requested date in case provider accepts it; otherwise this raises inside option_chain.
+            expiration = requested
+        chain = options_data.option_chain(symbol, expiration)
+        rows = options_data.chain_rows(chain, limit_each_side=int(request.args.get("strikes", 14)))
+        quote = chain.get("quote") or {}
+        return jsonify({
+            "symbol": symbol.upper(),
+            "expiration": chain.get("expiration") or expiration,
+            "dte": chain.get("dte"),
+            "spot": chain.get("spot"),
+            "quote": quote,
+            "rows": rows,
+            "calls_count": len(chain.get("calls") or []),
+            "puts_count": len(chain.get("puts") or []),
+            "provider": chain.get("provider") or "yfinance",
+            "source": chain.get("source") or "Yahoo Finance fallback",
+            "delayed": bool(chain.get("delayed")),
+            "cached": bool(chain.get("cached")),
+            "stale": bool(chain.get("stale")),
+            "math_note": chain.get("math_note"),
+            "fallback_error": chain.get("fallback_error"),
+        })
     except Exception as e: return jsonify({"error":str(e)}),400
 
 def _f(name, default=None):
@@ -217,7 +265,26 @@ def api_options_screen(symbol):
             all_results.sort(key=lambda x: options_data._natural_sort_key(x, spot))
         except Exception:
             all_results.sort(key=lambda x:(x.get("expiration") or "", float(x.get("strike") or 0)))
-        return jsonify({"symbol":symbol.upper(),"spot":spot,"results":all_results[:400],"count":min(len(all_results),400),"expirations_scanned":scan,"dte_min":min_dte,"dte_max":max_dte,"trend":technical})
+        source = None
+        provider = None
+        delayed = False
+        fallback_error = None
+        math_note = None
+        stale = False
+        cached = False
+        try:
+            if scan:
+                sample_chain = options_data.option_chain(symbol, scan[0])
+                source = sample_chain.get("source")
+                provider = sample_chain.get("provider")
+                delayed = bool(sample_chain.get("delayed"))
+                fallback_error = sample_chain.get("fallback_error")
+                math_note = sample_chain.get("math_note")
+                stale = bool(sample_chain.get("stale"))
+                cached = bool(sample_chain.get("cached"))
+        except Exception:
+            pass
+        return jsonify({"symbol":symbol.upper(),"spot":spot,"results":all_results[:400],"count":min(len(all_results),400),"expirations_scanned":scan,"dte_min":min_dte,"dte_max":max_dte,"trend":technical,"source":source,"provider":provider,"delayed":delayed,"fallback_error":fallback_error,"math_note":math_note,"stale":stale,"cached":cached})
     except Exception as e: return jsonify({"error":str(e)}),400
 
 @app.post("/api/options/payoff")
@@ -284,15 +351,23 @@ def api_ai_chat():
         body = request.get_json(force=True)
         messages = body.get("messages") or []
         context = body.get("context") or {}
+        mode = (body.get("mode") or context.get("mode") or "general").strip().lower()
         symbol = (body.get("symbol") or context.get("ticker") or "").strip().upper()
 
         # Build live context only when requested. This avoids slow calls for every chat.
-        if body.get("include_live_context") and symbol:
-            live = news_ai.build_stock_chat_context(symbol)
+        if body.get("include_live_context"):
+            live = {}
+            if mode == "market" and not symbol:
+                live = news_ai.build_market_chat_context(limit=10)
+            elif symbol:
+                live = news_ai.build_stock_chat_context(symbol)
             live.update(context or {})
             context = live
+            if symbol:
+                context["ticker"] = symbol
+        context["mode"] = mode
 
-        return jsonify(news_ai.chat_with_gemini(messages, context=context))
+        return jsonify(news_ai.chat_with_gemini(messages, context=context, mode=mode))
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -300,12 +375,151 @@ def api_ai_chat():
 @app.get("/api/news/digest")
 def api_news_digest():
     try:
-        limit = int(request.args.get("limit", 8))
+        limit = int(request.args.get("limit", 10))
         return jsonify(news_ai.market_context_digest(limit=limit))
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@app.get("/api/markets/digest")
+def api_markets_digest():
+    try:
+        limit = int(request.args.get("limit", 12))
+        return jsonify(news_ai.market_strategy_digest(limit=limit))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
+
+
+@app.post("/api/portfolio/review")
+def api_portfolio_review():
+    try:
+        body = request.get_json(force=True) or {}
+        holdings = body.get("holdings") or []
+        cash = body.get("cash") or []
+        totals = body.get("totals") or {}
+        watchlist = body.get("watchlist") or []
+        sector_exposure = body.get("sector_exposure") or []
+        industry_exposure = body.get("industry_exposure") or []
+        largest_positions = body.get("largest_positions") or []
+        prompt = f"""
+You are Investify AI reviewing a manually entered portfolio.
+Use only the supplied portfolio data. Do not invent holdings, prices, sectors, or real-time market facts.
+Do not tell the user to buy or sell.
+Return an extremely short, high-level dashboard view only. No markdown. No long paragraphs.
+Do NOT restate each holding, all allocations, or position-by-position performance.
+Focus on diversification, gaps, and suggestions. Keep it useful but very brief.
+
+Return valid JSON only using this exact shape:
+{{
+  "health_score": 0-100,
+  "health_label": "Strong" | "Balanced" | "Needs attention" | "High risk",
+  "headline": "one short sentence, under 100 characters",
+  "bullets": ["exactly 3 bullets: diversification, gaps, suggestions; each under 120 characters"]
+}}
+
+Portfolio totals:
+{totals}
+
+Sector exposure:
+{sector_exposure}
+
+Industry exposure:
+{industry_exposure}
+
+Largest positions:
+{largest_positions}
+
+Holdings with quote context:
+{holdings}
+
+Cash:
+{cash}
+
+Watchlist:
+{watchlist}
+"""
+        try:
+            text, model = news_ai._gemini_rest(prompt, json_mode=True)
+            parsed = news_ai._parse_json_safely(text) or {}
+            if not isinstance(parsed, dict) or not parsed.get("headline"):
+                raise RuntimeError("Gemini returned an unstructured review.")
+            bullets = parsed.get("bullets") or []
+            if not isinstance(bullets, list):
+                bullets = [str(bullets)]
+            parsed["bullets"] = [str(x).replace("\n", " ").strip()[:120] for x in bullets[:3]]
+            parsed["headline"] = str(parsed.get("headline") or "").replace("\n", " ").strip()[:110]
+            return jsonify({"mode": "gemini", "model": model, "review_card": parsed})
+        except Exception as e:
+            total_value = float(totals.get("totalValue") or 0)
+            cash_total = sum(float(x.get("amount") or 0) for x in cash)
+            biggest = sorted(holdings, key=lambda x: float(x.get("market_value") or 0), reverse=True)[:1]
+            top_weight = float(biggest[0].get("weight") or 0) if biggest else 0
+            cash_weight = (cash_total / total_value * 100) if total_value else 0
+            sector_names = [x.get("name") for x in sector_exposure[:3] if x.get("name")]
+            industry_names = [x.get("name") for x in industry_exposure[:3] if x.get("name")]
+            sector_count = len([x for x in sector_exposure if x.get("name")])
+            score = 78
+            if top_weight > 20:
+                score -= min(18, int(top_weight - 20))
+            if cash_weight > 35:
+                score -= min(12, int((cash_weight - 35) / 2))
+            if sector_count >= 4:
+                score += 4
+            elif sector_count <= 2:
+                score -= 8
+            score = max(35, min(90, score))
+            label = "Strong" if score >= 82 else "Balanced" if score >= 68 else "Needs attention" if score >= 50 else "High risk"
+            card = {
+                "health_score": score,
+                "health_label": label,
+                "headline": "Balanced mix; watch concentration, cash level and sector gaps.",
+                "bullets": [
+                    f"Diversification spans {', '.join(sector_names[:2]) if sector_names else 'available sectors'} with some concentration risk.",
+                    f"Gaps may remain in defensive sectors and non-tech industry coverage.",
+                    f"Consider whether {cash_weight:.1f}% cash and a {top_weight:.1f}% top position match your risk target."
+                ],
+            }
+            return jsonify({"mode": "fallback", "model": None, "review_card": card, "error": str(e)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.get("/calendar")
+def calendar_page():
+    return render_template("calendar.html")
+
+
+@app.get("/api/calendar/events")
+def api_calendar_events():
+    try:
+        start = request.args.get("start")
+        end = request.args.get("end")
+        raw_symbols = request.args.get("symbols", "")
+        symbols = [x.strip().upper() for x in raw_symbols.replace(";", ",").split(",") if x.strip()]
+        restrict_to_symbols = request.args.get("restrict_to_symbols") in ("1", "true", "yes")
+        return jsonify(calendar_data.market_calendar(start=start, end=end, symbols=symbols, restrict_to_symbols=restrict_to_symbols))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+
+@app.post("/api/calendar/event-details")
+def api_calendar_event_details():
+    try:
+        body = request.get_json(force=True) or {}
+        event = body.get("event") or body
+        return jsonify(calendar_data.event_details(event))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.post("/api/calendar/event-brief")
+def api_calendar_event_brief():
+    try:
+        body = request.get_json(force=True) or {}
+        event = body.get("event") or body
+        return jsonify(calendar_data.event_ai_brief(event))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 

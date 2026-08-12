@@ -6,7 +6,7 @@
   <div class="stock-identity no-logo">
     <div>
       <div class="stock-line"><h1 id="symbol">{{ symbol }}</h1><span id="market-badge" class="market-badge">Market</span></div>
-      <p id="company" class="muted">Loading…</p>
+      <p id="company" class="muted"><span class="loading-dots">Loading</span></p>
     </div>
   </div>
   <div class="price-actions">
@@ -44,17 +44,6 @@
   <div id="signal-body"></div>
 </section>
 
-<section class="card company-overview-card">
-  <div class="section-heading compact-heading">
-    <div>
-      <p class="eyebrow">COMPANY OVERVIEW</p>
-      <h2>Business summary</h2>
-      <p class="small-muted">Gemini summary is button-triggered and cached for 7 days.</p>
-    </div>
-    <button id="generate-company-summary" class="secondary-button" type="button">Generate AI summary</button>
-  </div>
-  <div id="company-summary" class="company-summary small-muted">Click the button to generate a 4–5 sentence company overview.</div>
-</section>
 
 <section class="card chart-card">
   <div class="chart-toolbar">
@@ -63,7 +52,7 @@
       <div class="chart-title-row enhanced-chart-title">
         <h2>Chart</h2>
         <div class="chart-live-value">
-          <span id="chart-price-label">1D end price</span>
+          <span id="chart-price-label">Current price</span>
           <strong id="chart-price">—</strong>
           <small id="chart-price-change">—</small>
         </div>
@@ -76,6 +65,18 @@
   <div class="chart-box chart-box-clean">
     <canvas id="price-chart"></canvas>
   </div>
+</section>
+
+<section class="card company-overview-card">
+  <div class="section-heading compact-heading">
+    <div>
+      <p class="eyebrow">COMPANY OVERVIEW</p>
+      <h2>Business summary</h2>
+      <p class="small-muted">Gemini summary is button-triggered and cached for 7 days.</p>
+    </div>
+    <button id="generate-company-summary" class="secondary-button" type="button">Generate AI summary</button>
+  </div>
+  <div id="company-summary" class="company-summary small-muted">Click the button to generate a 4–5 sentence company overview.</div>
 </section>
 
 <section class="card indicator-card">

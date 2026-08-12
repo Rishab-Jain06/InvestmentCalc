@@ -3,15 +3,15 @@
 {% block content %}
 <section class="page-head options-page-head">
   <div><p class="eyebrow">OPTIONS LAB</p><h1>Find the setup.</h1><p class="sub">Filter single legs and verticals, then inspect pricing, Greeks, liquidity, trend context and expiration payoff.</p></div>
-  <div class="data-pill">Yahoo Finance · Personal research</div>
+  <div class="data-pill">Tradier Sandbox primary · Yahoo fallback</div>
 </section>
 <div id="options-error" class="error hidden"></div>
 
 <section class="options-workspace">
   <aside class="filters-card card scroll-panel">
     <div class="field">
-      <label>Ticker</label>
-      <div class="input-with-button"><input id="opt-symbol" value="SPY" maxlength="12"><button id="load-options">Load</button></div>
+      <label>Company or ticker</label>
+      <div class="input-with-button"><input id="opt-symbol" value="SPY"><button id="load-options">Load</button></div>
     </div>
 
     <div class="dual-actions quick-options-actions">
@@ -118,6 +118,7 @@
       <div><span>Price</span><strong id="opt-spot">—</strong></div>
       <div><span>DTE</span><strong id="opt-dte">—</strong></div>
       <div><span>Matches</span><strong id="match-count">—</strong></div>
+      <div><span>Source</span><strong id="opt-source">—</strong></div>
     </div>
 
     <div id="trend-summary" class="card trend-summary hidden"></div>
@@ -168,17 +169,31 @@
         <div class="chart-box payoff-box"><canvas id="payoff-chart"></canvas></div>
       </section>
 
-      <p class="small-muted analytics-note">Payoff is at expiration. Greeks are Black-Scholes estimates derived from Yahoo's implied volatility and may differ from broker values.</p>
+      <p class="small-muted analytics-note">Payoff is at expiration. Options data uses Tradier Sandbox first when configured, then Yahoo fallback. Missing IV/Greeks may be calculated with Black-Scholes and are marked as estimates where applicable.</p>
     </div>
 
     <div id="best-option-card" class="card hidden"></div>
 
     <div class="card results-card">
-      <div class="section-heading compact-heading">
+      <div class="section-heading compact-heading results-heading-enhanced">
         <div>
           <p class="eyebrow">RESULTS</p>
           <h2>Candidate trades</h2>
-          <p class="small-muted">Click any result to open full trade analytics.</p>
+          <p id="results-mode-label" class="small-muted">Click any result to open full trade analytics.</p>
+        </div>
+        <div id="browse-controls" class="chain-browse-controls hidden">
+          <label>Expiration
+            <select id="browse-expiration"></select>
+          </label>
+          <label id="browse-width-wrap">Width
+            <select id="browse-width">
+              <option value="0.5">$0.50</option>
+              <option value="1" selected>$1</option>
+              <option value="2.5">$2.50</option>
+              <option value="5">$5</option>
+              <option value="10">$10</option>
+            </select>
+          </label>
         </div>
       </div>
 

@@ -550,27 +550,73 @@ def company_context(symbol):
     }
 
 
+def _overall_blend(t_score, f_score, confidence=None):
+    """Dynamic blend: fundamentals matter more when confidence is high; technicals matter more when fundamentals are sparse."""
+    if t_score is None and f_score is None:
+        return None, None, {"technical": 0, "fundamental": 0}, None
+    if t_score is None:
+        return round(float(f_score)), round(float(f_score)), {"technical": 0, "fundamental": 100}, None
+    if f_score is None:
+        return round(float(t_score)), round(float(t_score)), {"technical": 100, "fundamental": 0}, None
+
+    conf = (confidence or "").lower()
+    if conf == "high":
+        weights = {"technical": 40, "fundamental": 60}
+    elif conf == "medium":
+        weights = {"technical": 50, "fundamental": 50}
+    else:
+        weights = {"technical": 65, "fundamental": 35}
+
+    raw = round((float(t_score) * weights["technical"] + float(f_score) * weights["fundamental"]) / 100)
+    cap_reason = None
+    score = raw
+
+    # Cross-check caps keep one very weak side from being washed out by the other side.
+    if f_score <= 30:
+        score = min(score, 45)
+        cap_reason = "Fundamental risk cap: weak balance sheet, profitability, growth or valuation keeps the overall rating below Buy."
+    elif f_score <= 40 and t_score >= 70:
+        score = min(score, 58)
+        cap_reason = "Fundamental caution cap: strong price action is offset by weak fundamentals."
+    elif t_score <= 30 and f_score >= 75:
+        score = min(score, 66)
+        cap_reason = "Timing risk cap: strong fundamentals are offset by a weak technical setup."
+    elif t_score <= 40 and f_score >= 80:
+        score = min(score, 70)
+        cap_reason = "Technical weakness cap: fundamentals are strong, but current price action is not confirming yet."
+
+    return round(score), raw, weights, cap_reason
+
+
 def overall_signal(symbol):
     technical = yahoo_data.analyze_stock(symbol)
     fundamental = fundamental_signal(symbol)
     t_score = technical.get("score")
     f_score = fundamental.get("score")
-    if t_score is not None and f_score is not None:
-        score = round((float(t_score) * 0.5) + (float(f_score) * 0.5))
-    elif t_score is not None:
-        score = round(float(t_score))
-    elif f_score is not None:
-        score = round(float(f_score))
-    else:
-        score = None
+    confidence = fundamental.get("confidence")
+    score, raw_score, weights, cap_reason = _overall_blend(t_score, f_score, confidence)
     rating = _rating(score) if score is not None else "Unavailable"
+
     if t_score is not None and f_score is not None:
-        if f_score >= 65 and t_score <= 40:
-            summary = "Fundamentals are stronger than the current technical setup. This may indicate a quality stock with weak near-term price action."
-        elif f_score <= 40 and t_score >= 65:
-            summary = "Technicals are stronger than fundamentals. This may be a short-term momentum setup with weaker long-term fundamentals."
+        if cap_reason:
+            summary = cap_reason
+        elif f_score >= 70 and t_score <= 45:
+            summary = "Fundamentals are stronger than the current technical setup, so the stock may be higher quality but timing is weaker."
+        elif t_score >= 70 and f_score <= 50:
+            summary = "Price action is stronger than fundamentals, so this is more of a momentum setup than a quality setup."
         else:
-            summary = "Overall signal blends technical trend context and fundamental quality equally."
+            summary = "Overall signal dynamically blends technical trend context with fundamental quality based on data confidence."
     else:
         summary = "Overall signal uses the available technical or fundamental score."
-    return {"symbol": symbol.upper(), "score": score, "rating": rating, "technical": technical, "fundamental": fundamental, "summary": summary}
+
+    return {
+        "symbol": symbol.upper(),
+        "score": score,
+        "raw_score": raw_score,
+        "rating": rating,
+        "weights": weights,
+        "cap_reason": cap_reason,
+        "technical": technical,
+        "fundamental": fundamental,
+        "summary": summary
+    }

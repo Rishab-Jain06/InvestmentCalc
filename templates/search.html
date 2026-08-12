@@ -5,7 +5,7 @@
   <div>
     <p class="eyebrow">AI RESEARCH CHAT</p>
     <h1>Ask follow-up questions.</h1>
-    <p class="sub">Chat with Gemini using optional stock context, recent news, sentiment, technicals, or an attached options trade.</p>
+    <p class="sub">Chat with Gemini using market, stock, portfolio, or options context.</p>
   </div>
   <div class="data-pill">Gemini Research Chat</div>
 </section>
@@ -41,16 +41,25 @@
       </div>
     </div>
 
-    <div class="context-panel">
+    <div class="context-panel ai-context-panel">
+      <div class="field compact-field">
+        <label>AI mode</label>
+        <div class="segmented ai-mode-tabs" id="ai-mode-tabs">
+          <button class="active" data-mode="general" type="button">General</button>
+          <button data-mode="market" type="button">Market</button>
+          <button data-mode="ticker" type="button">Ticker</button>
+          <button data-mode="options" type="button">Options</button>
+        </div>
+      </div>
       <div class="field compact-field">
         <label>Ticker context</label>
         <div class="input-with-button">
-          <input id="chat-symbol" placeholder="AAPL, SPY, QQQ...">
+          <input id="chat-symbol" placeholder="Apple, AAPL, SPY...">
           <button id="attach-stock" type="button">Attach</button>
         </div>
       </div>
       <div id="context-chips" class="context-chips"></div>
-      <p class="small-muted">Use quick context only when needed. Option trades sent from Options Lab will appear here automatically.</p>
+      <p class="small-muted">Ticker, portfolio, and options context stay attached until cleared.</p>
     </div>
 
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
