@@ -36,7 +36,7 @@ renderRecentTickers();
   const subEl=document.getElementById("home-portfolio-sub");
   const eye=document.getElementById("home-hide-value");
   if(!totalEl||!changeEl||!subEl)return;
-  const H="investify_portfolio_holdings_v1", C="investify_portfolio_cash_v1", V="investify_home_portfolio_hidden_v1", Q="investify_home_portfolio_quote_cache_v1";
+  const H="investify_portfolio_holdings_v1", C="investify_portfolio_cash_v1", V="investify_home_portfolio_hidden_v1", Q="investify_home_portfolio_quote_cache_v2";
   const money=v=>Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0}):"—";
   const pct=v=>Number.isFinite(Number(v))?`${Number(v)>=0?"+":""}${Number(v).toFixed(2)}%`:"—";
   const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f));}catch{return f;}};

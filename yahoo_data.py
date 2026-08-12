@@ -1,9 +1,11 @@
 from __future__ import annotations
 import math
+import os
 import time
 from threading import Lock
 import pandas as pd
 import numpy as np
+import requests
 import yfinance as yf
 
 _CACHE = {}
@@ -75,57 +77,279 @@ def _display_exchange(value):
     return mapping.get(code, raw)
 
 
+
+FINNHUB_BASE = "https://finnhub.io/api/v1"
+
+
+def _finnhub_token():
+    return (os.getenv("FINNHUB_API_KEY") or "").strip()
+
+
+def _finnhub_get(path, params=None, timeout=12):
+    token = _finnhub_token()
+    if not token:
+        raise RuntimeError("FINNHUB_API_KEY is not configured.")
+    p = dict(params or {})
+    p["token"] = token
+    r = requests.get(f"{FINNHUB_BASE}{path}", params=p, timeout=timeout)
+    if r.status_code == 429:
+        raise RuntimeError("Finnhub rate limit reached.")
+    r.raise_for_status()
+    data = r.json()
+    if isinstance(data, dict) and data.get("error"):
+        raise RuntimeError(str(data.get("error")))
+    return data
+
+
+def _first_not_none(*vals):
+    for v in vals:
+        if v not in (None, "", [], {}):
+            return v
+    return None
+
+
+def _valid_price(v):
+    x = _safe_float(v)
+    if x is None or x <= 0:
+        return None
+    return x
+
+
+def _finnhub_market_cap(profile, metric):
+    raw = _safe_float((profile or {}).get("marketCapitalization"))
+    if raw is not None:
+        # Finnhub profile marketCapitalization is commonly returned in millions.
+        return _safe_int(raw * 1_000_000)
+    raw2 = _safe_float(((metric or {}).get("metric") or {}).get("marketCapitalization"))
+    if raw2 is not None:
+        return _safe_int(raw2 * 1_000_000)
+    return None
+
+
+def _metric_value(metric, *keys):
+    m = (metric or {}).get("metric") or {}
+    for key in keys:
+        if key in m:
+            v = _safe_float(m.get(key))
+            if v is not None:
+                return v
+    return None
+
+
+def _normalize_finnhub_exchange(raw):
+    text = (raw or "").strip()
+    up = text.upper()
+    if "NASDAQ" in up:
+        return "NASDAQ"
+    if "NEW YORK STOCK EXCHANGE" in up or up.startswith("NYSE"):
+        return "NYSE"
+    if "AMEX" in up or "NYSE AMERICAN" in up:
+        return "NYSE American"
+    if "ARCA" in up:
+        return "NYSE Arca"
+    return _display_exchange(text)
+
+
+def _finnhub_quote_data(s):
+    quote_payload = _finnhub_get("/quote", {"symbol": s})
+    profile = {}
+    metric = {}
+
+    # Quote response may return zeros/empty for unsupported symbols. Treat as unusable unless current/prev exists.
+    current = _valid_price(quote_payload.get("c"))
+    previous = _valid_price(quote_payload.get("pc"))
+    if current is None and previous is None:
+        raise RuntimeError("Finnhub returned no quote values.")
+
+    try:
+        profile = _finnhub_get("/stock/profile2", {"symbol": s})
+    except Exception:
+        profile = {}
+    try:
+        metric = _finnhub_get("/stock/metric", {"symbol": s, "metric": "all"})
+    except Exception:
+        metric = {}
+
+    change = _safe_float(quote_payload.get("d"))
+    pct = _safe_float(quote_payload.get("dp"))
+    if change is None and current is not None and previous is not None:
+        change = current - previous
+    if pct is None and change is not None and previous:
+        pct = change / previous * 100
+
+    # Finnhub does not provide bid/ask in the basic quote endpoint. Yahoo fallback may fill those.
+    profile_name = profile.get("name") or profile.get("ticker") or s
+    finnhub_industry = profile.get("finnhubIndustry")
+
+    avg_vol = _metric_value(metric, "10DayAverageTradingVolume", "3MonthAverageTradingVolume")
+    # Some Finnhub average volume metrics are in millions of shares; leave very large values unchanged.
+    if avg_vol is not None and avg_vol < 100000:
+        avg_vol = avg_vol * 1_000_000
+
+    return {
+        "symbol": s,
+        "name": profile_name,
+        "sector": finnhub_industry,
+        "industry": finnhub_industry,
+        "market_cap": _finnhub_market_cap(profile, metric),
+        "quote_type": "EQUITY",
+        "exchange": _normalize_finnhub_exchange(profile.get("exchange")),
+        "exchange_raw": profile.get("exchange"),
+        "currency": profile.get("currency") or "USD",
+        "price": current,
+        "previous_close": previous,
+        "change": change,
+        "percent_change": pct,
+        "open": _valid_price(quote_payload.get("o")),
+        "day_high": _valid_price(quote_payload.get("h")),
+        "day_low": _valid_price(quote_payload.get("l")),
+        "volume": None,
+        "avg_volume": _safe_int(avg_vol),
+        "bid": None,
+        "ask": None,
+        "bid_size": None,
+        "ask_size": None,
+        "market_state": None,
+        "fifty_two_week_low": _metric_value(metric, "52WeekLow", "52WeekLowDate"),
+        "fifty_two_week_high": _metric_value(metric, "52WeekHigh", "52WeekHighDate"),
+        "source": "Finnhub primary",
+        "provider": "finnhub",
+    }
+
+
+def _yahoo_quote_data(s):
+    t = yf.Ticker(s)
+    fi = {}
+    info = {}
+    try:
+        fi = dict(t.fast_info)
+    except Exception:
+        pass
+    try:
+        info = t.info or {}
+    except Exception:
+        pass
+
+    price = _safe_float(fi.get("last_price") or info.get("currentPrice") or info.get("regularMarketPrice"))
+    prev = _safe_float(fi.get("previous_close") or info.get("previousClose") or info.get("regularMarketPreviousClose"))
+    change = (price - prev) if price is not None and prev is not None else None
+    pct = (change / prev * 100) if change is not None and prev else None
+
+    raw_exchange = info.get("exchange") or info.get("fullExchangeName")
+    return {
+        "symbol": s,
+        "name": info.get("shortName") or info.get("longName") or s,
+        "sector": info.get("sector"),
+        "industry": info.get("industry"),
+        "market_cap": _safe_int(info.get("marketCap")),
+        "quote_type": info.get("quoteType"),
+        "exchange": _display_exchange(raw_exchange),
+        "exchange_raw": raw_exchange,
+        "currency": info.get("currency") or fi.get("currency"),
+        "price": price,
+        "previous_close": prev,
+        "change": change,
+        "percent_change": pct,
+        "open": _safe_float(info.get("open") or info.get("regularMarketOpen")),
+        "day_high": _safe_float(info.get("dayHigh") or info.get("regularMarketDayHigh")),
+        "day_low": _safe_float(info.get("dayLow") or info.get("regularMarketDayLow")),
+        "volume": _safe_int(info.get("volume") or info.get("regularMarketVolume")),
+        "avg_volume": _safe_int(info.get("averageVolume") or info.get("averageDailyVolume10Day")),
+        "bid": _safe_float(info.get("bid")),
+        "ask": _safe_float(info.get("ask")),
+        "bid_size": _safe_int(info.get("bidSize")),
+        "ask_size": _safe_int(info.get("askSize")),
+        "market_state": info.get("marketState"),
+        "fifty_two_week_low": _safe_float(info.get("fiftyTwoWeekLow")),
+        "fifty_two_week_high": _safe_float(info.get("fiftyTwoWeekHigh")),
+        "source": "Yahoo Finance fallback",
+        "provider": "yfinance",
+    }
+
+
+def _merge_quote(primary, fallback):
+    primary = dict(primary or {})
+    fallback = dict(fallback or {})
+    merged = dict(primary)
+
+    filled = []
+    for key, value in fallback.items():
+        if key in {"source", "provider"}:
+            continue
+        current = merged.get(key)
+        if current in (None, "", [], {}) and value not in (None, "", [], {}):
+            merged[key] = value
+            filled.append(key)
+
+    # Recalculate change if fallback filled missing current/previous.
+    price = _safe_float(merged.get("price"))
+    prev = _safe_float(merged.get("previous_close"))
+    if merged.get("change") is None and price is not None and prev is not None:
+        merged["change"] = price - prev
+    if merged.get("percent_change") is None and merged.get("change") is not None and prev:
+        merged["percent_change"] = merged["change"] / prev * 100
+
+    if filled:
+        merged["source"] = f"{primary.get('source', 'Finnhub primary')} + Yahoo fallback"
+        merged["fallback_filled_fields"] = filled
+    else:
+        merged["source"] = primary.get("source") or fallback.get("source")
+        merged["fallback_filled_fields"] = []
+    merged["provider"] = primary.get("provider") or fallback.get("provider")
+    return merged
+
 def quote(symbol):
-    s = symbol.upper()
+    s = symbol.upper().strip()
 
     def _load():
-        t = yf.Ticker(s)
-        fi = {}
-        info = {}
+        finnhub = None
+        yahoo = None
+        errors = []
+
         try:
-            fi = dict(t.fast_info)
-        except Exception:
-            pass
-        try:
-            info = t.info or {}
-        except Exception:
-            pass
+            finnhub = _finnhub_quote_data(s)
+        except Exception as e:
+            errors.append(f"Finnhub: {e}")
 
-        price = _safe_float(fi.get("last_price") or info.get("currentPrice") or info.get("regularMarketPrice"))
-        prev = _safe_float(fi.get("previous_close") or info.get("previousClose") or info.get("regularMarketPreviousClose"))
-        change = (price - prev) if price is not None and prev is not None else None
-        pct = (change / prev * 100) if change is not None and prev else None
+        # Use Yahoo only as a fallback/fill source when Finnhub fails or has missing fields.
+        needs_yahoo = (
+            finnhub is None
+            or finnhub.get("volume") is None
+            or finnhub.get("bid") is None
+            or finnhub.get("ask") is None
+            or finnhub.get("sector") is None
+            or finnhub.get("fifty_two_week_high") is None
+            or finnhub.get("fifty_two_week_low") is None
+        )
+        if needs_yahoo:
+            try:
+                yahoo = _yahoo_quote_data(s)
+            except Exception as e:
+                errors.append(f"Yahoo fallback: {e}")
 
-        raw_exchange = info.get("exchange") or info.get("fullExchangeName")
-        return {
-            "symbol": s,
-            "name": info.get("shortName") or info.get("longName") or s,
-            "sector": info.get("sector"),
-            "industry": info.get("industry"),
-            "market_cap": _safe_int(info.get("marketCap")),
-            "quote_type": info.get("quoteType"),
-            "exchange": _display_exchange(raw_exchange),
-            "exchange_raw": raw_exchange,
-            "currency": info.get("currency") or fi.get("currency"),
-            "price": price,
-            "previous_close": prev,
-            "change": change,
-            "percent_change": pct,
-            "open": _safe_float(info.get("open") or info.get("regularMarketOpen")),
-            "day_high": _safe_float(info.get("dayHigh") or info.get("regularMarketDayHigh")),
-            "day_low": _safe_float(info.get("dayLow") or info.get("regularMarketDayLow")),
-            "volume": _safe_int(info.get("volume") or info.get("regularMarketVolume")),
-            "avg_volume": _safe_int(info.get("averageVolume") or info.get("averageDailyVolume10Day")),
-            "bid": _safe_float(info.get("bid")),
-            "ask": _safe_float(info.get("ask")),
-            "bid_size": _safe_int(info.get("bidSize")),
-            "ask_size": _safe_int(info.get("askSize")),
-            "market_state": info.get("marketState"),
-            "fifty_two_week_low": _safe_float(info.get("fiftyTwoWeekLow")),
-            "fifty_two_week_high": _safe_float(info.get("fiftyTwoWeekHigh")),
-        }
+        if finnhub and yahoo:
+            out = _merge_quote(finnhub, yahoo)
+        elif finnhub:
+            out = finnhub
+        elif yahoo:
+            out = yahoo
+            out["source"] = "Yahoo Finance fallback only"
+        else:
+            # Preserve the old response shape instead of breaking the UI.
+            out = {
+                "symbol": s, "name": s, "sector": None, "industry": None, "market_cap": None,
+                "quote_type": None, "exchange": "", "exchange_raw": None, "currency": "USD",
+                "price": None, "previous_close": None, "change": None, "percent_change": None,
+                "open": None, "day_high": None, "day_low": None, "volume": None, "avg_volume": None,
+                "bid": None, "ask": None, "bid_size": None, "ask_size": None, "market_state": None,
+                "fifty_two_week_low": None, "fifty_two_week_high": None, "source": "unavailable",
+                "provider": None,
+            }
 
-    return _cache_fetch(f"quote:{s}", 30, _load, stale_grace_seconds=1800)
+        out["errors"] = errors
+        return out
+
+    return _cache_fetch(f"quote:v49:{s}", 30, _load, stale_grace_seconds=1800)
 
 
 RANGES = {
@@ -526,17 +750,38 @@ def search_symbols(query):
         return []
 
     def _load():
+        results = []
+        try:
+            data = _finnhub_get("/search", {"q": q})
+            rows = data.get("result") or []
+            for x in rows[:12]:
+                sym = x.get("symbol") or x.get("displaySymbol")
+                if not sym:
+                    continue
+                results.append({
+                    "symbol": str(sym).upper(),
+                    "name": x.get("description") or str(sym).upper(),
+                    "exchange": None,
+                    "type": x.get("type"),
+                    "source": "Finnhub",
+                })
+        except Exception:
+            results = []
+
+        if results:
+            return results[:10]
+
         try:
             s = yf.Search(q, max_results=10, news_count=0)
             quotes = getattr(s, "quotes", None) or []
             return [
-                {"symbol": x.get("symbol"), "name": x.get("shortname") or x.get("longname"), "exchange": x.get("exchange")}
+                {"symbol": x.get("symbol"), "name": x.get("shortname") or x.get("longname"), "exchange": x.get("exchange"), "source": "Yahoo fallback"}
                 for x in quotes if x.get("symbol")
             ]
         except Exception:
-            return [{"symbol": q.upper(), "name": q.upper(), "exchange": None}]
+            return [{"symbol": q.upper(), "name": q.upper(), "exchange": None, "source": "typed"}]
 
-    return _cache_fetch(f"search:{q.lower()}", 60*60*24*7, _load, stale_grace_seconds=60*60*24*30)
+    return _cache_fetch(f"search:v49:{q.lower()}", 60*60*24*7, _load, stale_grace_seconds=60*60*24*30)
 
 
 def bulk_snapshot(symbols):
