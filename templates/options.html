@@ -8,7 +8,7 @@
 <div id="options-error" class="error hidden"></div>
 
 <section class="options-workspace">
-  <aside class="filters-card card scroll-panel">
+  <aside class="filters-card card scroll-panel mobile-collapsible" data-mobile-title="Trade setup">
     <div class="field">
       <label>Company or ticker</label>
       <div class="input-with-button"><input id="opt-symbol" value="SPY"><button id="load-options">Load</button></div>
@@ -143,38 +143,37 @@
         <span id="analysis-bias" class="bias-badge">—</span>
       </div>
 
-      <div id="trade-quality-card" class="trade-quality-card hidden"></div>
-
       <div class="analysis-metrics" id="analysis-metrics"></div>
 
-      <section class="greeks-panel">
-        <div class="section-heading compact-heading">
-          <div><p class="eyebrow">POSITION GREEKS</p><h3>Estimated exposure</h3></div>
-        </div>
-        <div class="greeks-grid" id="position-greeks"></div>
-      </section>
+      <details class="analysis-detail trade-quality-detail" open>
+        <summary><span>Trade quality</span><small>Score, probability & liquidity</small></summary>
+        <div class="analysis-detail-body"><div id="trade-quality-card" class="trade-quality-card hidden"></div></div>
+      </details>
 
-      <section class="legs-panel">
-        <div class="section-heading compact-heading">
-          <div><p class="eyebrow">LEGS</p><h3>Contract details</h3></div>
-        </div>
-        <div id="leg-cards" class="leg-cards"></div>
-      </section>
+      <details class="analysis-detail" open>
+        <summary><span>Position Greeks</span><small>Estimated exposure</small></summary>
+        <div class="analysis-detail-body"><div class="greeks-grid" id="position-greeks"></div></div>
+      </details>
 
-      <section class="payoff-section">
-        <div class="section-heading compact-heading">
-          <div><p class="eyebrow">PAYOFF</p><h3>Profit / loss at expiration</h3></div>
+      <details class="analysis-detail" open>
+        <summary><span>Contract legs</span><small>Quotes, IV & Greeks</small></summary>
+        <div class="analysis-detail-body"><div id="leg-cards" class="leg-cards"></div></div>
+      </details>
+
+      <details class="analysis-detail payoff-detail" open>
+        <summary><span>Payoff</span><small>Profit / loss at expiration</small></summary>
+        <div class="analysis-detail-body">
+          <div id="payoff-summary" class="payoff-summary"></div>
+          <div class="chart-box payoff-box"><canvas id="payoff-chart"></canvas></div>
         </div>
-        <div id="payoff-summary" class="payoff-summary"></div>
-        <div class="chart-box payoff-box"><canvas id="payoff-chart"></canvas></div>
-      </section>
+      </details>
 
       <p class="small-muted analytics-note">Payoff is at expiration. Options data uses Tradier Sandbox first when configured, then Yahoo fallback. Missing IV/Greeks may be calculated with Black-Scholes and are marked as estimates where applicable.</p>
     </div>
 
-    <div id="best-option-card" class="card hidden"></div>
+    <div id="best-option-card" class="card hidden mobile-collapsible" data-mobile-title="Best match"></div>
 
-    <div class="card results-card">
+    <div class="card results-card mobile-collapsible" data-mobile-title="Candidate trades">
       <div class="section-heading compact-heading results-heading-enhanced">
         <div>
           <p class="eyebrow">RESULTS</p>
@@ -205,6 +204,7 @@
           </tbody>
         </table>
       </div>
+      <div id="results-mobile-cards" class="mobile-card-list option-results-mobile-cards"><div class="empty-cell">Load a ticker and choose Find Trades.</div></div>
     </div>
   </section>
 </section>

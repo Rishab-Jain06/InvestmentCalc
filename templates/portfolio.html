@@ -41,7 +41,7 @@
       </article>
     </div>
 
-    <article class="card allocation-card allocation-card-v47">
+    <article class="card allocation-card allocation-card-v47 mobile-collapsible mobile-default-collapsed" data-mobile-title="Portfolio mix">
       <div class="section-heading compact-heading allocation-heading-v47">
         <div>
           <p class="eyebrow">ALLOCATION</p>
@@ -77,7 +77,7 @@
       </div>
     </article>
 
-    <article class="card portfolio-ai-card portfolio-ai-card-v47">
+    <article class="card portfolio-ai-card portfolio-ai-card-v47 mobile-collapsible mobile-default-collapsed" data-mobile-title="AI portfolio review">
       <div class="section-heading compact-heading ai-heading-v47">
         <div>
           <p class="eyebrow">AI PORTFOLIO REVIEW</p>
@@ -94,7 +94,7 @@
       </div>
     </article>
 
-    <article class="card portfolio-table-card holdings-card-v45">
+    <article class="card portfolio-table-card holdings-card-v45 mobile-collapsible" data-mobile-title="Holdings">
       <div class="section-heading compact-heading">
         <div>
           <p class="eyebrow">HOLDINGS</p>
@@ -115,9 +115,10 @@
           </tbody>
         </table>
       </div>
+      <div id="holdings-mobile-cards" class="mobile-card-list holdings-mobile-cards"></div>
     </article>
 
-    <article class="card portfolio-table-card options-positions-card" id="options-positions-section">
+    <article class="card portfolio-table-card options-positions-card mobile-collapsible" id="options-positions-section" data-mobile-title="Options contracts">
       <div class="section-heading compact-heading">
         <div>
           <p class="eyebrow">OPTIONS</p>
@@ -142,9 +143,10 @@
           </tbody>
         </table>
       </div>
+      <div id="options-mobile-cards" class="mobile-card-list options-mobile-cards"></div>
     </article>
 
-    <article class="card watchlist-section">
+    <article class="card watchlist-section mobile-collapsible mobile-default-collapsed" data-mobile-title="Watchlist">
       <div class="section-heading compact-heading">
         <div>
           <p class="eyebrow">WATCHLIST</p>
@@ -162,7 +164,7 @@
   </section>
 
   <aside class="portfolio-side">
-    <article class="card entry-card">
+    <article class="card entry-card mobile-collapsible mobile-default-collapsed" data-mobile-title="Add stock position">
       <p class="eyebrow">ADD POSITION</p>
       <h3>Stock you own</h3>
       <div class="portfolio-form-grid">
@@ -179,7 +181,7 @@
       <p class="small-muted">Editing a row loads it here. Save replaces that position.</p>
     </article>
 
-    <article class="card entry-card">
+    <article class="card entry-card mobile-collapsible mobile-default-collapsed" data-mobile-title="Add cash">
       <p class="eyebrow">CASH</p>
       <h3>Cash on hand</h3>
       <div class="portfolio-form-grid">
@@ -193,7 +195,7 @@
       <div id="cash-list" class="cash-list"></div>
     </article>
 
-    <article class="card entry-card option-entry-card" id="option-entry-card">
+    <article class="card entry-card option-entry-card mobile-collapsible mobile-default-collapsed" id="option-entry-card" data-mobile-title="Add option contract">
       <p class="eyebrow">OPTIONS</p>
       <h3>Option contract</h3>
       <label class="full-label">Strategy

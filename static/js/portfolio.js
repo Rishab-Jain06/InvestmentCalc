@@ -186,17 +186,47 @@ function renderChart(rows){
   chart=new Chart(ctx,{type:"doughnut",data:{labels:entries.map(e=>e.label),datasets:[{data:entries.map(e=>e.value),borderWidth:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${money(c.raw)}`}}}}});
 }
 function renderHoldings(rows){
-  const body=$("holdings-body"); const t=totals(rows); const sorted=sortRows(rows);
-  const countEl=$("holdings-count"); if(countEl)countEl.textContent=sorted.length?`Showing 10 of ${sorted.length} holdings. Scroll to view the rest.`:"Showing 0 holdings.";
-  if(!sorted.length){body.innerHTML=`<tr><td colspan="9" class="empty-cell">No holdings yet. Add your first position.</td></tr>`;return;}
-  body.innerHTML=sorted.map(r=>{const weight=t.totalValue?r.value/t.totalValue*100:0;return `<tr>
+  const body=$("holdings-body"); const mobile=$("holdings-mobile-cards"); const t=totals(rows); const sorted=sortRows(rows);
+  const countEl=$("holdings-count"); if(countEl)countEl.textContent=sorted.length?`Showing ${sorted.length} holding${sorted.length===1?"":"s"}.`:"Showing 0 holdings.";
+  if(!sorted.length){
+    body.innerHTML=`<tr><td colspan="9" class="empty-cell">No holdings yet. Add your first position.</td></tr>`;
+    if(mobile)mobile.innerHTML=`<div class="mobile-empty-card">No holdings yet. Add your first position.</div>`;
+    return;
+  }
+  body.innerHTML=sorted.map(r=>{const weight=t.totalValue?r.value/t.totalValue*100:0;return `<tr data-stock-href="/stock/${safe(r.symbol)}" data-symbol="${safe(r.symbol)}">
       <td><a href="/stock/${safe(r.symbol)}" class="holding-symbol"><strong>${safe(r.symbol)}</strong><span>${safe(r.account||"")}</span></a></td>
       <td>${num(r.shares).toLocaleString(undefined,{maximumFractionDigits:4})}</td><td>${money(r.avg_cost)}</td><td>${r.price?money(r.price):"<span class='muted'>Unavailable</span>"}</td>
       <td><strong>${money(r.value)}</strong></td><td><span class="${colorClass(r.dayChange)}">${r.dayChange>=0?"+":""}${money(r.dayChange)}</span><small class="table-sub">${pct(r.dayPct)}</small></td>
       <td><span class="${colorClass(r.totalReturn)}">${r.totalReturn>=0?"+":""}${money(r.totalReturn)}</span><small class="table-sub">${pct(r.totalReturnPct)}</small></td><td>${weight.toFixed(1)}%</td>
       <td class="row-actions row-actions-icon"><button class="icon-action edit-icon" data-edit="${r.id}" title="Edit ${safe(r.symbol)}" aria-label="Edit ${safe(r.symbol)}">✎</button><button class="icon-action remove-icon" data-remove="${r.id}" title="Remove ${safe(r.symbol)}" aria-label="Remove ${safe(r.symbol)}">×</button></td></tr>`;}).join("");
-  body.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editHolding(b.dataset.edit));
-  body.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>removeHolding(b.dataset.remove));
+  if(mobile){
+    mobile.innerHTML=sorted.map(r=>{const weight=t.totalValue?r.value/t.totalValue*100:0;return `<article class="mobile-position-card mobile-position-card-v53">
+      <a class="mobile-position-main" href="/stock/${safe(r.symbol)}">
+        <div class="mobile-position-symbol"><strong>${safe(r.symbol)}</strong><span>${safe(r.account||"Brokerage")} · ${num(r.shares).toLocaleString(undefined,{maximumFractionDigits:4})} sh</span></div>
+        <div class="mobile-position-value"><strong>${money(r.value)}</strong><span class="${colorClass(r.dayChange)}">${pct(r.dayPct)} today</span></div>
+      </a>
+      <div class="mobile-position-quick">
+        <span><small>Price</small><b>${r.price?money(r.price):"—"}</b></span>
+        <span><small>Today</small><b class="${colorClass(r.dayChange)}">${r.dayChange>=0?"+":""}${money(r.dayChange)}</b></span>
+        <span><small>Total</small><b class="${colorClass(r.totalReturn)}">${pct(r.totalReturnPct)}</b></span>
+      </div>
+      <details class="mobile-position-more">
+        <summary>Position details</summary>
+        <div class="mobile-position-details">
+          <span><small>Avg cost</small><b>${money(r.avg_cost)}</b></span>
+          <span><small>Cost basis</small><b>${money(r.costBasis)}</b></span>
+          <span><small>Total P/L</small><b class="${colorClass(r.totalReturn)}">${r.totalReturn>=0?"+":""}${money(r.totalReturn)}</b></span>
+          <span><small>Weight</small><b>${weight.toFixed(1)}%</b></span>
+        </div>
+        <div class="mobile-card-actions"><button class="secondary-button" data-edit-mobile="${r.id}">Edit</button><button class="secondary-button danger-button" data-remove-mobile="${r.id}">Remove</button></div>
+      </details>
+    </article>`;}).join("");
+    mobile.querySelectorAll("[data-edit-mobile]").forEach(b=>b.onclick=e=>{e.stopPropagation();editHolding(b.dataset.editMobile);});
+    mobile.querySelectorAll("[data-remove-mobile]").forEach(b=>b.onclick=e=>{e.stopPropagation();removeHolding(b.dataset.removeMobile);});
+  }
+  body.querySelectorAll("tr[data-stock-href]").forEach(tr=>tr.addEventListener("click",e=>{if(e.target.closest("button,a,input,select,textarea"))return;location.href=tr.dataset.stockHref;}));
+  body.querySelectorAll("[data-edit]").forEach(b=>b.onclick=e=>{e.stopPropagation();editHolding(b.dataset.edit);});
+  body.querySelectorAll("[data-remove]").forEach(b=>b.onclick=e=>{e.stopPropagation();removeHolding(b.dataset.remove);});
 }
 function renderCash(){
   const list=$("cash-list"); 
@@ -213,8 +243,8 @@ function renderCash(){
 }
 function clearHoldingForm(){editingHoldingId=null;["holding-symbol","holding-shares","holding-cost","holding-notes"].forEach(id=>$(id).value="");$("holding-account").value="Robinhood";$("save-holding").textContent="Add Position";}
 function clearCashForm(){editingCashId=null;$("cash-amount").value="";$("cash-account").value="Robinhood";$("save-cash").textContent="Add Cash";}
-function editHolding(id){const h=holdings.find(x=>x.id===id); if(!h)return; editingHoldingId=id;$("holding-symbol").value=h.symbol||"";$("holding-shares").value=h.shares||"";$("holding-cost").value=h.avg_cost||"";$("holding-account").value=h.account||"Robinhood";$("holding-notes").value=h.notes||"";$("save-holding").textContent="Save Changes";document.querySelector(".portfolio-side")?.scrollIntoView({behavior:"smooth",block:"start"});}
-function editCash(id){const c=cash.find(x=>x.id===id); if(!c)return; editingCashId=id;$("cash-account").value=c.account||"Cash";$("cash-amount").value=c.amount||"";$("save-cash").textContent="Save Cash";document.querySelector(".portfolio-side")?.scrollIntoView({behavior:"smooth",block:"center"});}
+function editHolding(id){const h=holdings.find(x=>x.id===id); if(!h)return; const panel=document.querySelector(".portfolio-side .entry-card"); if(window.InvestifyMobile)window.InvestifyMobile.openSection(panel); editingHoldingId=id;$("holding-symbol").value=h.symbol||"";$("holding-shares").value=h.shares||"";$("holding-cost").value=h.avg_cost||"";$("holding-account").value=h.account||"Robinhood";$("holding-notes").value=h.notes||"";$("save-holding").textContent="Save Changes";document.querySelector(".portfolio-side")?.scrollIntoView({behavior:"smooth",block:"start"});}
+function editCash(id){const c=cash.find(x=>x.id===id); if(!c)return; const panel=document.querySelector(".portfolio-side .entry-card:nth-child(2)"); if(window.InvestifyMobile)window.InvestifyMobile.openSection(panel); editingCashId=id;$("cash-account").value=c.account||"Cash";$("cash-amount").value=c.amount||"";$("save-cash").textContent="Save Cash";document.querySelector(".portfolio-side")?.scrollIntoView({behavior:"smooth",block:"center"});}
 function removeHolding(id){if(!confirm("Remove this holding?"))return;holdings=holdings.filter(x=>x.id!==id);persistData();renderAll(false);}
 async function resolveSymbolInput(input){const raw=(input?.value||"").trim();if(!raw)return "";if(window.InvestifySymbols?.resolveInput){try{return await window.InvestifySymbols.resolveInput(input);}catch{return raw.toUpperCase().replace(/[^A-Z0-9.\-]/g,"");}}return raw.toUpperCase().replace(/[^A-Z0-9.\-]/g,"");}
 async function saveHolding(){const symbol=await resolveSymbolInput($("holding-symbol"));const shares=num($("holding-shares").value);const avg=num($("holding-cost").value);if(!symbol || shares<=0 || avg<0){error("Enter ticker/company, shares and average cost.");return;}const data={id:editingHoldingId||uid(),symbol,shares,avg_cost:avg,account:$("holding-account").value.trim()||"Robinhood",notes:$("holding-notes").value.trim(),updated_at:new Date().toISOString()};if(editingHoldingId)holdings=holdings.map(x=>x.id===editingHoldingId?data:x);else holdings.unshift(data);persistData();clearHoldingForm();renderAll(false);}
@@ -297,7 +327,7 @@ async function saveOptionPosition(){
   persistData();clearOptionForm();await renderAll(false);
 }
 function editOptionPosition(id){
-  const o=optionPositions.find(x=>x.id===id); if(!o)return; editingOptionId=id;
+  const o=optionPositions.find(x=>x.id===id); if(!o)return; if(window.InvestifyMobile)window.InvestifyMobile.openSection(document.querySelector("#option-entry-card")); editingOptionId=id;
   $("option-strategy").value=o.strategy||"single"; setOptionFormMode();
   $("option-underlying").value=o.underlying||""; $("option-expiration").value=o.expiration||""; $("option-contracts").value=o.contracts||1; $("option-entry-price").value=o.entry_price||""; $("option-account").value=o.account||"Robinhood"; $("option-notes").value=o.notes||"";
   if(o.strategy==="vertical"){ $("option-spread-type").value=o.spread_type||"put_credit"; $("option-short-strike").value=o.short_strike||""; $("option-long-strike").value=o.long_strike||""; }
@@ -311,13 +341,33 @@ async function buildOptionRows(){
   try{const d=await fetchJson("/api/options/portfolio-value",{method:"POST",body:JSON.stringify({positions:normalized})});return d.positions||normalized;}
   catch(e){error("Options quotes unavailable: "+e.message);return normalized.map(x=>({...x,status:"unpriced",message:e.message,current_price:null,current_value:null,pnl:null,pnl_pct:null}));}
 }
+function optionMobileFacts(r){
+  const contracts=num(r.contracts)||1;
+  const entry=num(r.entry_price);
+  if(r.strategy!=="vertical"){
+    return `<div><span>${r.position_side==="short"?"Premium received":"Premium paid"}</span><strong>${money(entry*contracts*100)}</strong></div>`;
+  }
+  const width=Math.abs(num(r.short_strike)-num(r.long_strike));
+  const maxProfit=(isCreditSpread(r)?entry:Math.max(0,width-entry))*contracts*100;
+  const maxLoss=(isCreditSpread(r)?Math.max(0,width-entry):entry)*contracts*100;
+  let breakeven="—";
+  if(r.spread_type==="put_credit")breakeven=money(num(r.short_strike)-entry);
+  else if(r.spread_type==="call_credit")breakeven=money(num(r.short_strike)+entry);
+  else if(r.spread_type==="call_debit")breakeven=money(num(r.long_strike)+entry);
+  else if(r.spread_type==="put_debit")breakeven=money(num(r.long_strike)-entry);
+  return `<div><span>Max profit</span><strong>${money(maxProfit)}</strong></div><div><span>Max loss</span><strong>${money(maxLoss)}</strong></div><div><span>Breakeven</span><strong>${breakeven}</strong></div>`;
+}
 function renderOptionPositions(rows){
-  const body=$("options-positions-body"), count=$("options-count"); if(!body)return;
+  const body=$("options-positions-body"), mobile=$("options-mobile-cards"), count=$("options-count"); if(!body)return;
   const priced=rows.filter(r=>r.status==="priced"); const totalValue=rows.reduce((s,r)=>s+signedOptionValue(r),0); const totalPnl=rows.reduce((s,r)=>s+num(r.pnl),0);
   if(count)count.textContent=rows.length?`Showing ${rows.length} option ${rows.length===1?"position":"positions"}. ${priced.length} priced from live/delayed chains.`:"Showing 0 option positions.";
   if($("options-total-value"))$("options-total-value").textContent=`Value ${rows.length?money(totalValue):"—"}`;
   if($("options-total-pnl")){ $("options-total-pnl").textContent=`P/L ${rows.length?(totalPnl>=0?"+":"")+money(totalPnl):"—"}`; $("options-total-pnl").className=rows.length?colorClass(totalPnl):""; }
-  if(!rows.length){body.innerHTML=`<tr><td colspan="9" class="empty-cell">No options yet. Add your first contract or vertical spread.</td></tr>`;return;}
+  if(!rows.length){
+    body.innerHTML=`<tr><td colspan="9" class="empty-cell">No options yet. Add your first contract or vertical spread.</td></tr>`;
+    if(mobile)mobile.innerHTML=`<div class="mobile-empty-card">No options yet. Add your first contract or vertical spread.</div>`;
+    return;
+  }
   body.innerHTML=rows.map(r=>{
     const current=r.current_price==null?"—":money(r.current_price); const pnl=r.pnl==null?"—":`${r.pnl>=0?"+":""}${money(r.pnl)}`; const pnlPct=r.pnl_pct==null?"":"<small class='table-sub'>"+pct(r.pnl_pct)+"</small>";
     const msg=r.message?`<small class="table-sub muted">${safe(r.message)}</small>`:(r.delayed?`<small class="table-sub muted">delayed</small>`:"");
@@ -333,6 +383,29 @@ function renderOptionPositions(rows){
       <td class="row-actions row-actions-icon"><button class="icon-action analyze-icon" data-option-ai="${safe(r.id)}" title="Analyze option" aria-label="Analyze option">AI</button><button class="icon-action edit-icon" data-option-edit="${safe(r.id)}" title="Edit option" aria-label="Edit option">✎</button><button class="icon-action remove-icon" data-option-remove="${safe(r.id)}" title="Remove option" aria-label="Remove option">×</button></td>
     </tr>`;
   }).join("");
+  if(mobile){
+    mobile.innerHTML=rows.map(r=>{
+      const current=r.current_price==null?"—":money(r.current_price);
+      const currentLabel = r.strategy==="vertical" && isCreditSpread(r) ? "Cost to close" : (r.position_side==="short" ? "Cost to close" : "Current value");
+      const pnl=r.pnl==null?"—":`${r.pnl>=0?"+":""}${money(r.pnl)}`;
+      const msg=r.message?`<p class="mobile-card-note">${safe(r.message)}</p>`:(r.delayed?`<p class="mobile-card-note">Delayed quote</p>`:"");
+      return `<article class="mobile-position-card mobile-option-card">
+        <div class="mobile-card-head"><div><strong>${safe(r.underlying)} ${safe(optionStrategyLabel(r))}</strong><span>${safe(optionStrikeLabel(r))} · ${safe(r.expiration||"—")} · ${r.dte==null?"—":r.dte+" DTE"}</span></div><b class="${r.pnl==null?"":colorClass(r.pnl)}">${pnl}</b></div>
+        <div class="mobile-stat-grid">
+          <div><span>Qty</span><strong>${optionQtyLabel(r)}</strong></div>
+          <div><span>Entry</span><strong>${optionEntryLabel(r)}</strong></div>
+          <div><span>${currentLabel}</span><strong>${current}</strong></div>
+          <div><span>P/L</span><strong class="${r.pnl==null?"":colorClass(r.pnl)}">${pnl}</strong><small>${r.pnl_pct==null?"":pct(r.pnl_pct)}</small></div>
+          ${optionMobileFacts(r)}
+        </div>
+        ${msg}
+        <div class="mobile-card-actions"><button class="secondary-button" data-option-ai-mobile="${safe(r.id)}">AI</button><button class="secondary-button" data-option-edit-mobile="${safe(r.id)}">Edit</button><button class="secondary-button danger-button" data-option-remove-mobile="${safe(r.id)}">Remove</button></div>
+      </article>`;
+    }).join("");
+    mobile.querySelectorAll("[data-option-edit-mobile]").forEach(b=>b.onclick=()=>editOptionPosition(b.dataset.optionEditMobile));
+    mobile.querySelectorAll("[data-option-remove-mobile]").forEach(b=>b.onclick=()=>removeOptionPosition(b.dataset.optionRemoveMobile));
+    mobile.querySelectorAll("[data-option-ai-mobile]").forEach(b=>b.onclick=()=>askAIAboutOption(b.dataset.optionAiMobile));
+  }
   body.querySelectorAll("[data-option-edit]").forEach(b=>b.onclick=()=>editOptionPosition(b.dataset.optionEdit));
   body.querySelectorAll("[data-option-remove]").forEach(b=>b.onclick=()=>removeOptionPosition(b.dataset.optionRemove));
   body.querySelectorAll("[data-option-ai]").forEach(b=>b.onclick=()=>askAIAboutOption(b.dataset.optionAi));

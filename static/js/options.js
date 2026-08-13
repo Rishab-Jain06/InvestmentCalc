@@ -576,11 +576,55 @@ function renderNormalRows(rows){
   }
 }
 
+
+function mobilePremiumLabel(x){
+  if(x.net_premium != null) return `${x.net_premium >= 0 ? "Credit" : "Debit"} $${fmt(Math.abs(x.net_premium))}`;
+  if(strategyType === "single") return `Bid $${fmt(x.bid)} · Ask $${fmt(x.ask)}`;
+  return "—";
+}
+function mobileLegsLabel(x){
+  const legs = orderedLegs(x);
+  if(legs.length){
+    return legs.map(l => `${l.action === "buy" ? "B" : "S"} ${fmt(l.strike, l.strike % 1 ? 1 : 0)}${l.type === "call" ? "C" : "P"}`).join(" / ");
+  }
+  return x.strike == null ? "—" : `$${fmt(x.strike, x.strike % 1 ? 1 : 0)} ${rowOptionKind(x)==="call"?"Call":"Put"}`;
+}
+function renderMobileResultCards(rows){
+  const el = $("results-mobile-cards");
+  if(!el) return;
+  const list = rows || [];
+  if(!list.length){
+    el.innerHTML = `<div class="mobile-empty-card">No matching trades. Try Clear filters, another expiration, or a wider strike range.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(x => {
+    const idx = lastOptionRows.indexOf(x);
+    const score = x?.quality_score ?? x?.quality?.score;
+    const delta = x.short_delta ?? x.delta;
+    return `<article class="mobile-trade-card mobile-trade-card-v53" data-mobile-result-i="${idx}" tabindex="0" role="button" aria-label="Open ${esc(labelStrategy(x.strategy))} analysis">
+      <div class="mobile-card-head"><div><strong>${esc(labelStrategy(x.strategy))}</strong><span>${esc(mobileLegsLabel(x))} · ${esc(x.expiration || "—")} · ${x.dte ?? "—"} DTE</span></div>${scoreBadge(x)}</div>
+      <div class="mobile-trade-quick">
+        <span><small>Premium</small><b>${mobilePremiumLabel(x)}</b></span>
+        <span><small>Return</small><b>${x.ror == null ? "—" : `${fmt(x.ror)}%`}</b></span>
+        <span><small>Delta</small><b>${fmt(delta,3)}</b></span>
+        <span><small>OI</small><b>${oiText(x.open_interest)}</b></span>
+      </div>
+      <div class="mobile-trade-secondary"><span>Max loss <b>${x.max_loss == null ? "—" : `$${fmt(x.max_loss)}`}</b></span><span>${probabilityText(x)}</span></div>
+      <div class="mobile-card-note">${compactQuality(x) || `${riskText(x)} risk level`} · Tap for analysis</div>
+    </article>`;
+  }).join("");
+  el.querySelectorAll("[data-mobile-result-i]").forEach(card => {
+    const open=()=>{const idx=Number(card.dataset.mobileResultI);const row=lastOptionRows[idx];if(row)analyze(row);};
+    card.addEventListener("click",open);
+    card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
+  });
+}
+
 async function findTrades(){
   clearError();
   const sym = await resolveOptionSymbol();
   if(!sym || !$("expiration").value) return;
-  $("results-body").innerHTML = `<tr><td class="empty-cell">Screening…</td></tr>`;
+  $("results-body").innerHTML = `<tr><td class="empty-cell">Screening…</td></tr>`; if($("results-mobile-cards"))$("results-mobile-cards").innerHTML=`<div class="mobile-empty-card">Screening…</div>`;
   try{
     const d = await (await fetch(`/api/options/screen/${sym}?${query()}`)).json();
     if(d.error) throw Error(d.error);
@@ -602,7 +646,7 @@ async function findTrades(){
     renderResults(d.results || []);
   }catch(e){
     error(e.message);
-    $("results-body").innerHTML = `<tr><td class="empty-cell">No results.</td></tr>`;
+    $("results-body").innerHTML = `<tr><td class="empty-cell">No results.</td></tr>`; if($("results-mobile-cards"))$("results-mobile-cards").innerHTML=`<div class="mobile-empty-card">No results.</div>`;
   }
 }
 $("find-trades").addEventListener("click", findTrades);
@@ -644,6 +688,7 @@ function renderResults(rows){
     const row = lastOptionRows[idx];
     if(row) analyze(row);
   }));
+  renderMobileResultCards(lastDisplayedRows);
 }
 function metric(label,val){ return `<div><span>${label}</span><strong>${val}</strong></div>`; }
 function greekBox(name,val,help){ return `<div class="greek-box"><span>${name}</span><strong>${fmt(val,4)}</strong><small>${help}</small></div>`; }

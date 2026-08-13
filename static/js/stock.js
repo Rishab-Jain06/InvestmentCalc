@@ -28,6 +28,66 @@ let latestQuote = null;
 function dots(label="Loading"){return `<span class="loading-dots">${label}</span>`;}
 function showErr(m){ $("error").textContent = m; $("error").classList.remove("hidden"); }
 
+
+// v53: render a position card only when the current ticker has shares > 0.
+// If no position exists (or shares === 0), no position element is kept in the DOM.
+const POSITION_HOLDINGS_KEY = "investify_portfolio_holdings_v1";
+let currentPositionHolding = null;
+function safeText(v){return String(v??"").replace(/[<>&"']/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;","'":"&#39;"}[c]));}
+function normalizePositionHolding(h){
+  if(!h)return null;
+  return {symbol:String(h.symbol||"").toUpperCase(),shares:Number(h.shares||0),avg_cost:Number(h.average_cost??h.avg_cost??0),account:h.account||"Brokerage"};
+}
+function localPositionHolding(){
+  try{
+    const rows=JSON.parse(localStorage.getItem(POSITION_HOLDINGS_KEY)||"[]");
+    return normalizePositionHolding((Array.isArray(rows)?rows:[]).find(h=>String(h.symbol||"").toUpperCase()===String(s).toUpperCase()));
+  }catch{return null;}
+}
+function positionMoney(v){return Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2}):"—";}
+function renderYourPosition(h){
+  document.getElementById("your-position-card")?.remove();
+  const shares=Number(h?.shares||0);
+  if(!(shares>0))return; // Option B: omit entirely from DOM.
+  currentPositionHolding=h;
+  const px=Number(latestQuote?.price);
+  const avg=Number(h.avg_cost||0);
+  const value=Number.isFinite(px)?shares*px:null;
+  const basis=avg>0?shares*avg:null;
+  const pnl=value!=null&&basis!=null?value-basis:null;
+  const ret=pnl!=null&&basis>0?pnl/basis*100:null;
+  const tone=pnl==null?"":pnl>=0?"positive":"negative";
+  const card=document.createElement("section");
+  card.id="your-position-card";
+  card.className="card your-position-card-v53";
+  card.innerHTML=`<div class="your-position-heading"><div><p class="eyebrow">YOUR POSITION</p><h2>${safeText(s)} position</h2></div><span>${safeText(h.account||"Brokerage")}</span></div>
+    <div class="your-position-grid-v53">
+      <div><span>Shares</span><strong>${shares.toLocaleString(undefined,{maximumFractionDigits:4})}</strong></div>
+      <div><span>Avg cost</span><strong>${avg>0?positionMoney(avg):"—"}</strong></div>
+      <div><span>Current</span><strong>${Number.isFinite(px)?positionMoney(px):"—"}</strong></div>
+      <div><span>Market value</span><strong>${value!=null?positionMoney(value):"—"}</strong></div>
+      <div><span>Total P/L</span><strong class="${tone}">${pnl==null?"—":`${pnl>=0?"+":""}${positionMoney(pnl)}`}</strong></div>
+      <div><span>Return</span><strong class="${tone}">${ret==null?"—":`${ret>=0?"+":""}${ret.toFixed(2)}%`}</strong></div>
+    </div>`;
+  const metrics=document.querySelector(".quote-grid");
+  if(metrics)metrics.insertAdjacentElement("afterend",card);
+}
+async function loadYourPosition(){
+  let h=localPositionHolding();
+  try{
+    const me=await (await fetch("/api/auth/me",{cache:"no-store"})).json();
+    if(me?.authenticated){
+      const d=await (await fetch("/api/cloud/portfolio",{cache:"no-store"})).json();
+      if(!d?.error){
+        const cloud=(d.holdings||[]).find(x=>String(x.symbol||"").toUpperCase()===String(s).toUpperCase());
+        h=normalizePositionHolding(cloud);
+      }
+    }
+  }catch{}
+  currentPositionHolding=h;
+  renderYourPosition(h);
+}
+
 function setupStockCollapsibles(){
   const cards=[
     ["stock-signal-card","Stock signal"],
@@ -173,6 +233,7 @@ async function loadQuote(){
     $("52-range").textContent = `${money(q.fifty_two_week_low)} – ${money(q.fifty_two_week_high)}`;
     $("volume").textContent = num(q.volume);
     $("avg-volume").textContent = num(q.avg_volume);
+    if(currentPositionHolding) renderYourPosition(currentPositionHolding);
   }catch(e){ showErr(e.message); }
 }
 async function loadHistory(range){
@@ -584,6 +645,7 @@ watchButton?.addEventListener("click", async () => {
 initWatchButton();
 setupStockCollapsibles();
 rememberTicker();
+loadYourPosition();
 loadQuote();
 loadHistory(localStorage.getItem("investify_default_range") || "1D");
 loadTechnicals();

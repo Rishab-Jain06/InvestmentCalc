@@ -1,3 +1,7 @@
+# Investify Analytics v53
+
+This build is based directly on the supplied v52 project. v53 preserves v52 functionality while redesigning phone UI/UX and adding only the requested desktop behavior changes.
+
 # Investify Analytics v4 — Yahoo-only
 
 Personal stock + options analytics workspace.
