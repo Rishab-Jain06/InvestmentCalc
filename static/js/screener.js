@@ -5,6 +5,7 @@ const money = v => v == null ? "—" : `$${Number(v).toFixed(2)}`;
 const pct = v => v == null ? "—" : `${Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(2)}%`;
 const score = v => v == null ? "—" : `${Math.round(Number(v))}/100`;
 const volume = v => v == null ? "—" : Number(v).toLocaleString();
+function dots(label = "Loading") { return `<span class="loading-dots">${label}</span>`; }
 
 function ratingClass(r){
   const x = String(r || "").toLowerCase();

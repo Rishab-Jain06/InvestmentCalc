@@ -41,7 +41,17 @@ renderRecentTickers();
   const pct=v=>Number.isFinite(Number(v))?`${Number(v)>=0?"+":""}${Number(v).toFixed(2)}%`:"—";
   const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f));}catch{return f;}};
   const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
-  const holdings=load(H,[]), cash=load(C,[]);
+  let holdings=load(H,[]), cash=load(C,[]);
+  try{
+    const me=await (await fetch("/api/auth/me",{cache:"no-store"})).json();
+    if(me.authenticated){
+      const cloud=await (await fetch("/api/cloud/portfolio",{cache:"no-store"})).json();
+      if(!cloud.error){
+        holdings=(cloud.holdings||[]).map(h=>({symbol:h.symbol,shares:Number(h.shares||0),avg_cost:Number(h.average_cost||0)}));
+        cash=(cloud.cash||[]).map(c=>({amount:Number(c.amount||0)}));
+      }
+    }
+  }catch{}
   const cashTotal=cash.reduce((s,x)=>s+Number(x.amount||0),0);
   async function quote(sym){
     const s=String(sym||"").toUpperCase();

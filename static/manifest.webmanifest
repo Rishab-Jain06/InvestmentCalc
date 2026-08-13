@@ -1,0 +1,51 @@
+{
+  "name": "Investify Analytics",
+  "short_name": "Investify",
+  "description": "Personal market analytics, portfolio tracking, watchlists, options research and AI search.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c0f14",
+  "theme_color": "#6d5dfc",
+  "icons": [
+    {
+      "src": "/static/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "categories": [
+    "finance",
+    "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Portfolio",
+      "short_name": "Portfolio",
+      "url": "/portfolio",
+      "description": "Open portfolio tracking"
+    },
+    {
+      "name": "Options Lab",
+      "short_name": "Options",
+      "url": "/options",
+      "description": "Open options research"
+    },
+    {
+      "name": "AI Search",
+      "short_name": "AI",
+      "url": "/search",
+      "description": "Open AI search"
+    }
+  ]
+}

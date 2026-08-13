@@ -11,6 +11,13 @@ function friendlyAIError(msg){
 }
 
 function safeHomeNews(s){return String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}
+function formatHomeNewsTime(a){
+  const raw=a?.published_at||a?.datetime||a?.date_label;
+  if(raw==null||raw==="")return "";
+  let d=typeof raw==="number"?new Date(raw*1000):new Date(raw);
+  if(!Number.isFinite(d.getTime()))return String(a?.date_label||raw);
+  return d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+}
 
 const HOME_DIGEST_KEY = "investify_home_ai_digest_v2";
 
@@ -70,7 +77,7 @@ async function fetchHomeArticles(){
     const articles=await fetchHomeArticles();
     box.innerHTML=articles.length?articles.map(a=>`
       <a class="home-news-item" href="${safeHomeNews(a.url)}" target="_blank" rel="noopener noreferrer">
-        <span>${safeHomeNews(a.source)}${a.date_label ? " · "+safeHomeNews(a.date_label) : ""}</span>
+        <span>${safeHomeNews(a.source)}${formatHomeNewsTime(a) ? " · "+safeHomeNews(formatHomeNewsTime(a)) : ""}</span>
         <strong>${safeHomeNews(a.headline)}</strong>
       </a>`).join(""):'<div class="empty-cell">No headlines found. Check Finnhub API key or market-news availability.</div>';
   }catch(e){

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask import Flask, render_template, jsonify, request, send_from_directory, redirect, make_response
 from dotenv import load_dotenv
 import os
 import time
@@ -8,17 +8,72 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 import yahoo_data
 import options_data
+import portfolio_options
 import news_ai
 import sec_data
 import screener_data
 import tradier_data
 import calendar_data
 import alpha_vantage_data
+import supabase_backend
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "local-personal-tool")
 
 _COMPANY_AI_CACHE = {}
+
+
+def _cookie_secure():
+    return request.url_root.startswith("https://") or request.headers.get("X-Forwarded-Proto", "").lower() == "https"
+
+
+def _set_auth_cookies(resp, session_data):
+    access = session_data.get("access_token") or ""
+    refresh = session_data.get("refresh_token") or ""
+    if access:
+        resp.set_cookie(supabase_backend.ACCESS_COOKIE, access, max_age=supabase_backend.COOKIE_MAX_AGE, httponly=True, secure=_cookie_secure(), samesite="Lax", path="/")
+    if refresh:
+        resp.set_cookie(supabase_backend.REFRESH_COOKIE, refresh, max_age=supabase_backend.COOKIE_MAX_AGE, httponly=True, secure=_cookie_secure(), samesite="Lax", path="/")
+    return resp
+
+
+def _clear_auth_cookies(resp):
+    resp.delete_cookie(supabase_backend.ACCESS_COOKIE, path="/")
+    resp.delete_cookie(supabase_backend.REFRESH_COOKIE, path="/")
+    return resp
+
+
+def _current_user_with_session():
+    access = request.cookies.get(supabase_backend.ACCESS_COOKIE, "")
+    refresh = request.cookies.get(supabase_backend.REFRESH_COOKIE, "")
+    if access:
+        try:
+            return supabase_backend.auth_user(access), None
+        except Exception:
+            pass
+    if refresh:
+        session_data = supabase_backend.refresh_session(refresh)
+        user = supabase_backend.auth_user(session_data.get("access_token", ""))
+        return user, session_data
+    raise RuntimeError("Not signed in")
+
+
+def _json_with_optional_session(payload, session_data=None, status=200):
+    resp = jsonify(payload)
+    resp.status_code = status
+    if session_data:
+        _set_auth_cookies(resp, session_data)
+    return resp
+
+
+def _auth_required_user():
+    user, session_data = _current_user_with_session()
+    return user, session_data
+
+
+@app.context_processor
+def inject_auth_config():
+    return {"supabase_public": supabase_backend.public_config()}
 
 
 @app.get("/favicon.ico")
@@ -43,6 +98,153 @@ def screener(): return render_template("screener.html")
 def options(): return render_template("options.html")
 @app.get("/settings")
 def settings(): return render_template("settings.html")
+
+
+
+@app.get("/login")
+def login_page():
+    return render_template("login.html")
+
+@app.get("/signup")
+def signup_page():
+    return render_template("signup.html")
+
+@app.get("/account")
+def account_page():
+    return render_template("account.html")
+
+@app.get("/auth/callback")
+def auth_callback_page():
+    return render_template("auth_callback.html")
+
+@app.get("/logout")
+def logout_page():
+    resp = make_response(redirect("/"))
+    supabase_backend.sign_out(request.cookies.get(supabase_backend.ACCESS_COOKIE, ""))
+    return _clear_auth_cookies(resp)
+
+@app.get("/api/auth/config")
+def api_auth_config():
+    return jsonify(supabase_backend.public_config())
+
+@app.get("/api/auth/me")
+def api_auth_me():
+    try:
+        user, session_data = _current_user_with_session()
+        profile = supabase_backend.normalize_profile(user)
+        return _json_with_optional_session({"authenticated": True, "user": profile}, session_data)
+    except Exception:
+        resp = jsonify({"authenticated": False, "user": None})
+        return resp
+
+@app.post("/api/auth/login")
+def api_auth_login():
+    try:
+        body = request.get_json(force=True) or {}
+        email = (body.get("email") or "").strip()
+        password = body.get("password") or ""
+        if not email or not password:
+            raise RuntimeError("Email and password are required.")
+        data = supabase_backend.sign_in(email, password)
+        user = data.get("user") or supabase_backend.auth_user(data.get("access_token", ""))
+        supabase_backend.ensure_profile(user)
+        resp = jsonify({"authenticated": True, "user": supabase_backend.normalize_profile(user)})
+        return _set_auth_cookies(resp, data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.post("/api/auth/signup")
+def api_auth_signup():
+    try:
+        body = request.get_json(force=True) or {}
+        email = (body.get("email") or "").strip()
+        password = body.get("password") or ""
+        display_name = (body.get("display_name") or "").strip()
+        if not email or not password:
+            raise RuntimeError("Email and password are required.")
+        data = supabase_backend.sign_up(email, password, display_name)
+        user = data.get("user") or {}
+        session_data = data.get("session") or data if data.get("access_token") else None
+        if user and user.get("id"):
+            try:
+                supabase_backend.ensure_profile(user)
+            except Exception:
+                pass
+        payload = {"created": True, "user": supabase_backend.normalize_profile(user) if user else None, "has_session": bool(session_data)}
+        resp = jsonify(payload)
+        if session_data:
+            _set_auth_cookies(resp, session_data)
+        return resp
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.get("/api/auth/google/start")
+def api_auth_google_start():
+    try:
+        redirect_to = request.args.get("redirect_to") or (request.host_url.rstrip("/") + "/auth/callback")
+        return redirect(supabase_backend.google_authorize_url(redirect_to))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.post("/api/auth/session")
+def api_auth_session():
+    try:
+        body = request.get_json(force=True) or {}
+        access = body.get("access_token") or ""
+        refresh = body.get("refresh_token") or ""
+        if not access:
+            raise RuntimeError("Missing access token from Supabase login.")
+        user = supabase_backend.auth_user(access)
+        supabase_backend.ensure_profile(user)
+        resp = jsonify({"authenticated": True, "user": supabase_backend.normalize_profile(user)})
+        return _set_auth_cookies(resp, {"access_token": access, "refresh_token": refresh})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.post("/api/auth/logout")
+def api_auth_logout():
+    supabase_backend.sign_out(request.cookies.get(supabase_backend.ACCESS_COOKIE, ""))
+    resp = jsonify({"ok": True})
+    return _clear_auth_cookies(resp)
+
+@app.get("/api/cloud/portfolio")
+def api_cloud_portfolio_get():
+    try:
+        user, session_data = _auth_required_user()
+        bundle = supabase_backend.load_cloud_bundle(user)
+        bundle["authenticated"] = True
+        return _json_with_optional_session(bundle, session_data)
+    except Exception as e:
+        return jsonify({"error": str(e), "authenticated": False}), 401
+
+@app.put("/api/cloud/portfolio")
+def api_cloud_portfolio_put():
+    try:
+        user, session_data = _auth_required_user()
+        body = request.get_json(force=True) or {}
+        bundle = supabase_backend.save_cloud_bundle(user, body)
+        bundle["authenticated"] = True
+        return _json_with_optional_session(bundle, session_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.get("/api/cloud/settings")
+def api_cloud_settings_get():
+    try:
+        user, session_data = _auth_required_user()
+        settings = supabase_backend.ensure_settings(user["id"])
+        return _json_with_optional_session({"settings": settings}, session_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 401
+
+@app.put("/api/cloud/settings")
+def api_cloud_settings_put():
+    try:
+        user, session_data = _auth_required_user()
+        settings = supabase_backend.save_account_settings(user, request.get_json(force=True) or {})
+        return _json_with_optional_session({"settings": settings}, session_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.get("/news")
 def news_page(): return render_template("news.html")
@@ -286,6 +488,16 @@ def api_options_screen(symbol):
             pass
         return jsonify({"symbol":symbol.upper(),"spot":spot,"results":all_results[:400],"count":min(len(all_results),400),"expirations_scanned":scan,"dte_min":min_dte,"dte_max":max_dte,"trend":technical,"source":source,"provider":provider,"delayed":delayed,"fallback_error":fallback_error,"math_note":math_note,"stale":stale,"cached":cached})
     except Exception as e: return jsonify({"error":str(e)}),400
+
+
+@app.post("/api/options/portfolio-value")
+def api_options_portfolio_value():
+    try:
+        body = request.get_json(force=True) or {}
+        positions = body.get("positions") or []
+        return jsonify(portfolio_options.value_positions(positions))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.post("/api/options/payoff")
 def api_options_payoff():

@@ -16,6 +16,15 @@ const $=id=>document.getElementById(id);
 const err=m=>{const e=$("news-error");e.textContent=m;e.classList.remove("hidden")};
 const clearErr=()=>$("news-error").classList.add("hidden");
 function safe(s){return String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}
+function formatNewsTime(a){
+  const raw=a?.published_at||a?.datetime||a?.date_label;
+  if(raw==null||raw==="")return "—";
+  let d=null;
+  if(typeof raw==="number")d=new Date(raw*1000);
+  else d=new Date(raw);
+  if(!Number.isFinite(d.getTime()))return String(a?.date_label||raw);
+  return d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+}
 async function resolveNewsSymbol(){
   const input=$("news-symbol");
   if(window.InvestifySymbols?.resolveInput){try{return await window.InvestifySymbols.resolveInput(input);}catch{}}
@@ -28,7 +37,7 @@ function renderArticles(articles){
   $("news-list").innerHTML=currentArticles.map(a=>`
     <article class="news-item">
       <div>
-        <div class="news-meta"><span>${safe(a.source)}</span><span>${safe(a.date_label)}</span></div>
+        <div class="news-meta"><span>${safe(a.source)}</span><span>${safe(formatNewsTime(a))}</span></div>
         <h3><a href="${safe(a.url)}" target="_blank" rel="noopener noreferrer">${safe(a.headline)}</a></h3>
         <p>${safe(a.summary)}</p>
       </div>

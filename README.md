@@ -227,3 +227,49 @@ GEMINI_MODEL=gemini-3.5-flash
 - Allocation list is scroll-limited to about 5 visible items and includes a cash toggle.
 - Portfolio AI review is shortened to a score, label, headline, and 2-3 bullets.
 - Ask AI about portfolio sends portfolio context to AI Search.
+
+## v50 Supabase login setup
+
+Required server environment variables:
+
+```env
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=sb_publishable_or_anon_key
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_or_service_role_key
+```
+
+Supabase tables expected:
+
+- `profiles`
+- `portfolios`
+- `holdings`
+- `cash_entries`
+- `watchlist`
+- `user_settings`
+- `ai_chats`
+- `saved_scans`
+- `portfolio_snapshots`
+
+Google OAuth redirects should include:
+
+- `http://127.0.0.1:5050/**`
+- `https://investify-analytics.onrender.com/**`
+
+Google OAuth callback in Google Cloud should be your Supabase callback URL:
+
+```text
+https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback
+```
+
+## v51: Options portfolio tracking + mobile PWA
+
+Run `supabase_v51_option_positions.sql` once in Supabase SQL Editor to enable cloud sync for option positions.
+
+v51 adds:
+- Single-leg option tracking: long call, short call, long put, short put.
+- Vertical spread tracking: put credit, call credit, put debit, call debit.
+- Options positions table on the Portfolio page with current value and P/L.
+- Supabase cloud sync for option positions when logged in, with localStorage fallback when logged out.
+- Mobile/PWA foundation: service worker, install prompt, manifest shortcuts, and iPhone Add to Home Screen guidance.
+
+The options P/L endpoint uses the existing options chain provider stack. Tradier is used first when configured, with the existing fallback behavior.

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Sign up — Investify{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <article class="card auth-card">
+    <p class="eyebrow">CREATE ACCOUNT</p>
+    <h1>Sign up for Investify</h1>
+    <p class="sub">Create a free account to sync your portfolio, watchlist and app preferences.</p>
+
+    <div id="auth-error" class="error hidden"></div>
+    <div id="auth-status" class="small-muted"></div>
+
+    <button id="google-login" class="google-button" type="button">
+      <span>G</span> Sign up with Google
+    </button>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <form id="signup-form" class="auth-form">
+      <label>Name
+        <input id="signup-name" type="text" autocomplete="name" placeholder="Rishab">
+      </label>
+      <label>Email
+        <input id="signup-email" type="email" autocomplete="email" required>
+      </label>
+      <label>Password
+        <input id="signup-password" type="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <button id="signup-submit" class="primary-wide" type="submit">Create account</button>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a href="/login">Login</a></p>
+  </article>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+window.INVESTIFY_SUPABASE = {{ supabase_public|tojson }};
+window.INVESTIFY_AUTH_PAGE = "signup";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="{{ url_for('static', filename='js/auth_pages.js') }}"></script>
+{% endblock %}

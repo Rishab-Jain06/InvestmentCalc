@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Signing in — Investify{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <article class="card auth-card">
+    <p class="eyebrow">AUTHENTICATION</p>
+    <h1>Finishing sign in…</h1>
+    <p id="auth-status" class="sub"><span class="loading-dots">Connecting account</span></p>
+    <div id="auth-error" class="error hidden"></div>
+  </article>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+window.INVESTIFY_SUPABASE = {{ supabase_public|tojson }};
+window.INVESTIFY_AUTH_PAGE = "callback";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="{{ url_for('static', filename='js/auth_pages.js') }}"></script>
+{% endblock %}

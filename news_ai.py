@@ -4,7 +4,7 @@ import os
 import re
 import time
 import requests
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, timezone
 
 FINNHUB_BASE = "https://finnhub.io/api/v1"
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
@@ -36,13 +36,17 @@ def _gemini_models():
 
 def _normalize_article(a):
     dt = a.get("datetime") or a.get("time_published") or a.get("publishedAt")
+    published_at = None
     readable = None
     try:
         if isinstance(dt, (int, float)):
-            readable = datetime.fromtimestamp(dt).strftime("%b %d, %Y %I:%M %p")
+            published_at = datetime.fromtimestamp(dt, timezone.utc).isoformat()
+            readable = published_at
         elif isinstance(dt, str):
+            published_at = dt
             readable = dt
     except Exception:
+        published_at = None
         readable = None
     return {
         "headline": a.get("headline") or a.get("title") or "Untitled",
@@ -50,6 +54,7 @@ def _normalize_article(a):
         "source": a.get("source") or a.get("source_name") or "Unknown",
         "url": a.get("url") or "",
         "datetime": dt,
+        "published_at": published_at,
         "date_label": readable or "—",
         "image": a.get("image") or "",
         "category": a.get("category") or "",

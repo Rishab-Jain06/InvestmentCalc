@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Account — Investify{% endblock %}
+{% block content %}
+<section class="page-head account-head">
+  <div>
+    <p class="eyebrow">ACCOUNT</p>
+    <h1>Your Investify account</h1>
+    <p class="sub">Manage login status and cloud sync for portfolio, watchlist and settings.</p>
+  </div>
+</section>
+
+<div id="account-error" class="error hidden"></div>
+
+<section class="account-grid">
+  <article class="card account-card">
+    <p class="eyebrow">PROFILE</p>
+    <h2 id="account-name">Loading…</h2>
+    <p id="account-email" class="small-muted">Checking account session.</p>
+    <div id="account-provider" class="data-pill account-pill">—</div>
+    <div class="account-actions">
+      <a class="secondary-button" href="/portfolio">Open Portfolio</a>
+      <button id="account-logout" class="secondary-button" type="button">Logout</button>
+    </div>
+  </article>
+
+  <article class="card account-card">
+    <p class="eyebrow">CLOUD SYNC</p>
+    <h2>Saved data</h2>
+    <div id="account-sync-stats" class="account-stats">
+      <span>Portfolio: —</span>
+      <span>Cash: —</span>
+      <span>Watchlist: —</span>
+    </div>
+    <p class="small-muted">Portfolio changes save to Supabase when you are logged in.</p>
+  </article>
+
+  <article class="card account-card">
+    <p class="eyebrow">QUICK LINKS</p>
+    <div class="account-link-list">
+      <a href="/portfolio">Portfolio + Watchlist</a>
+      <a href="/options">Options Lab</a>
+      <a href="/search">AI Search</a>
+    </div>
+  </article>
+
+  <article class="card account-card mobile-app-card">
+    <p class="eyebrow">MOBILE APP</p>
+    <h2>Install Investify on iPhone</h2>
+    <p class="small-muted">v51 is set up as a mobile-friendly PWA first. That keeps it free now and leaves the door open for a native iOS wrapper later.</p>
+    <div class="mobile-app-steps">
+      <div><span>1</span><strong>Open in Safari</strong><p>Use your Render website URL on your iPhone.</p></div>
+      <div><span>2</span><strong>Tap Share</strong><p>Choose the iOS share button at the bottom of Safari.</p></div>
+      <div><span>3</span><strong>Add to Home Screen</strong><p>Investify opens like an app and uses the same login/database.</p></div>
+    </div>
+    <div class="pwa-ios-hint">For App Store distribution later, the same login and Supabase database can be reused with a Capacitor iOS wrapper.</div>
+  </article>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/account.js') }}"></script>
+{% endblock %}

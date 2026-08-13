@@ -550,15 +550,38 @@ document.getElementById("generate-company-summary")?.addEventListener("click", (
 
 const K = "investify_watchlist";
 const watchButton = $("watch-btn");
-function getWatch(){ return JSON.parse(localStorage.getItem(K) || "[]"); }
-function syncWatch(){ watchButton.textContent = getWatch().includes(s) ? "★ Watching" : "☆ Watch"; }
-watchButton.addEventListener("click", () => {
+let watchCloudMode=false;
+let watchArr=[];
+function localWatch(){try{return JSON.parse(localStorage.getItem(K)||"[]");}catch{return []}}
+function getWatch(){ return watchCloudMode ? watchArr : localWatch(); }
+function syncWatch(){ if(watchButton)watchButton.textContent = getWatch().includes(s) ? "★ Watching" : "☆ Watch"; }
+async function saveWatchCloud(list){
+  if(!watchCloudMode){localStorage.setItem(K,JSON.stringify(list));return;}
+  try{
+    const d=await (await fetch("/api/cloud/portfolio",{cache:"no-store"})).json();
+    if(d.error)throw Error(d.error);
+    await fetch("/api/cloud/portfolio",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({holdings:d.holdings||[],cash:d.cash||[],watchlist:list,settings:d.settings||{}})});
+  }catch(e){localStorage.setItem(K,JSON.stringify(list));}
+}
+async function initWatchButton(){
+  watchArr=localWatch();
+  syncWatch();
+  try{
+    const me=await (await fetch("/api/auth/me",{cache:"no-store"})).json();
+    if(me.authenticated){
+      const d=await (await fetch("/api/cloud/portfolio",{cache:"no-store"})).json();
+      if(!d.error){watchCloudMode=true;watchArr=(d.watchlist||[]).map(x=>String(x.symbol||x).toUpperCase()).filter(Boolean);syncWatch();}
+    }
+  }catch{}
+}
+watchButton?.addEventListener("click", async () => {
   let a = getWatch();
   a = a.includes(s) ? a.filter(x => x !== s) : [...a, s];
-  localStorage.setItem(K, JSON.stringify(a));
+  watchArr=[...new Set(a)];
   syncWatch();
+  await saveWatchCloud(watchArr);
 });
-syncWatch();
+initWatchButton();
 setupStockCollapsibles();
 rememberTicker();
 loadQuote();

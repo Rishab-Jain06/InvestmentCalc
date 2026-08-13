@@ -5,15 +5,16 @@
   <div>
     <p class="eyebrow">PORTFOLIO</p>
     <h1>Portfolio + watchlist.</h1>
-    <p class="sub">Track manual Robinhood-style holdings, cash, cost basis, returns, allocation and your research watchlist. Stored locally in this browser until login is added later.</p>
+    <p class="sub">Track manual holdings, cash, cost basis, returns, allocation and your research watchlist. Login to sync your data across devices.</p>
   </div>
   <div class="portfolio-head-actions">
     <button id="refresh-portfolio-top" class="secondary-button refresh-top-button" type="button">Refresh Portfolio</button>
-    <div class="data-pill">Local portfolio · Live quote refresh</div>
+    <div id="portfolio-sync-pill" class="data-pill">Checking account · Live quote refresh</div>
   </div>
 </section>
 
 <div id="portfolio-error" class="error hidden"></div>
+<div id="portfolio-cloud-banner" class="cloud-banner hidden"></div>
 
 <section class="portfolio-layout">
   <section class="portfolio-main">
@@ -116,6 +117,33 @@
       </div>
     </article>
 
+    <article class="card portfolio-table-card options-positions-card" id="options-positions-section">
+      <div class="section-heading compact-heading">
+        <div>
+          <p class="eyebrow">OPTIONS</p>
+          <h2>Options contracts</h2>
+          <p class="small-muted">Track single-leg options and vertical spreads alongside your stock holdings.</p>
+          <p id="options-count" class="small-muted holdings-count">Showing 0 contracts.</p>
+        </div>
+        <div class="options-mini-summary">
+          <span id="options-total-value">Value —</span>
+          <strong id="options-total-pnl">P/L —</strong>
+        </div>
+      </div>
+      <div class="table-wrap options-scroll-wrap">
+        <table id="options-positions-table">
+          <thead>
+            <tr>
+              <th>Strategy</th><th>Underlying</th><th>Expiration</th><th>Strikes</th><th>Qty</th><th>Entry</th><th>Current</th><th>P/L</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="options-positions-body">
+            <tr><td colspan="9" class="empty-cell">No options yet. Add a contract from the right panel.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
     <article class="card watchlist-section">
       <div class="section-heading compact-heading">
         <div>
@@ -163,6 +191,55 @@
         <button id="clear-cash-form" class="secondary-button" type="button">Clear</button>
       </div>
       <div id="cash-list" class="cash-list"></div>
+    </article>
+
+    <article class="card entry-card option-entry-card" id="option-entry-card">
+      <p class="eyebrow">OPTIONS</p>
+      <h3>Option contract</h3>
+      <label class="full-label">Strategy
+        <select id="option-strategy">
+          <option value="single">Single leg</option>
+          <option value="vertical">Vertical spread</option>
+        </select>
+      </label>
+      <div id="option-spread-type-wrap" class="hidden">
+        <label class="full-label">Spread type
+          <select id="option-spread-type">
+            <option value="put_credit">Put credit spread</option>
+            <option value="call_credit">Call credit spread</option>
+            <option value="put_debit">Put debit spread</option>
+            <option value="call_debit">Call debit spread</option>
+          </select>
+        </label>
+      </div>
+      <div class="portfolio-form-grid option-form-grid">
+        <label>Underlying <input id="option-underlying" placeholder="SPY or Apple"></label>
+        <label>Expiration <input id="option-expiration" type="date"></label>
+        <label id="option-type-wrap">Type
+          <select id="option-type">
+            <option value="call">Call</option>
+            <option value="put">Put</option>
+          </select>
+        </label>
+        <label id="option-side-wrap">Side
+          <select id="option-side">
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+          </select>
+        </label>
+        <label id="option-strike-wrap">Strike <input id="option-strike" type="number" step="0.01" min="0" placeholder="200"></label>
+        <label id="option-short-strike-wrap" class="hidden">Short strike <input id="option-short-strike" type="number" step="0.01" min="0" placeholder="635"></label>
+        <label id="option-long-strike-wrap" class="hidden">Long strike <input id="option-long-strike" type="number" step="0.01" min="0" placeholder="630"></label>
+        <label>Contracts <input id="option-contracts" type="number" step="1" min="1" placeholder="1" value="1"></label>
+        <label><span id="option-entry-label">Entry premium</span> <input id="option-entry-price" type="number" step="0.01" min="0" placeholder="0.35"></label>
+        <label>Account <input id="option-account" placeholder="Robinhood" value="Robinhood"></label>
+      </div>
+      <textarea id="option-notes" rows="2" placeholder="Optional notes"></textarea>
+      <div class="dual-actions">
+        <button id="save-option-position" class="primary-wide" type="button">Add Contract</button>
+        <button id="clear-option-form" class="secondary-button" type="button">Clear</button>
+      </div>
+      <p id="option-form-help" class="small-muted">For single legs, enter the premium paid or received per share. For spreads, enter the net credit/debit per share.</p>
     </article>
   </aside>
 </section>
